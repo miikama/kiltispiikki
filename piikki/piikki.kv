@@ -1,0 +1,23 @@
+
+<MenuWindow>:
+	canvas.before:
+		Color:
+			rgba: 0.2, 0.8, 0, 1
+		Rectangle:
+			pos: self.pos
+			size: self.size
+	background_color: [1, 0, 0, 1]
+	orientation: "vertical"
+	Label:
+		text: "Kiltispiikki"
+		font_size: 30
+		size_hint: [1, 0.2]
+	AnchorLayout:
+		anchor_x: "center"
+		anchor_y: "center"		
+		Button:
+			text: "Osta jotain"
+			anchor_x: "left"
+			anchor_y: "left"
+			size_hint: [0.3, 0.2]
+			 
