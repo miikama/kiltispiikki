@@ -39,6 +39,31 @@
 			text: "Valikoima tuotteista"
 			font_size: 30
 			size_hint: [1, 0.2]
+		Widget:
+			canvas:
+				Color: 
+					rgba: 0.3, 0.3, 0, 1
+				Rectangle:
+					pos:self.pos
+					size: self.size					
+			size_hint: [1, 0.3]
+			Image:
+				allow_stretch: True
+				keep_ratio: False
+				pos: self.parent.x, self.parent.y 
+				size: self.parent.width/6, self.parent.height
+				source: "kuvat/cokis.jpg"
+				Button:
+					background_color: 0.1, 0.1, 0.1, 0.3
+					pos: self.parent.x , self.parent.y
+					size: root.width/6, self.parent.height
+		
+			#Image:
+				#source: "kuvat/cokis.jpg"
+			#Image:
+			#	source: "kuvat/cokis.jpg"	
+			#Image:
+			#	source: "kuvat/cokis.jpg"							
 		AnchorLayout:
 			anchor_x: "left"
 			anchor_y: "bottom"	
