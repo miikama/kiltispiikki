@@ -10,7 +10,7 @@ class MenuScreen(Screen):
     pass     
   
 class BuyScreen(Screen):
-    pass
+    pass    
  
     
 sm = ScreenManager()
