@@ -7,7 +7,8 @@ from tkinter.filedialog import askopenfilename
 item_file_path = "items.txt"
 customer_file_path = "customers.txt"
 
-
+'''TODO: maybe single item id
+        sorting items based on class'''
 
 class Item():
     

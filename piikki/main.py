@@ -11,7 +11,13 @@ Builder.load_file('piikki.kv')
 
 
 class MenuScreen(Screen):
-    pass     
+    pass   
+  
+class LoginScreen(Screen):
+    pass
+
+class AccountScreen(Screen):
+    pass
   
 class BuyScreen(Screen):
     
@@ -32,13 +38,12 @@ class BuyScreen(Screen):
 
 
 class ItemButton(Button):
-    pass        
-
+    pass
         
 class CustomDropDown(DropDown):
     pass
 
-
+'''Screen used for admin stuff, such as adding new items, viewing tabs and changing item prices'''
 class AdminScreen(Screen):
     
     
@@ -84,6 +89,8 @@ class FileScreen(Screen):
   
 sm = ScreenManager()
 sm.add_widget(MenuScreen(name="menu"))
+sm.add_widget(LoginScreen(name="login"))
+sm.add_widget(AccountScreen(name="account"))
 sm.add_widget(BuyScreen(name="osto"))
 sm.add_widget(AdminScreen(name="admin"))
 sm.add_widget(FileScreen(name="select"))

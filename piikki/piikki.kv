@@ -11,7 +11,6 @@
 			Rectangle:
 				pos: self.pos
 				size: self.size
-		background_color: [1, 0, 0, 1]
 		orientation: "vertical"
 		Label:
 			text: "Kiltispiikki"
@@ -19,32 +18,146 @@
 			size_hint: [1, 0.2]
 		BoxLayout:
 			orientation: "horizontal"
-			Label:
-				size_hint: [0.35, 1]
+			Label
 			BoxLayout:
+				size_hint: [.8, 1]
 				orientation: "vertical"
-				Label:
-					size_hint: [1, .2]
-				AnchorLayout:
-					size_hint: [1, .1]
-					Button:
-						on_press:
-							root.manager.transition.direction="left"		
-							root.manager.current ="osto"
-						text: "Osta jotain"
-						size_hint: [.6, .95]
-				AnchorLayout:
-					size_hint: [1, .1]						
-					Button:
-						text: "To admin window"
-						size_hint: [.6, .95]
-						on_press:
-							root.manager.transition.direction="left"
-							root.manager.current = "admin"
-				Label:
-					size_hint: [1, .2]
+				Label
+				Button:
+					text: "Buy something"
+					size_hint: [1, .4]
+					on_press:
+						root.manager.transition.direction="left"		
+						root.manager.current ="login"
+				Button:
+					text: "Create an account"
+					size_hint: [1, .4]
+					on_release:
+						root.manager.transition.direction="left"
+						root.manager.current = "account"
+				Button:
+					text: "To admin window"
+					size_hint: [1, .4]
+					on_release:
+						root.manager.transition.direction="left"
+						root.manager.current = "admin"
+				Label
+			Label
+
+
+<LoginScreen>:
+	BoxLayout:
+		canvas.before:
+			Color:
+				rgba: 0.2, 0.8, 0, 1
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		orientation: "vertical"
+		Label:
+			size_hint: [1, .2]
+			text: "Please login to continue"
+		BoxLayout:
+			size_hint: [1, .2]
 			Label:
-				size_hint: [0.35, 1]
+				text: "your account name:"
+			TextInput:
+		BoxLayout:
+			size_hint: [1, .2]
+			Label: 
+				text: "password:"
+			TextInput:
+				password: True
+		Label:
+			size_hint: [1, .2]
+		BoxLayout:
+			size_hint: [1, .3]
+			Label:
+				size_hint: [.5, 1]
+			Button:
+				text: "Continue"
+				on_release:
+					root.manager.transition.direction="left"
+					root.manager.current = "osto"
+			Label:
+				size_hint: [.5,1]
+		Label
+		BoxLayout:
+			size_hint: [1, .3]
+			Button:
+				text: "Cancel"
+				size_hint: [.3, 1]
+				on_release:
+					root.manager.transition.direction="right"
+					root.manager.current = "menu"
+			Label
+
+
+
+<AccountScreen>:
+	BoxLayout:
+		canvas.before:
+			Color:
+				rgba: 0.2, 0.8, 0, 1
+			Rectangle:
+				pos: self.pos
+				size: self.size
+		orientation: "vertical"
+		Label:
+			size_hint: [1, .2]
+			text: "Fill in the following information to create an account"
+		BoxLayout:
+			size_hint: [1, .2]
+			Label:
+				text: "your account name:"
+			TextInput:
+		BoxLayout:
+			size_hint: [1, .2]
+			Label:
+				text: "your given name:"
+			TextInput:
+		BoxLayout:
+			size_hint: [1, .2]
+			Label:
+				text: "your family name:"
+			TextInput:
+		BoxLayout:
+			size_hint: [1, .2]
+			Label: 
+				text: "password:"
+			TextInput:
+				password: True
+		BoxLayout:
+			size_hint: [1, .2]
+			Label: 
+				text: "repeat password:"
+			TextInput:
+				password: True
+		Label:
+			size_hint: [1, .2]
+		BoxLayout:
+			size_hint: [1, .3]
+			Label:
+				size_hint: [.5, 1]
+			Button:
+				text: "Continue"
+				on_release:
+					root.manager.transition.direction="right"
+					root.manager.current = "menu"
+			Label:
+				size_hint: [.5,1]
+		Label
+		BoxLayout:
+			size_hint: [1, .3]
+			Button:
+				text: "Cancel"
+				size_hint: [.3, 1]
+				on_release:
+					root.manager.transition.direction="right"
+					root.manager.current = "menu"
+			Label
+
+		
 				
 			 	
 <BuyScreen>:
