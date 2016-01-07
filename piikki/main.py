@@ -4,8 +4,9 @@ from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
 from kivy.clock import Clock
-import piikki_utilities
 from kivy.uix.dropdown import DropDown
+import piikki_utilities
+import customer 
 
 Builder.load_file('piikki.kv')
 
@@ -17,8 +18,47 @@ class LoginScreen(Screen):
     pass
 
 class AccountScreen(Screen):
-    pass
-  
+    
+    def __init__(self, **kv):
+        Screen.__init__(self, **kv)
+        
+    def create_account(self):
+        acc_name = self.ids.acc_name.text
+        given_name = self.ids.given_name.text
+        family_name = self.ids.family_name.text
+        password1 = self.ids.password1.text
+        password2 = self.ids.password2.text
+        
+        warning_label = self.ids.warning_label
+                
+        if acc_name == "" or given_name == "" or family_name == "" or password1 == "" or password2 == "":
+            warning_label.text = "Please fill in all the information"
+        elif password1 != password2:
+            warning_label.text = "The passwords have to match"
+        else:
+            cust = customer.Customer(acc_name, given_name, family_name, password1)
+            if not cust.account_exists():
+                cust.write_new_account()
+                warning_label.text = "Account created"
+            else:  warning_label.text = ("account exists already")
+            
+        
+    
+        def empty_warning():
+            warning_label.text = ""        
+        Clock.schedule_once(lambda dt: empty_warning(), 7)
+
+    def clear_fields(self):
+        self.ids.acc_name.text = ""
+        self.ids.given_name.text = ""
+        self.ids.family_name.text = ""
+        self.ids.password1.text = ""
+        self.ids.password2.text = ""      
+            
+    
+    
+    
+            
 class BuyScreen(Screen):
     
     
@@ -96,14 +136,10 @@ sm.add_widget(AdminScreen(name="admin"))
 sm.add_widget(FileScreen(name="select"))
 
         
-class PiikkiApp(App):
-    
-    boughtable_items = []   
+class PiikkiApp(App):    
     
 
     def build(self):
-        
-        boughtable_items = piikki_utilities.update_item_list()
         return sm
 
 if __name__ == '__main__':
