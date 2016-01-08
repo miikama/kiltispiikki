@@ -1,5 +1,4 @@
 from PIL import Image
-from tkinter.filedialog import askopenfilename
 
 
 # All the items are on their own separate lines

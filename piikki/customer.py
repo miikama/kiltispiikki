@@ -1,5 +1,8 @@
+import sqlite3
+import os
 
 
+'''Loads all customers from a text file'''
 def load_customers():
     
     customers = []
@@ -8,50 +11,82 @@ def load_customers():
     file.readline() #reads the first line
     
     for line in file:
-        splitline = line.split(",")
-        firstname = splitline[2].split(" ")[0]
-        secondname = splitline[2].split(" ")[1]        
+        splitline = line.split(",")      
         tab_value = float(splitline[3][:-1])
-        customers.append(Customer(splitline[0],splitline[1], firstname, secondname, tab_value))
+        customers.append(Customer(splitline[0],splitline[1], splitline[2], tab_value))
     
     print(customers[0].password)
     file.close()
     
     return customers
 
-'''handling of customers'''
+
+
+'''Returns row number where the account is in the database or None if it doesn't exist''' 
+def account_row(name):
+        path = os.getcwd()
+        db_file = "piikki.db"
+        full_path = "{}/{}".format(path, db_file)
+        
+        con = sqlite3.connect(full_path)        
+        c = con.cursor()      
+        
+        c.execute("SELECT rowid FROM customers WHERE account_name = ?", (name,))
+        data=c.fetchone()
+        con.close()
+        if data is None: return None
+        else: return data[0]
+    
+'''Login returns a customer object for given account or None 
+    if the account doesn't exist, password isn't needed at the moment''' 
+               
+def login(account_name):    
+    path = os.getcwd()
+    db_file = "piikki.db"
+    full_path = "{}/{}".format(path, db_file)
+    con = sqlite3.connect(full_path)
+    
+    c = con.cursor()        
+    c.execute("SELECT * FROM customers WHERE account_name = ?", (account_name,))
+    data = c.fetchone()        
+    con.close()
+    
+    if data == None: return None
+    else: return Customer(data[0], data[1],data[2], tab_value=data[3])
+    return None
+    
+    
+        
+
+'''class Customer contains functions concerning customers...'''
 class Customer():
     
-    def __init__(self, account_name, password, given_name, family_name,  tab_value = 0):
+
+    
+    def __init__(self, account_name, password, full_name,  tab_value = 0):
         
-        '''making the names have same format John Doe'''
-        self.customer_name = given_name + " " + family_name
-        if len(given_name) > 1 and len(family_name) > 1:
-            self.customer_name = given_name[0].upper() + given_name[1:].lower() + " " + family_name[0].upper() + family_name[1:].lower()
+        
+        self.customer_name = full_name
         self.account_name = account_name
         self.password = password
         self.tab_value = tab_value
         
        
-    
-    def write_new_account(self):
-        file = open("customers.txt", "a")    
+    '''all the data is stored in database piikki.db'''
+    def create_new_account(self):
+        path = os.getcwd()
+        db_file = "piikki.db"
+        full_path = "{}/{}".format(path, db_file)
+        con = sqlite3.connect(full_path)
         
-        file.write("{},{},{},{}\n".format(self.account_name,self.password, self.customer_name, self.tab_value))
-        file.close()
-    
-    # @return True if an account with same account name is already in database 
-    def account_exists(self):
-        file = open("customers.txt", "r")
-        file.readline()
+        c = con.cursor()        
+        values = (self.account_name, self.password, self.customer_name, self.tab_value)
+        c.execute("INSERT INTO customers VALUES (?,?,?,?)", values)
+                
+        con.commit()        
+        con.close()          
+           
         
-        for line in file:
-            splitline = line.split(",")
-            if splitline[0] == self.account_name:
-                return True
-        
-        return False
-    
     
     '''Saves the buy somewhere'''    
     def save_buy(self):

@@ -5,15 +5,19 @@ from kivy.uix.button import Button
 from kivy.properties import ObjectProperty
 from kivy.clock import Clock
 from kivy.uix.dropdown import DropDown
+import sqlite3
+import os
 import piikki_utilities
-import customer 
+import customer
+ 
 
 Builder.load_file('piikki.kv')
 
-
+'''MenuScreen is the landing screen of the app'''
 class MenuScreen(Screen):
     pass   
-  
+ 
+'''LoginScreen is used for login'''  
 class LoginScreen(Screen):
     
     def __init__(self, **kv):
@@ -29,13 +33,19 @@ class LoginScreen(Screen):
         if account_name == "" or password == "":
             warning_label.text = "Please fill all the fields"
         else:
-            pass
+            self.main_app.current_customer = customer.login(account_name)
+            if self.main_app.current_customer == None:
+                warning_label.text = "No such account"
+            else:
+                self.manager.transition.direction = "left"
+                self.manager.current = "osto"
         
         def empty_warning():
             warning_label.text = ""        
         Clock.schedule_once(lambda dt: empty_warning(), 7)
         
 
+'''AccountScreen is used for creating a new accouont'''
 class AccountScreen(Screen):
     
     def __init__(self, **kv):
@@ -56,9 +66,14 @@ class AccountScreen(Screen):
         elif password1 != password2:
             warning_label.text = "The passwords have to match"
         else:
-            cust = customer.Customer(acc_name,password1, given_name, family_name, )
-            if not cust.account_exists():
-                cust.write_new_account()
+            '''making the names have format John Doe'''
+            customer_name = given_name + " " + family_name
+            if len(given_name) > 1 and len(family_name) > 1:
+                customer_name = given_name[0].upper() + given_name[1:].lower() + " " + family_name[0].upper() + family_name[1:].lower()
+                
+            cust = customer.Customer(acc_name,password1, customer_name )
+            if customer.account_row(acc_name) == None :
+                cust.create_new_account()
                 warning_label.text = "Account created"
             else:  warning_label.text = ("account exists already")
             
@@ -78,7 +93,7 @@ class AccountScreen(Screen):
     
     
     
-            
+'''BuyScreen displays the items in sale and handles buy transactions'''            
 class BuyScreen(Screen):
     
     
@@ -94,6 +109,11 @@ class BuyScreen(Screen):
                                  background_normal = item.normal_background,
                                  background_down = item.pressed_background))
     
+    
+    def to_menu_and_logout(self):
+        self.main_app.current_customer = None
+        self.manager.transition.direction="right"                     
+        self.manager.current = "menu"
     
     def buy_item(self):
         print("painettiin")
@@ -144,11 +164,13 @@ class AdminScreen(Screen):
             warning_label.text = ""        
         Clock.schedule_once(lambda dt: empty_warning(), 7)
         
-        
+'''FileScreen is used to select item paths from the device'''        
 class FileScreen(Screen):
     pass  
         
-  
+        
+'''PiikkiManager is the parent class of every screen and 
+    contains data that should be available to all the screens'''  
 class PiikkiManager(ScreenManager):  
 
     def __init__(self, **kv):
@@ -164,13 +186,29 @@ class PiikkiManager(ScreenManager):
         
         self.current_customer = None
         self.all_customers = customer.load_customers()
-
         
+
+'''Finally the main app class used by kivy'''        
 class PiikkiApp(App):    
     
-
+    man = PiikkiManager()
+    
+    def enable_databases(self):
+        path = os.getcwd()
+        db_file = "piikki.db"
+        full_path = "{}/{}".format(path, db_file)
+        con = sqlite3.connect(full_path)
+                
+        c = con.cursor()        
+        c.execute('''CREATE TABLE IF NOT EXISTS customers (account_name text, password text,
+         customer_name text, tab_value real)''')
+        
+        con.commit()        
+        con.close()
+    
     def build(self):
-        return PiikkiManager()
+        self.enable_databases()
+        return self.man
 
 if __name__ == '__main__':
     PiikkiApp().run()
