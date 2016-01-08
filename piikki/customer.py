@@ -9,17 +9,20 @@ def load_customers():
     
     for line in file:
         splitline = line.split(",")
-        firstname = splitline[1].split(" ")[0]
-        secondname = splitline.split(" ")[1]
-        customers.append(Customer(splitline[0], firstname, secondname, splitline[2], tab_value= splitline[3]))
+        firstname = splitline[2].split(" ")[0]
+        secondname = splitline[2].split(" ")[1]        
+        tab_value = float(splitline[3][:-1])
+        customers.append(Customer(splitline[0],splitline[1], firstname, secondname, tab_value))
     
-    print(customers[1].customer_name)
+    print(customers[0].password)
     file.close()
+    
+    return customers
 
 '''handling of customers'''
 class Customer():
     
-    def __init__(self, account_name, given_name, family_name, password, tab_value = 0):
+    def __init__(self, account_name, password, given_name, family_name,  tab_value = 0):
         
         '''making the names have same format John Doe'''
         self.customer_name = given_name + " " + family_name

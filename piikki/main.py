@@ -15,12 +15,32 @@ class MenuScreen(Screen):
     pass   
   
 class LoginScreen(Screen):
-    pass
+    
+    def __init__(self, **kv):
+        Screen.__init__(self, **kv)
+        self.main_app = kv['main_app']
+        
+    def login(self):
+        self.main_app.current_customer = None
+        warning_label = self.ids.warning_label
+        account_name = self.ids.account_name.text
+        password = self.ids.password.text
+        
+        if account_name == "" or password == "":
+            warning_label.text = "Please fill all the fields"
+        else:
+            pass
+        
+        def empty_warning():
+            warning_label.text = ""        
+        Clock.schedule_once(lambda dt: empty_warning(), 7)
+        
 
 class AccountScreen(Screen):
     
     def __init__(self, **kv):
         Screen.__init__(self, **kv)
+        self.main_app = kv['main_app']    
         
     def create_account(self):
         acc_name = self.ids.acc_name.text
@@ -36,7 +56,7 @@ class AccountScreen(Screen):
         elif password1 != password2:
             warning_label.text = "The passwords have to match"
         else:
-            cust = customer.Customer(acc_name, given_name, family_name, password1)
+            cust = customer.Customer(acc_name,password1, given_name, family_name, )
             if not cust.account_exists():
                 cust.write_new_account()
                 warning_label.text = "Account created"
@@ -64,6 +84,8 @@ class BuyScreen(Screen):
     
     def __init__(self, **kv):
         Screen.__init__(self, **kv)
+        self.main_app = kv['main_app']    
+        
         self.item_list = piikki_utilities.update_item_list()
         container = self.ids.buy_item_list
         for item in self.item_list:
@@ -89,7 +111,8 @@ class AdminScreen(Screen):
     
     def __init__(self,  **kv):
         Screen.__init__(self,  **kv)
-                     
+        self.main_app = kv['main_app']    
+                 
         dropdown = CustomDropDown()
         self.dropdown = dropdown
         mainbutton = self.ids.dropdown_button
@@ -126,21 +149,28 @@ class FileScreen(Screen):
     pass  
         
   
-  
-sm = ScreenManager()
-sm.add_widget(MenuScreen(name="menu"))
-sm.add_widget(LoginScreen(name="login"))
-sm.add_widget(AccountScreen(name="account"))
-sm.add_widget(BuyScreen(name="osto"))
-sm.add_widget(AdminScreen(name="admin"))
-sm.add_widget(FileScreen(name="select"))
+class PiikkiManager(ScreenManager):  
+
+    def __init__(self, **kv):
+        ScreenManager.__init__(self, **kv)
+
+        self.add_widget(MenuScreen(name="menu", main_app = self))
+        self.add_widget(LoginScreen(name="login", main_app = self))
+        self.add_widget(AccountScreen(name="account", main_app = self))
+        self.add_widget(BuyScreen(name="osto", main_app = self))
+        self.add_widget(AdminScreen(name="admin", main_app = self))
+        self.add_widget(FileScreen(name="select", main_app = self))
+
+        
+        self.current_customer = None
+        self.all_customers = customer.load_customers()
 
         
 class PiikkiApp(App):    
     
 
     def build(self):
-        return sm
+        return PiikkiManager()
 
 if __name__ == '__main__':
     PiikkiApp().run()

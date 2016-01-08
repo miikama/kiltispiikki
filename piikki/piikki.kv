@@ -62,11 +62,13 @@
 			Label:
 				text: "your account name:"
 			TextInput:
+				id: account_name
 		BoxLayout:
 			size_hint: [1, .2]
 			Label: 
 				text: "password:"
 			TextInput:
+				id: password
 				password: True
 		Label:
 			size_hint: [1, .2]
@@ -75,12 +77,13 @@
 			Label:
 				size_hint: [.5, 1]
 			Button:
-				text: "Continue"
+				text: "Login"
 				on_release:
-					root.manager.transition.direction="left"
-					root.manager.current = "osto"
+					root.login()
 			Label:
 				size_hint: [.5,1]
+		Label:
+			id: warning_label
 		Label
 		BoxLayout:
 			size_hint: [1, .3]
@@ -125,7 +128,7 @@
 			Label:
 				text: "your family name:"
 			TextInput:
-				text: "M√§kel√§"
+				text: "M‰kel‰"
 				id: family_name
 		BoxLayout:
 			size_hint: [1, .2]
