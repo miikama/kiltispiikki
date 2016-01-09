@@ -34,6 +34,8 @@ def enable_databases():
         con.commit()        
         con.close()
         
+        
+'''Resets all tab values to 0, USE WITH CAUTION'''        
 def clear_tab_values():
     
     full_path = "{}/{}".format(os.getcwd(), "piikki.db")
@@ -45,7 +47,6 @@ def clear_tab_values():
     con.commit()        
     con.close()
     
-
 
 '''Returns row number where the account is in the database or None if it doesn't exist''' 
 def account_row(name):

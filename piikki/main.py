@@ -121,16 +121,18 @@ class BuyScreen(Screen):
         super(BuyScreen, self).__init__( **kv)
         self.main_app = kv['main_app']
         self.selected_item = None       
-        
-        self.item_list = piikki_utilities.update_item_list()
+        self.item_list = None
+        #self.item_list = piikki_utilities.update_item_list()
         container = self.ids.buy_item_list
-        for item in self.item_list:
-            texts = item.name[0].upper() + item.name[1:] + "\n" + str(item.price)
-            button = ItemButton(item, text = texts,
-                                 background_normal = item.normal_background,
-                                 background_down = item.pressed_background)
-            button.bind(on_release=self.select_item)
-            container.add_widget(button)
+        if self.item_list == None: pass
+        else:
+            for item in self.item_list:
+                texts = item.name[0].upper() + item.name[1:] + "\n" + str(item.price)
+                button = ItemButton(item, text = texts,
+                                     background_normal = item.normal_background,
+                                     background_down = item.pressed_background)
+                button.bind(on_release=self.select_item)
+                container.add_widget(button)
     
     def update_screen(self):
         self.ids.account_label.text = self.main_app.current_customer.account_name
@@ -174,8 +176,7 @@ class CustomerScreen(Screen):
     def __init__(self, **kv):
         super(CustomerScreen, self).__init(**kv)
     
-        
-    
+            
 '''Screen used for admin stuff, such as adding new items, viewing tabs and changing item prices'''
 class AdminScreen(Screen):
     
@@ -252,7 +253,8 @@ class PiikkiManager(ScreenManager):
         #customer.clear_tab_values()
         
         self.current_customer = None
-        self.customer_list = customer.load_customers()
+        self.customer_list = None
+        #self.customer_list = customer.load_customers()
 
         self.add_widget(MenuScreen(name="menu", main_app = self))
         self.add_widget(LoginScreen(name="login", main_app = self))
@@ -272,7 +274,7 @@ class PiikkiApp(App):
         
     
     def build(self):
-        customer.enable_databases()
+        #customer.enable_databases()
         return self.man
 
 if __name__ == '__main__':
