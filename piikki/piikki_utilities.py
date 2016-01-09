@@ -39,7 +39,7 @@ def update_item_list():
     for line in file:
         a = line.split(",")
         name = a[0]
-        price = a[1]
+        price = float(a[1])
         item_class = a[2]
         items.append(Item(name,price, item_class))
         

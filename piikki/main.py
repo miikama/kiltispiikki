@@ -23,22 +23,44 @@ class LoginScreen(Screen):
     def __init__(self, **kv):
         Screen.__init__(self, **kv)
         self.main_app = kv['main_app']
+        self.selected_account = None
+        
+        container = self.ids.account_list
+        if self.main_app.customer_list == None: pass
+        else:
+            for cust in self.main_app.customer_list:
+                button = AccountButton(cust, text = cust.account_name)
+                button.bind(on_release=self.select_account)
+                container.add_widget(button)
+        
+    def select_account(self, button):   
+        self.selected_account=button.account
+        self.ids.account_label.text = button.account.account_name
+        self.ids.tab_value_label.text = str(button.account.tab_value)
+        self.ids.info_label.text = "Selected account:"
+    
+    def unselect_account(self):        
+        self.selected_account = None
+        self.ids.account_label.text = ""
+        self.ids.tab_value_label.text = ""
+        self.ids.info_label.text = "Please select your account from the list"
+        
         
     def login(self):
         self.main_app.current_customer = None
         warning_label = self.ids.warning_label
-        account_name = self.ids.account_name.text
-        password = self.ids.password.text
+        account_label = self.ids.account_label
+        tab_value_label = self.ids.tab_value_label
         
-        if account_name == "" or password == "":
-            warning_label.text = "Please fill all the fields"
+        if self.selected_account == None:
+            warning_label.text = "Please select an account"
         else:
-            self.main_app.current_customer = customer.login(account_name)
-            if self.main_app.current_customer == None:
-                warning_label.text = "No such account"
-            else:
-                self.manager.transition.direction = "left"
-                self.manager.current = "osto"
+            self.main_app.current_customer = self.selected_account
+            self.unselect_account()
+            self.manager.get_screen("osto").update_screen()
+            self.manager.transition.direction = "left"
+            self.manager.current = "osto"           
+                
         
         def empty_warning():
             warning_label.text = ""        
@@ -89,42 +111,71 @@ class AccountScreen(Screen):
         self.ids.family_name.text = ""
         self.ids.password1.text = ""
         self.ids.password2.text = ""      
-            
-    
-    
+                 
     
 '''BuyScreen displays the items in sale and handles buy transactions'''            
 class BuyScreen(Screen):
     
     
-    def __init__(self, **kv):
-        Screen.__init__(self, **kv)
-        self.main_app = kv['main_app']    
+    def __init__(self, **kv):        
+        super(BuyScreen, self).__init__( **kv)
+        self.main_app = kv['main_app']
+        self.selected_item = None       
         
         self.item_list = piikki_utilities.update_item_list()
         container = self.ids.buy_item_list
         for item in self.item_list:
             texts = item.name[0].upper() + item.name[1:] + "\n" + str(item.price)
-            container.add_widget(ItemButton(text = texts,
+            button = ItemButton(item, text = texts,
                                  background_normal = item.normal_background,
-                                 background_down = item.pressed_background))
+                                 background_down = item.pressed_background)
+            button.bind(on_release=self.select_item)
+            container.add_widget(button)
+    
+    def update_screen(self):
+        self.ids.account_label.text = self.main_app.current_customer.account_name
+        self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
     
     
     def to_menu_and_logout(self):
         self.main_app.current_customer = None
+        self.unselect_item()
         self.manager.transition.direction="right"                     
         self.manager.current = "menu"
+        
+    def select_item(self, button):
+        self.selected_item = button.item
+        self.ids.product_name_label.text = button.item.name
+        self.ids.product_price_label.text = str(button.item.price)
+        
+    def unselect_item(self):
+        self.selected_item = None
+        self.ids.product_name_label.text =""
+        self.ids.product_price_label.text = ""
     
     def buy_item(self):
-        print("painettiin")
+        if self.selected_item == None: pass
+        else:
+            self.main_app.current_customer.add_to_tab(self.selected_item.price)
+            self.main_app.current_customer.update_tab_value()
+            self.unselect_item()
+            self.update_screen()
 
-
-class ItemButton(Button):
-    pass
+    def buy_and_exit(self):
+        if self.selected_item == None: pass
+        else:
+            self.main_app.current_customer.add_to_tab(self.selected_item.price)
+            self.main_app.current_customer.update_tab_value()
+            self.to_menu_and_logout()
+            
+'''CustomerScreen allows customers to add value to the tab and see their balance history'''
+class CustomerScreen(Screen):
+    
+    def __init__(self, **kv):
+        super(CustomerScreen, self).__init(**kv)
+    
         
-class CustomDropDown(DropDown):
-    pass
-
+    
 '''Screen used for admin stuff, such as adding new items, viewing tabs and changing item prices'''
 class AdminScreen(Screen):
     
@@ -163,10 +214,32 @@ class AdminScreen(Screen):
         def empty_warning():
             warning_label.text = ""        
         Clock.schedule_once(lambda dt: empty_warning(), 7)
+
         
 '''FileScreen is used to select item paths from the device'''        
 class FileScreen(Screen):
     pass  
+
+
+'''ItemButton is used in the BuyScreen to portray the items'''
+class ItemButton(Button):
+    
+    def __init__(self, item, **kv):
+        super(ItemButton, self).__init__(**kv)
+        self.item = item
+
+
+'''AccountButton is used in the loginScreen account selection'''
+class AccountButton(Button):
+    
+    def __init__(self,account, **kv):
+        Button.__init__(self, **kv)
+        self.account = account
+        
+        
+class CustomDropDown(DropDown):
+    pass
+
         
         
 '''PiikkiManager is the parent class of every screen and 
@@ -175,6 +248,11 @@ class PiikkiManager(ScreenManager):
 
     def __init__(self, **kv):
         ScreenManager.__init__(self, **kv)
+        
+        #customer.clear_tab_values()
+        
+        self.current_customer = None
+        self.customer_list = customer.load_customers()
 
         self.add_widget(MenuScreen(name="menu", main_app = self))
         self.add_widget(LoginScreen(name="login", main_app = self))
@@ -184,30 +262,17 @@ class PiikkiManager(ScreenManager):
         self.add_widget(FileScreen(name="select", main_app = self))
 
         
-        self.current_customer = None
-        self.all_customers = customer.load_customers()
+        
         
 
 '''Finally the main app class used by kivy'''        
 class PiikkiApp(App):    
     
     man = PiikkiManager()
-    
-    def enable_databases(self):
-        path = os.getcwd()
-        db_file = "piikki.db"
-        full_path = "{}/{}".format(path, db_file)
-        con = sqlite3.connect(full_path)
-                
-        c = con.cursor()        
-        c.execute('''CREATE TABLE IF NOT EXISTS customers (account_name text, password text,
-         customer_name text, tab_value real)''')
         
-        con.commit()        
-        con.close()
     
     def build(self):
-        self.enable_databases()
+        customer.enable_databases()
         return self.man
 
 if __name__ == '__main__':

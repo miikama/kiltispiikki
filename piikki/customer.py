@@ -2,31 +2,54 @@ import sqlite3
 import os
 
 
-'''Loads all customers from a text file'''
+'''Returns a list[Customer] of all customers or None if there are no customers'''
 def load_customers():
     
     customers = []
     
-    file = open("customers.txt", "r")    
-    file.readline() #reads the first line
+    full_path = "{}/{}".format(os.getcwd(), "piikki.db")        
+    con = sqlite3.connect(full_path)        
+    c = con.cursor()      
     
-    for line in file:
-        splitline = line.split(",")      
-        tab_value = float(splitline[3][:-1])
-        customers.append(Customer(splitline[0],splitline[1], splitline[2], tab_value))
-    
-    print(customers[0].password)
-    file.close()
+    c.execute("SELECT * FROM customers")
+    data=c.fetchall()
+    con.close()
+    if data is None: return None
+    else: 
+        for customer in data:
+            customers.append(Customer(customer[0], customer[1], customer[2], tab_value=customer[3]))
     
     return customers
 
 
+'''Creates customer database if it doesn't exist'''
+def enable_databases():      
+        full_path = "{}/{}".format(os.getcwd(), "piikki.db")
+        con = sqlite3.connect(full_path)
+                
+        c = con.cursor()        
+        c.execute('''CREATE TABLE IF NOT EXISTS customers (account_name text, password text,
+         customer_name text, tab_value real)''')
+        
+        con.commit()        
+        con.close()
+        
+def clear_tab_values():
+    
+    full_path = "{}/{}".format(os.getcwd(), "piikki.db")
+    con = sqlite3.connect(full_path)
+            
+    c = con.cursor()        
+    c.execute("UPDATE customers SET tab_value=0.0")
+    
+    con.commit()        
+    con.close()
+    
+
 
 '''Returns row number where the account is in the database or None if it doesn't exist''' 
 def account_row(name):
-        path = os.getcwd()
-        db_file = "piikki.db"
-        full_path = "{}/{}".format(path, db_file)
+        full_path = "{}/{}".format(os.getcwd(), "piikki.db")
         
         con = sqlite3.connect(full_path)        
         c = con.cursor()      
@@ -35,37 +58,15 @@ def account_row(name):
         data=c.fetchone()
         con.close()
         if data is None: return None
-        else: return data[0]
-    
-'''Login returns a customer object for given account or None 
-    if the account doesn't exist, password isn't needed at the moment''' 
-               
-def login(account_name):    
-    path = os.getcwd()
-    db_file = "piikki.db"
-    full_path = "{}/{}".format(path, db_file)
-    con = sqlite3.connect(full_path)
-    
-    c = con.cursor()        
-    c.execute("SELECT * FROM customers WHERE account_name = ?", (account_name,))
-    data = c.fetchone()        
-    con.close()
-    
-    if data == None: return None
-    else: return Customer(data[0], data[1],data[2], tab_value=data[3])
-    return None
-    
-    
-        
+        else: return data[0]    
+
 
 '''class Customer contains functions concerning customers...'''
 class Customer():
     
 
     
-    def __init__(self, account_name, password, full_name,  tab_value = 0):
-        
-        
+    def __init__(self, account_name, password, full_name,  tab_value = 0.0):       
         self.customer_name = full_name
         self.account_name = account_name
         self.password = password
@@ -74,9 +75,7 @@ class Customer():
        
     '''all the data is stored in database piikki.db'''
     def create_new_account(self):
-        path = os.getcwd()
-        db_file = "piikki.db"
-        full_path = "{}/{}".format(path, db_file)
+        full_path = "{}/{}".format(os.getcwd(), "piikki.db")
         con = sqlite3.connect(full_path)
         
         c = con.cursor()        
@@ -87,7 +86,6 @@ class Customer():
         con.close()          
            
         
-    
     '''Saves the buy somewhere'''    
     def save_buy(self):
         pass
@@ -110,9 +108,18 @@ class Customer():
         self.tab_value = self.tab_value - amount
     
     
+    '''Updates the customers tab_value in the database'''
     def update_tab_value(self):
-        pass
+        full_path = "{}/{}".format(os.getcwd(), "piikki.db")
+        con = sqlite3.connect(full_path)
+        
+        c = con.cursor()               
+        c.execute("UPDATE customers SET tab_value=? WHERE account_name=?", (self.tab_value, self.account_name))
+                
+        con.commit()        
+        con.close()
     
-    '''TODO: password identification
-            storing bought item history; maybe different text file linking cust id and item id
-             '''
+    
+    
+    
+    

@@ -1,13 +1,14 @@
 #:import sm kivy.uix.screenmanager
 
 #:set list_height 150
+#:set background_color (0, 0.5, 0.5, 1)
 
 
 <MenuScreen>:
 	BoxLayout:
 		canvas.before:
 			Color:
-				rgba: 0.2, 0.8, 0, 1
+				rgba: background_color
 			Rectangle:
 				pos: self.pos
 				size: self.size
@@ -49,48 +50,64 @@
 	BoxLayout:
 		canvas.before:
 			Color:
-				rgba: 0.2, 0.8, 0, 1
+				rgba: background_color
 			Rectangle:
 				pos: self.pos
 				size: self.size
 		orientation: "vertical"
-		Label:
-			size_hint: [1, .2]
-			text: "Please login to continue"
 		BoxLayout:
-			size_hint: [1, .2]
-			Label:
-				text: "your account name:"
-			TextInput:
-				id: account_name
+			size_hint: [1, .7]
+			orientation: "horizontal"
+			padding: [20, 20, 20, 20]			
+			BoxLayout:				
+				Label
+				ScrollView:
+					size_hint: [None, None]
+					size: [root.width/2 - 50, self.parent.height]
+					GridLayout:
+						height: self.minimum_height
+						do_scroll_x: False 
+						cols: 1
+						spacing: 8
+						size_hint_y: None
+						id: account_list
+				Label
+			BoxLayout:
+				orientation: "vertical"	
+				Label		
+				Label:
+					id: info_label
+					size_hint: [1, .2]
+					text: "Please select your account from the list"		
+				Label:
+					id: account_label
+					size_hint: [1, .2]
+					text: ""
+				Label:
+					id: tab_value_label
+					size_hint: [1, .2]					
+				Label:
+					size_hint: [1, .2]
+				BoxLayout:
+					size_hint: [1, .3]
+					Label:
+						size_hint: [.5, 1]
+					Button:
+						text: "Continue"
+						on_release:
+							root.login()
+					Label:
+						size_hint: [.5,1]
+				Label:
+					id: warning_label
+				Label
 		BoxLayout:
-			size_hint: [1, .2]
-			Label: 
-				text: "password:"
-			TextInput:
-				id: password
-				password: True
-		Label:
-			size_hint: [1, .2]
-		BoxLayout:
-			size_hint: [1, .3]
-			Label:
-				size_hint: [.5, 1]
-			Button:
-				text: "Login"
-				on_release:
-					root.login()
-			Label:
-				size_hint: [.5,1]
-		Label:
-			id: warning_label
-		Label
-		BoxLayout:
-			size_hint: [1, .3]
+			size_hint: [1, .1]
 			Button:
 				text: "Cancel"
 				size_hint: [.3, 1]
 				on_release:
+					root.unselect_account()
 					root.manager.transition.direction="right"
 					root.manager.current = "menu"
 			Label
@@ -101,7 +118,7 @@
 	BoxLayout:
 		canvas.before:
 			Color:
-				rgba: 0.2, 0.8, 0, 1
+				rgba: background_color
 			Rectangle:
 				pos: self.pos
 				size: self.size
@@ -114,28 +131,24 @@
 			Label:
 				text: "your account name:"
 			TextInput:
-				text: "miikama"
 				id: acc_name
 		BoxLayout:
 			size_hint: [1, .2]
 			Label:
 				text: "your given name:"
 			TextInput:
-				text: "Miika"
 				id: given_name
 		BoxLayout:
 			size_hint: [1, .2]
 			Label:
 				text: "your family name:"
 			TextInput:
-				text: "Makela"
 				id: family_name
 		BoxLayout:
 			size_hint: [1, .2]
 			Label: 
 				text: "password:"
 			TextInput:
-				text: "asd"
 				password: True
 				id: password1
 		BoxLayout:
@@ -143,7 +156,6 @@
 			Label: 
 				text: "repeat password:"
 			TextInput:
-				text: "asd"
 				password: True
 				id: password2
 		Label:
@@ -180,16 +192,23 @@
 		spacing: 10
 		canvas.before:
 			Color:
-				rgba: 0.2, 0.8, 0, 1
+				rgba: background_color
 			Rectangle:
 				pos: self.pos
 				size: self.size
 		background_color: [1, 0, 0, 1]
 		orientation: "vertical"
-		Label:
-			text: "Valikoima tuotteista"
-			font_size: 30
-			size_hint: [1, 0.2]				
+		BoxLayout:
+			size_hint: [1, 0.2]
+			Label:
+				text: "Valikoima tuotteista"
+				font_size: 30	
+			Label:
+				id: account_label
+				font_size: 30
+			Label:
+				id: tab_value_label
+				font_size: 35
 		ScrollView:
 			size_hint: [None, None]
 			size: [root.width, list_height]
@@ -199,13 +218,51 @@
 				rows: 1
 				spacing: 10
 				size_hint_x: None
-				id: buy_item_list				
+				id: buy_item_list	
+		BoxLayout:
+			size_hint: [1, .2]
+			Label:
+				text: "Selected items"
+				font_size: 18
+				size_hint: [.5,1]
+			Label:
+				text: "Item"
+				font_size: 20
+			Label:
+				text: "Price"
+				font_size: 20
+		BoxLayout:
+			size_hint: [1, .2]
+			Label:
+				size_hint: [.5,1]
+			Label:
+				font_size: 17
+				id: product_name_label
+			Label:
+				font_size: 17
+				id: product_price_label
+		BoxLayout:
+			size_hint: [1, .2]
+			Label:
+				size_hint: [.5,1]
+			Button:
+				size_hint: [.7,1]
+				text: "Buy item"
+				on_release: root.buy_item()
+			Label:
+				size_hint: [.1,1]
+			Button:
+				size_hint: [.7,1]
+				text: "Buy and exit"
+				on_release: root.buy_and_exit()
+			Label:
+				size_hint: [.1,1]
 		BoxLayout:
 			orientation: "vertical"
 			Label:
 				size_hint: [1, .3]				
 			Button:
-				text: "Menu and logout"
+				text: "To menu"
 				on_release: root.to_menu_and_logout()					
 				size_hint: [0.3, 0.1]
 
@@ -218,7 +275,7 @@
 		orientation: "vertical"
 		canvas.before:
 			Color:
-				rgba: 0.2, 0.8, 0, 1
+				rgba: background_color
 			Rectangle:
 				pos: self.pos
 				size: self.size
@@ -313,7 +370,12 @@
 	width: 150
 	size_hint_x: None
 	font_size: 30
-	font_color: (0,0,0,1)
+	font_color: (1,1,1,1)
+	
+<AccountButton>:
+	height: 50
+	size_hint_y: None
+	font_size: 25
 	
 <CustomDropDown>:
     Button:
