@@ -2,12 +2,15 @@ import sqlite3
 import os
 
 
+full_path = "{}/{}".format(os.getcwd(), "piikki.db")  #on a computer
+#full_path = "/sdcard/data/piikki.db"         #MAYBE NO   #on android, create the data folder on your home folder which is /sdcard
+
+
 '''Returns a list[Customer] of all customers or None if there are no customers'''
 def load_customers():
     
     customers = []
     
-    full_path = "{}/{}".format(os.getcwd(), "piikki.db")        
     con = sqlite3.connect(full_path)        
     c = con.cursor()      
     
@@ -24,7 +27,6 @@ def load_customers():
 
 '''Creates customer database if it doesn't exist'''
 def enable_databases():      
-        full_path = "{}/{}".format(os.getcwd(), "piikki.db")
         con = sqlite3.connect(full_path)
                 
         c = con.cursor()        
@@ -38,7 +40,6 @@ def enable_databases():
 '''Resets all tab values to 0, USE WITH CAUTION'''        
 def clear_tab_values():
     
-    full_path = "{}/{}".format(os.getcwd(), "piikki.db")
     con = sqlite3.connect(full_path)
             
     c = con.cursor()        
@@ -50,7 +51,6 @@ def clear_tab_values():
 
 '''Returns row number where the account is in the database or None if it doesn't exist''' 
 def account_row(name):
-        full_path = "{}/{}".format(os.getcwd(), "piikki.db")
         
         con = sqlite3.connect(full_path)        
         c = con.cursor()      
@@ -76,7 +76,6 @@ class Customer():
        
     '''all the data is stored in database piikki.db'''
     def create_new_account(self):
-        full_path = "{}/{}".format(os.getcwd(), "piikki.db")
         con = sqlite3.connect(full_path)
         
         c = con.cursor()        
@@ -111,7 +110,6 @@ class Customer():
     
     '''Updates the customers tab_value in the database'''
     def update_tab_value(self):
-        full_path = "{}/{}".format(os.getcwd(), "piikki.db")
         con = sqlite3.connect(full_path)
         
         c = con.cursor()               

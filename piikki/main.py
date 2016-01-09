@@ -25,13 +25,18 @@ class LoginScreen(Screen):
         self.main_app = kv['main_app']
         self.selected_account = None
         
-        container = self.ids.account_list
         if self.main_app.customer_list == None: pass
         else:
             for cust in self.main_app.customer_list:
                 button = AccountButton(cust, text = cust.account_name)
                 button.bind(on_release=self.select_account)
-                container.add_widget(button)
+                self.ids.account_list.add_widget(button)
+                
+    def add_account(self, cust):
+        button = AccountButton(cust, text = cust.account_name)
+        button.bind(on_release=self.select_account)
+        self.ids.account_list.add_widget(button)
+                        
         
     def select_account(self, button):   
         self.selected_account=button.account
@@ -96,6 +101,8 @@ class AccountScreen(Screen):
             cust = customer.Customer(acc_name,password1, customer_name )
             if customer.account_row(acc_name) == None :
                 cust.create_new_account()
+                self.main_app.customer_list.append(cust)
+                self.main_app.get_screen("login").add_account(cust)                
                 warning_label.text = "Account created"
             else:  warning_label.text = ("account exists already")
             
@@ -122,7 +129,11 @@ class BuyScreen(Screen):
         self.main_app = kv['main_app']
         self.selected_item = None       
         self.item_list = None
+<<<<<<< HEAD
         #self.item_list = piikki_utilities.update_item_list()
+=======
+        self.item_list = piikki_utilities.update_item_list()
+>>>>>>> 6ab959e70d2dc7556d79593c2d8a1a9f5c496397
         container = self.ids.buy_item_list
         if self.item_list == None: pass
         else:
@@ -250,7 +261,6 @@ class PiikkiManager(ScreenManager):
     def __init__(self, **kv):
         ScreenManager.__init__(self, **kv)
         
-        #customer.clear_tab_values()
         
         self.current_customer = None
         self.customer_list = None
