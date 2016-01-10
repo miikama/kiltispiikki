@@ -21,7 +21,7 @@ class MenuScreen(Screen):
 class LoginScreen(Screen):
     
     def __init__(self, **kv):
-        Screen.__init__(self, **kv)
+        super(LoginScreen, self).__init__(**kv)
         self.main_app = kv['main_app']
         self.selected_account = None
         
@@ -129,11 +129,8 @@ class BuyScreen(Screen):
         self.main_app = kv['main_app']
         self.selected_item = None       
         self.item_list = None
-<<<<<<< HEAD
-        #self.item_list = piikki_utilities.update_item_list()
-=======
+
         self.item_list = piikki_utilities.update_item_list()
->>>>>>> 6ab959e70d2dc7556d79593c2d8a1a9f5c496397
         container = self.ids.buy_item_list
         if self.item_list == None: pass
         else:
@@ -262,9 +259,8 @@ class PiikkiManager(ScreenManager):
         ScreenManager.__init__(self, **kv)
         
         
-        self.current_customer = None
-        self.customer_list = None
-        #self.customer_list = customer.load_customers()
+        self.current_customer = None        
+        self.customer_list = customer.load_customers()
 
         self.add_widget(MenuScreen(name="menu", main_app = self))
         self.add_widget(LoginScreen(name="login", main_app = self))
