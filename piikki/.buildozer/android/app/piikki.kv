@@ -10,8 +10,14 @@
 			Color:
 				rgba: background_color
 			Rectangle:
-				pos: self.pos
-				size: self.size
+				pos: self.x, self.y + 100
+				size: (self.width, self.height - 200)
+			Color:
+				rgba: (1,1,1,.7)
+			Rectangle:
+				pos: root.center_x - 200, root.center_y - 200
+				size: (400,400)
+				source: "kuvat/taustalogo.png"
 		orientation: "vertical"
 		Label:
 			text: "Kiltispiikki"
@@ -23,7 +29,8 @@
 			BoxLayout:
 				size_hint: [.8, 1]
 				orientation: "vertical"
-				Label
+				Label:
+					size_hint: [1, .4]
 				Button:
 					text: "Buy something"
 					size_hint: [1, .4]
@@ -52,9 +59,18 @@
 			Color:
 				rgba: background_color
 			Rectangle:
-				pos: self.pos
-				size: self.size
+				pos: self.x, self.y + 100
+				size: (self.width, self.height - 200)
+			Color:
+				rgba: (1,1,1,.7)
+			Rectangle:
+				pos: root.center_x - 200, root.center_y - 200
+				size: (400,400)
+				source: "kuvat/taustalogo.png"
 		orientation: "vertical"
+		Label:
+			size_hint_y: None
+			height: 110
 		BoxLayout:
 			size_hint: [1, .7]
 			orientation: "horizontal"
@@ -74,7 +90,6 @@
 				Label
 			BoxLayout:
 				orientation: "vertical"	
-				Label		
 				Label:
 					id: info_label
 					size_hint: [1, .2]
@@ -84,28 +99,42 @@
 					size_hint: [1, .2]
 					text: ""
 				Label:
+					id: customer_name_label
+					size_hint: [1, .2]
+				Label:
 					id: tab_value_label
 					size_hint: [1, .2]					
 				Label:
 					size_hint: [1, .2]
 				BoxLayout:
-					size_hint: [1, .3]
+					size_hint: [1, .4]
 					Label:
 						size_hint: [.5, 1]
 					Button:
-						text: "Continue"
+						text: "Continue to buy"
+						on_release:	root.login()
+					Label:
+						size_hint: [.5,1]
+				BoxLayout:
+					size_hint: [1, .4]
+					Label:
+						size_hint: [.5, 1]
+					Button:
+						text: "View tab"
 						on_release:
-							root.login()
+							root.view_account()
 					Label:
 						size_hint: [.5,1]
 				Label:
 					id: warning_label
 				Label
 		BoxLayout:
-			size_hint: [1, .1]
+			size_hint: [1, None]
+			height: 100
+			padding: 10,10
 			Button:
-				text: "Cancel"
-				size_hint: [.3, 1]
+				text: "Back to menu"
+				size_hint: [.35, .6]
 				on_release:
 					root.unselect_account()
 					root.manager.transition.direction="right"
@@ -120,39 +149,49 @@
 			Color:
 				rgba: background_color
 			Rectangle:
-				pos: self.pos
-				size: self.size
+				pos: self.x, self.y + 100
+				size: (self.width, self.height - 200)
+			Color:
+				rgba: (1,1,1,.7)
+			Rectangle:
+				pos: root.center_x - 200, root.center_y - 200
+				size: (400,400)
+				source: "kuvat/taustalogo.png"
 		orientation: "vertical"
 		Label:
-			size_hint: [1, .2]
+			size_hint_y: None
+			height: 120
+		Label:
+			size_hint: [1, .3]
+			font_size: 20
 			text: "Fill in the following information to create an account"
 		BoxLayout:
-			size_hint: [1, .2]
+			size_hint: [1, .3]
 			Label:
 				text: "your account name:"
 			TextInput:
 				id: acc_name
 		BoxLayout:
-			size_hint: [1, .2]
+			size_hint: [1, .3]
 			Label:
 				text: "your given name:"
 			TextInput:
 				id: given_name
 		BoxLayout:
-			size_hint: [1, .2]
+			size_hint: [1, .3]
 			Label:
 				text: "your family name:"
 			TextInput:
 				id: family_name
 		BoxLayout:
-			size_hint: [1, .2]
+			size_hint: [1, .3]
 			Label: 
 				text: "password:"
 			TextInput:
 				password: True
 				id: password1
 		BoxLayout:
-			size_hint: [1, .2]
+			size_hint: [1, .3]
 			Label: 
 				text: "repeat password:"
 			TextInput:
@@ -161,29 +200,57 @@
 		Label:
 			size_hint: [1, .2]
 		BoxLayout:
-			size_hint: [1, .3]
+			size_hint: [1, .4]
 			Label:
-				size_hint: [.5, 1]
+				size_hint: [.7, 1]
 			Button:
 				text: "Create account"
-				on_release:
-					root.create_account()
+				on_release:	root.create_account()
 			Label:
-				size_hint: [.5,1]
+				size_hint: [.7,1]
 		Label:
 			id: warning_label
-		Label
 		BoxLayout:
-			size_hint: [1, .3]
+			size_hint_y: None
+			height: 100
+			padding: 10,10
 			Button:
-				text: "Menu"
-				size_hint: [.3, 1]
+				text: "Back to menu"
+				size_hint: [.35, .6]
 				on_release:
 					root.clear_fields()
 					root.manager.transition.direction="right"
 					root.manager.current = "menu"
 			Label
-
+			
+<CustomerScreen>:
+	BoxLayout:
+		orientation: "vertical"
+		canvas.before:
+			Color:
+				rgba: background_color
+			Rectangle:
+				pos: self.x, self.y + 100
+				size: (self.width, self.height - 200)
+			Color:
+				rgba: (1,1,1,.7)
+			Rectangle:
+				pos: root.center_x - 200, root.center_y - 200
+				size: (400,400)
+				source: "kuvat/taustalogo.png"
+		Label:
+			text: "Here you can view your account information and add cash too your tab" 
+		BoxLayout:
+			size_hint_y: None
+			height: 100
+			padding: 10,10
+			Button:
+				text: "Back to login"
+				size_hint: [.35, .6]
+				on_release:
+					root.manager.transition.direction="right"
+					root.manager.current = "login"
+			Label
 		
 				
 			 	
@@ -194,21 +261,49 @@
 			Color:
 				rgba: background_color
 			Rectangle:
-				pos: self.pos
-				size: self.size
-		background_color: [1, 0, 0, 1]
+				pos: self.x, self.y + 100
+				size: (self.width, self.height - 200)
+			Color:
+				rgba: (1,1,1,.7)
+			Rectangle:
+				pos: root.center_x - 200, root.center_y - 200
+				size: (400,400)
+				source: "kuvat/taustalogo.png"
 		orientation: "vertical"
+		Label:
+			size_hint_y: None
+			height: 110
 		BoxLayout:
-			size_hint: [1, 0.2]
+			size_hint: [1, 0.25]
 			Label:
-				text: "Valikoima tuotteista"
-				font_size: 30	
-			Label:
-				id: account_label
+				text: "Items in sale"
 				font_size: 30
-			Label:
-				id: tab_value_label
-				font_size: 35
+			GridLayout:
+				rows: 1
+				Label:
+					text_size: self.size
+					halign: "left"
+					valign: "middle"
+					text: "user: " 
+					font_size: 20	
+				Label:
+					size_hint_x: None
+					width: self.parent.width * 2 / 5
+					text_size: self.size					
+					id: account_label
+					font_size: 30
+				Label:
+					
+					text_size: self.size
+					halign: "center"
+					valign: "middle"
+					text: "tab:"
+					font_size: 20
+				Label:
+					id: tab_value_label
+					halign: "left"
+					text_size: self.size
+					font_size: 35				
 		ScrollView:
 			size_hint: [None, None]
 			size: [root.width, list_height]
@@ -242,7 +337,7 @@
 				font_size: 17
 				id: product_price_label
 		BoxLayout:
-			size_hint: [1, .2]
+			size_hint: [1, .3]
 			Label:
 				size_hint: [.5,1]
 			Button:
@@ -258,13 +353,14 @@
 			Label:
 				size_hint: [.1,1]
 		BoxLayout:
-			orientation: "vertical"
-			Label:
-				size_hint: [1, .3]				
-			Button:
-				text: "To menu"
-				on_release: root.to_menu_and_logout()					
-				size_hint: [0.3, 0.1]
+			padding: 10,10
+			size_hint_y: None
+			height: 100
+			Button:				
+				text: "Back to menu"
+				size_hint: [.35, .6]
+				on_release: root.to_menu_and_logout()
+			Label					
 
 
 	
@@ -277,27 +373,36 @@
 			Color:
 				rgba: background_color
 			Rectangle:
-				pos: self.pos
-				size: self.size
+				pos: self.x, self.y + 100
+				size: (self.width, self.height - 200)
+			Color:
+				rgba: (1,1,1,.7)
+			Rectangle:
+				pos: root.center_x - 200, root.center_y - 200
+				size: (400,400)
+				source: "kuvat/taustalogo.png"
 		Label:
-			size_hint: [1, .2]
+			size_hint_y: None
+			height: 150
+		Label:
+			size_hint: [1, .3]
 			text: "Add a new item information"
 		BoxLayout:
-			size_hint: [1, .2]
+			size_hint: [1, .3]
 			BoxLayout:
 				Label:
 					text: "Name of the item"
 				TextInput:
 					id: name_input
 		BoxLayout:
-			size_hint: [1, .2]
+			size_hint: [1, .3]
 			BoxLayout:
 				Label:
 					text: "Price of the item"
 				TextInput:	
 					id: price_input	
 		BoxLayout:
-			size_hint: [1, .2]
+			size_hint: [1, .3]
 			BoxLayout:
 				Label:
 					text: "Item class"
@@ -305,7 +410,7 @@
 					text: "No class selected"
 					id: dropdown_button
 		GridLayout:
-			size_hint: [1, .4]
+			size_hint: [1, .6]
 			rows: 2
 			columns: 2
 			Label:
@@ -317,27 +422,31 @@
 				text: "Choose picture"
 				on_press:
 					root.manager.transition.direction= "left"
-					root.manager.current = "select"	
+					root.manager.current = "select"
 		Label:
-			id: warning_label
-		Label:
-		BoxLayout:
 			size_hint: [1, .2]
+		BoxLayout:
+			size_hint: [1, .4]
 			Label: 
-				size_hint: [.4, 1]
+				size_hint: [.7, 1]
 			Button:
 				text: "Add item"
 				on_press: root.add_item()
-				size_hint: [.2,1]			
 			Label:
-				size_hint: [.4,1]
-		Button:
-			padding: 30, 30
-			size_hint: [.2, .2]
-			text: "Back to menu"
-			on_press:
-				root.manager.transition.direction="right"					 
-				root.manager.current = "menu"
+				size_hint: [.7,1]	
+		Label:
+			id: warning_label		
+		BoxLayout:
+			size_hint_y: None
+			height: 100
+			padding: 10, 10
+			Button:				
+				size_hint: [.35, .6]
+				text: "Back to menu"
+				on_press:
+					root.manager.transition.direction="right"					 
+					root.manager.current = "menu"
+			Label
 		
 
 <FileScreen>:
@@ -370,7 +479,7 @@
 	width: 150
 	size_hint_x: None
 	font_size: 30
-	font_color: (1,1,1,1)
+	color: (0,0,0,1)
 	
 <AccountButton>:
 	height: 50

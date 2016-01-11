@@ -90,7 +90,6 @@
 				Label
 			BoxLayout:
 				orientation: "vertical"	
-				Label		
 				Label:
 					id: info_label
 					size_hint: [1, .2]
@@ -100,18 +99,30 @@
 					size_hint: [1, .2]
 					text: ""
 				Label:
+					id: customer_name_label
+					size_hint: [1, .2]
+				Label:
 					id: tab_value_label
 					size_hint: [1, .2]					
 				Label:
 					size_hint: [1, .2]
 				BoxLayout:
-					size_hint: [1, .3]
+					size_hint: [1, .4]
 					Label:
 						size_hint: [.5, 1]
 					Button:
-						text: "Continue"
+						text: "Continue to buy"
+						on_release:	root.login()
+					Label:
+						size_hint: [.5,1]
+				BoxLayout:
+					size_hint: [1, .4]
+					Label:
+						size_hint: [.5, 1]
+					Button:
+						text: "View tab"
 						on_release:
-							root.login()
+							root.view_account()
 					Label:
 						size_hint: [.5,1]
 				Label:
@@ -211,7 +222,35 @@
 					root.manager.transition.direction="right"
 					root.manager.current = "menu"
 			Label
-
+			
+<CustomerScreen>:
+	BoxLayout:
+		orientation: "vertical"
+		canvas.before:
+			Color:
+				rgba: background_color
+			Rectangle:
+				pos: self.x, self.y + 100
+				size: (self.width, self.height - 200)
+			Color:
+				rgba: (1,1,1,.7)
+			Rectangle:
+				pos: root.center_x - 200, root.center_y - 200
+				size: (400,400)
+				source: "kuvat/taustalogo.png"
+		Label:
+			text: "Here you can view your account information and add cash too your tab" 
+		BoxLayout:
+			size_hint_y: None
+			height: 100
+			padding: 10,10
+			Button:
+				text: "Back to login"
+				size_hint: [.35, .6]
+				on_release:
+					root.manager.transition.direction="right"
+					root.manager.current = "login"
+			Label
 		
 				
 			 	

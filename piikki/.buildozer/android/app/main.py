@@ -9,7 +9,8 @@ import sqlite3
 import os
 import piikki_utilities
 import customer
- 
+
+
 
 Builder.load_file('piikki.kv')
 
@@ -21,7 +22,7 @@ class MenuScreen(Screen):
 class LoginScreen(Screen):
     
     def __init__(self, **kv):
-        Screen.__init__(self, **kv)
+        super(LoginScreen, self).__init__(**kv)
         self.main_app = kv['main_app']
         self.selected_account = None
         
@@ -35,27 +36,25 @@ class LoginScreen(Screen):
     def add_account(self, cust):
         button = AccountButton(cust, text = cust.account_name)
         button.bind(on_release=self.select_account)
-        self.ids.account_list.add_widget(button)
-                        
+        self.ids.account_list.add_widget(button)                        
         
     def select_account(self, button):   
         self.selected_account=button.account
         self.ids.account_label.text = button.account.account_name
         self.ids.tab_value_label.text = str(button.account.tab_value)
+        self.ids.customer_name_label.text = button.account.customer_name
         self.ids.info_label.text = "Selected account:"
     
     def unselect_account(self):        
         self.selected_account = None
         self.ids.account_label.text = ""
         self.ids.tab_value_label.text = ""
+        self.ids.customer_name_label.text = ""
         self.ids.info_label.text = "Please select your account from the list"
         
         
     def login(self):
-        self.main_app.current_customer = None
         warning_label = self.ids.warning_label
-        account_label = self.ids.account_label
-        tab_value_label = self.ids.tab_value_label
         
         if self.selected_account == None:
             warning_label.text = "Please select an account"
@@ -65,6 +64,23 @@ class LoginScreen(Screen):
             self.manager.get_screen("osto").update_screen()
             self.manager.transition.direction = "left"
             self.manager.current = "osto"           
+                
+        
+        def empty_warning():
+            warning_label.text = ""        
+        Clock.schedule_once(lambda dt: empty_warning(), 7)
+        
+    def view_account(self):
+        warning_label = self.ids.warning_label
+        
+        if self.selected_account == None:
+            warning_label.text = "Please select an account"
+        else:
+            self.main_app.current_customer = self.selected_account
+            self.unselect_account()
+            self.manager.get_screen("osto").update_screen()
+            self.manager.transition.direction = "left"
+            self.manager.current = "customer"           
                 
         
         def empty_warning():
@@ -129,6 +145,7 @@ class BuyScreen(Screen):
         self.main_app = kv['main_app']
         self.selected_item = None       
         self.item_list = None
+
         self.item_list = piikki_utilities.update_item_list()
         container = self.ids.buy_item_list
         if self.item_list == None: pass
@@ -181,10 +198,10 @@ class BuyScreen(Screen):
 class CustomerScreen(Screen):
     
     def __init__(self, **kv):
-        super(CustomerScreen, self).__init(**kv)
+        super(CustomerScreen, self).__init__(**kv)
+        self.main_app = kv['main_app']
     
-        
-    
+            
 '''Screen used for admin stuff, such as adding new items, viewing tabs and changing item prices'''
 class AdminScreen(Screen):
     
@@ -259,12 +276,13 @@ class PiikkiManager(ScreenManager):
         ScreenManager.__init__(self, **kv)
         
         
-        self.current_customer = None
+        self.current_customer = None        
         self.customer_list = customer.load_customers()
 
         self.add_widget(MenuScreen(name="menu", main_app = self))
         self.add_widget(LoginScreen(name="login", main_app = self))
         self.add_widget(AccountScreen(name="account", main_app = self))
+        self.add_widget(CustomerScreen(name="customer", main_app = self))
         self.add_widget(BuyScreen(name="osto", main_app = self))
         self.add_widget(AdminScreen(name="admin", main_app = self))
         self.add_widget(FileScreen(name="select", main_app = self))
@@ -280,7 +298,7 @@ class PiikkiApp(App):
         
     
     def build(self):
-        customer.enable_databases()
+        #customer.enable_databases()
         return self.man
 
 if __name__ == '__main__':
