@@ -78,7 +78,7 @@ class LoginScreen(Screen):
         else:
             self.main_app.current_customer = self.selected_account
             self.unselect_account()
-            self.manager.get_screen("osto").update_screen()
+            self.manager.get_screen("customer").update_screen()
             self.manager.transition.direction = "left"
             self.manager.current = "customer"           
                 
@@ -143,38 +143,63 @@ class BuyScreen(Screen):
     def __init__(self, **kv):        
         super(BuyScreen, self).__init__( **kv)
         self.main_app = kv['main_app']
-        self.selected_item = None       
-        self.item_list = None
+        self.selected_item = None 
+        self.pressed_button = None
+        self.button_list = []
+              
+        item_list = None      
 
-        self.item_list = piikki_utilities.update_item_list()
+        item_list = piikki_utilities.update_item_list()
         container = self.ids.buy_item_list
-        if self.item_list == None: pass
+        if item_list == None: pass
         else:
-            for item in self.item_list:
+            for item in item_list:
                 texts = item.name[0].upper() + item.name[1:] + "\n" + str(item.price)
-                button = ItemButton(item, text = texts,
+                button = ItemButton(item, text = "",
                                      background_normal = item.normal_background,
                                      background_down = item.pressed_background)
-                button.bind(on_release=self.select_item)
+                button.bind(on_press=self.select_item)
+                self.button_list.append(button)
                 container.add_widget(button)
     
     def update_screen(self):
         self.ids.account_label.text = self.main_app.current_customer.account_name
         self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
+        self.ids.tab_value_label.color = self.tab_color()
     
     
     def to_menu_and_logout(self):
         self.main_app.current_customer = None
-        self.unselect_item()
+        self.unselect_items()
         self.manager.transition.direction="right"                     
         self.manager.current = "menu"
         
     def select_item(self, button):
-        self.selected_item = button.item
-        self.ids.product_name_label.text = button.item.name
-        self.ids.product_price_label.text = str(button.item.price)
+        if self.selected_item == None:
+            button.background_normal = button.item.pressed_background
+            self.selected_item = button.item
+            self.pressed_button = button
+            self.ids.product_name_label.text = button.item.name
+            self.ids.product_price_label.text = str(button.item.price)
+            
+        elif self.selected_item == button.item:
+            button.background_normal = button.item.normal_background
+            self.selected_item = None
+            self.pressed_button = None
+            self.ids.product_name_label.text = ""
+            self.ids.product_price_label.text = ""
+            
+        else:
+            self.pressed_button.background_normal = self.selected_item.normal_background
+            button.background_normal = button.item.pressed_background
+            self.selected_item = button.item
+            self.pressed_button = button
+            self.ids.product_name_label.text = button.item.name
+            self.ids.product_price_label.text = str(button.item.price)
         
-    def unselect_item(self):
+    def unselect_items(self):
+        for button in self.button_list:
+            button.background_normal = button.item.normal_background
         self.selected_item = None
         self.ids.product_name_label.text =""
         self.ids.product_price_label.text = ""
@@ -182,9 +207,8 @@ class BuyScreen(Screen):
     def buy_item(self):
         if self.selected_item == None: pass
         else:
-            self.main_app.current_customer.add_to_tab(self.selected_item.price)
+            self.main_app.current_customer.pay_from_tab(self.selected_item.price)
             self.main_app.current_customer.update_tab_value()
-            self.unselect_item()
             self.update_screen()
 
     def buy_and_exit(self):
@@ -194,13 +218,59 @@ class BuyScreen(Screen):
             self.main_app.current_customer.update_tab_value()
             self.to_menu_and_logout()
             
+    def tab_color(self):        
+        tab = self.main_app.current_customer.tab_value 
+        if tab >= 5.0:
+            return (0,1,0,1)
+        elif tab < 5.0 and tab >=0:  
+            return (1,1,0,1)
+        else:
+            return (1,0,0,1)
+        
+        
 '''CustomerScreen allows customers to add value to the tab and see their balance history'''
 class CustomerScreen(Screen):
     
     def __init__(self, **kv):
         super(CustomerScreen, self).__init__(**kv)
-        self.main_app = kv['main_app']
+        self.main_app = kv['main_app']    
+        
+    def add_to_tab(self):
+        input = self.ids.add_tab_input
+        if input.text == "" or float(input.text) >150.0:
+            self.ids.warning_label.text = "Please enter a proper amount"
+        else:
+            self.main_app.current_customer.pay_to_tab(float(input.text))
+            self.main_app.current_customer.update_tab_value()
+            self.update_screen()
+            self.ids.warning_label.text = "Added {} succesfully to your tab".format(float(input.text))
+            input.text= ""
+        
+        
+        def empty_warning():
+            self.ids.warning_label.text = ""        
+        Clock.schedule_once(lambda dt: empty_warning(), 7)
+        
+    def on_leave_screen(self):
+        self.main_app.selected_customer = None
+        self.ids.account_label.text = ""
+        self.ids.tab_value_label.text = ""
     
+    def update_screen(self):
+        self.ids.account_label.text = self.main_app.current_customer.account_name
+        self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
+        self.ids.tab_value_label.color = self.tab_color()
+            
+    def tab_color(self):        
+        tab = self.main_app.current_customer.tab_value 
+        if tab >= 5.0:
+            return (0,1,0,1)
+        elif tab < 5.0 and tab >=0:  
+            return (1,1,0,1)
+        else:
+            return (1,0,0,1)  
+        
+
             
 '''Screen used for admin stuff, such as adding new items, viewing tabs and changing item prices'''
 class AdminScreen(Screen):
