@@ -2,27 +2,41 @@
 
 #:set list_height 150
 #:set background_color (0, 0.5, 0.5, 1)
+#:set logo_color (0.65, 0.64, 0.18, 1)
+#:set black (0,0,0,1)
+#:set margin 70
+
 
 
 <MenuScreen>:
 	BoxLayout:
 		canvas.before:
 			Color:
-				rgba: background_color
+				rgba: logo_color
 			Rectangle:
-				pos: self.x, self.y + 100
-				size: (self.width, self.height - 200)
+				pos: self.pos
+				size: self.size				
 			Color:
-				rgba: (1,1,1,.7)
+				rgba: (0,0,0,1)
 			Rectangle:
-				pos: root.center_x - 200, root.center_y - 200
-				size: (400,400)
+				pos: self.x, self.y + margin
+				size: (self.width, self.height - 2 * margin)
+			Color:
+				rgba: (1,1,1,1)
+			Rectangle:
+				pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+				size: root.height- 200, root.height-200
 				source: "kuvat/taustalogo.png"
 		orientation: "vertical"
-		Label:
-			text: "Kiltispiikki"
-			font_size: 30
-			size_hint: [1, 0.2]
+		BoxLayout:
+			size_hint_y: None
+			height: margin
+			Label
+			Label:
+				text: "Kiltispiikki"
+				color: black
+				font_size: 30
+			Label
 		BoxLayout:
 			orientation: "horizontal"
 			Label
@@ -57,20 +71,25 @@
 	BoxLayout:
 		canvas.before:
 			Color:
-				rgba: background_color
+				rgba: logo_color
 			Rectangle:
-				pos: self.x, self.y + 100
-				size: (self.width, self.height - 200)
+				pos: self.pos
+				size: self.size				
 			Color:
-				rgba: (1,1,1,.7)
+				rgba: (0,0,0,1)
 			Rectangle:
-				pos: root.center_x - 200, root.center_y - 200
-				size: (400,400)
+				pos: self.x, self.y + margin
+				size: (self.width, self.height - 2 * margin)
+			Color:
+				rgba: (1,1,1,1)
+			Rectangle:
+				pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+				size: root.height- 200, root.height-200
 				source: "kuvat/taustalogo.png"
 		orientation: "vertical"
 		Label:
 			size_hint_y: None
-			height: 110
+			height: margin
 		BoxLayout:
 			size_hint: [1, .7]
 			orientation: "horizontal"
@@ -119,7 +138,7 @@
 				Label
 		BoxLayout:
 			size_hint: [1, None]
-			height: 100
+			height: margin
 			padding: 10,10
 			Button:
 				text: "Back to menu"
@@ -298,7 +317,7 @@
 				font_size: 17
 				id: product_price_label
 		BoxLayout:
-			size_hint: [1, .3]
+			size_hint: [1, .15]
 			Label:
 				size_hint: [.5,1]
 			Button:
