@@ -214,7 +214,7 @@ class BuyScreen(Screen):
     def buy_and_exit(self):
         if self.selected_item == None: pass
         else:
-            self.main_app.current_customer.add_to_tab(self.selected_item.price)
+            self.main_app.current_customer.pay_from_tab(self.selected_item.price)
             self.main_app.current_customer.update_tab_value()
             self.to_menu_and_logout()
             
