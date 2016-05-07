@@ -99,12 +99,12 @@ class Customer():
         pass
     
     '''customer pays money to the tab'''
-    def pay_tab(self, amount):
+    def pay_to_tab(self, amount):
         self.tab_value = self.tab_value + amount
     
     
     '''customer buys something using the tab'''
-    def add_to_tab(self, amount):
+    def pay_from_tab(self, amount):
         self.tab_value = self.tab_value - amount
     
     

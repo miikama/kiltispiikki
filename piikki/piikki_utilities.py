@@ -18,8 +18,6 @@ class Item():
         self.normal_background = "{}{}{}".format("itempics/", name, "_normal_pic.png")
         self.pressed_background = "{}{}{}".format("itempics/",name, "_pressed_pic.png")  
 
-    def remove(self):
-        if self in for_sale: for_sale.remove(self)
 
 
 def add_item(name, price, filename, item_class):

@@ -2,14 +2,11 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
 from kivy.uix.button import Button
-from kivy.properties import ObjectProperty
 from kivy.clock import Clock
 from kivy.uix.dropdown import DropDown
-import sqlite3
-import os
 import piikki_utilities
 import customer
-
+    
 
 
 Builder.load_file('piikki.kv')
@@ -154,7 +151,6 @@ class BuyScreen(Screen):
         if item_list == None: pass
         else:
             for item in item_list:
-                texts = item.name[0].upper() + item.name[1:] + "\n" + str(item.price)
                 button = ItemButton(item, text = "",
                                      background_normal = item.normal_background,
                                      background_down = item.pressed_background)
