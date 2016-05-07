@@ -19,7 +19,6 @@ class Item():
         self.pressed_background = "{}{}{}".format("itempics/",name, "_pressed_pic.png")  
 
 
-
 def add_item(name, price, filename, item_class):
     file = open("items.txt", "a")    
     normal_background, pressed_background = make_item_backgrounds(name, filename)

@@ -144,13 +144,48 @@ class BuyScreen(Screen):
         self.pressed_button = None
         self.button_list = []
               
-        item_list = None      
+        self.item_list = None      
 
-        item_list = piikki_utilities.update_item_list()
-        container = self.ids.buy_item_list
-        if item_list == None: pass
+        self.item_list = piikki_utilities.update_item_list()
+        #just sort the items based on class
+        self.item_list.sort(key=lambda x: x.item_class, reverse=True)
+        self.show_all_items()
+    
+    '''Updates the customer account name and the tab value when entering the screen and when needed'''
+    def update_screen(self):
+        self.ids.account_label.text = self.main_app.current_customer.account_name
+        self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
+        self.ids.tab_value_label.color = self.tab_color()
+    
+    '''Changes the current customer of the app to None, unselects the items, and swithces screens to login screen'''
+    def to_login_and_logout(self):
+        self.main_app.current_customer = None
+        self.unselect_items()
+        self.manager.transition.direction="right"                     
+        self.manager.current = "login"
+        
+    def show_all_items(self):
+        if self.item_list == None: pass
         else:
-            for item in item_list:
+            container = self.ids.buy_item_list
+            container.clear_widgets()
+            self.unselect_items()
+            for item in self.item_list:
+                button = ItemButton(item, text = "",
+                                     background_normal = item.normal_background,
+                                     background_down = item.pressed_background)
+                button.bind(on_press=self.select_item)
+                self.button_list.append(button)
+                container.add_widget(button)
+            
+    def show_candy(self):
+        if self.item_list == None: pass
+        else:
+            candy_list = filter(lambda x: x.item_class == "Candy", self.item_list)
+            container = self.ids.buy_item_list
+            container.clear_widgets()
+            self.unselect_items()
+            for item in candy_list:
                 button = ItemButton(item, text = "",
                                      background_normal = item.normal_background,
                                      background_down = item.pressed_background)
@@ -158,17 +193,35 @@ class BuyScreen(Screen):
                 self.button_list.append(button)
                 container.add_widget(button)
     
-    def update_screen(self):
-        self.ids.account_label.text = self.main_app.current_customer.account_name
-        self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
-        self.ids.tab_value_label.color = self.tab_color()
+    def show_soft_drinks(self):
+        if self.item_list == None: pass
+        else:
+            drink_list = filter(lambda x: x.item_class == "Soft drink", self.item_list)
+            container = self.ids.buy_item_list
+            container.clear_widgets()
+            self.unselect_items()
+            for item in drink_list:
+                button = ItemButton(item, text = "",
+                                     background_normal = item.normal_background,
+                                     background_down = item.pressed_background)
+                button.bind(on_press=self.select_item)
+                self.button_list.append(button)
+                container.add_widget(button)
     
-    
-    def to_menu_and_logout(self):
-        self.main_app.current_customer = None
-        self.unselect_items()
-        self.manager.transition.direction="right"                     
-        self.manager.current = "menu"
+    def show_food(self):
+        if self.item_list == None: pass
+        else:
+            food_list = filter(lambda x: x.item_class == "Food", self.item_list)
+            container = self.ids.buy_item_list
+            container.clear_widgets()
+            self.unselect_items()
+            for item in food_list:
+                button = ItemButton(item, text = "",
+                                     background_normal = item.normal_background,
+                                     background_down = item.pressed_background)
+                button.bind(on_press=self.select_item)
+                self.button_list.append(button)
+                container.add_widget(button)
         
     def select_item(self, button):
         if self.selected_item == None:
@@ -204,15 +257,15 @@ class BuyScreen(Screen):
         if self.selected_item == None: pass
         else:
             self.main_app.current_customer.pay_from_tab(self.selected_item.price)
-            self.main_app.current_customer.update_tab_value()
+            self.main_app.current_customer.save_buy(self.selected_item)
             self.update_screen()
+            self.main_app.current_customer.n_most_bought()
 
     def buy_and_exit(self):
         if self.selected_item == None: pass
         else:
             self.main_app.current_customer.pay_from_tab(self.selected_item.price)
-            self.main_app.current_customer.update_tab_value()
-            self.to_menu_and_logout()
+            self.to_login_and_logout()
             
     def tab_color(self):        
         tab = self.main_app.current_customer.tab_value 
@@ -237,7 +290,6 @@ class CustomerScreen(Screen):
             self.ids.warning_label.text = "Please enter a proper amount"
         else:
             self.main_app.current_customer.pay_to_tab(float(input.text))
-            self.main_app.current_customer.update_tab_value()
             self.update_screen()
             self.ids.warning_label.text = "Added {} succesfully to your tab".format(float(input.text))
             input.text= ""

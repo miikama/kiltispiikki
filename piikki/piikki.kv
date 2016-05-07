@@ -1,6 +1,6 @@
 #:import sm kivy.uix.screenmanager
 
-#:set list_height 150
+#:set list_height 120
 #:set background_color (0, 0.5, 0.5, 1)
 #:set logo_color (0.65, 0.64, 0.18, 1)
 #:set black (0,0,0,1)
@@ -342,7 +342,33 @@
 					halign: "left"
 					valign: "middle"
 					text_size: self.size
-					font_size: 35				
+					font_size: 35		
+		BoxLayout:
+			size_hint_y: None
+			height: 30
+			orientation: "horizontal"
+			spacing: 3
+			Button:
+				text: "All"
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release: root.show_all_items()
+			Button: 
+				text: "Soft drinks"
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release: root.show_soft_drinks()
+			Button:
+				text: "Candy"
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release: root.show_candy()
+			Button: 
+				text: "Food"
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release: root.show_food()
+			Label			
 		ScrollView:
 			size_hint: [None, None]
 			size: [root.width, list_height]
@@ -360,24 +386,34 @@
 				size_hint_x: None
 				id: buy_item_list	
 		BoxLayout:
-			size_hint: [1, .2]
 			Label:
-				text: "Selected items"
-				font_size: 18
-				size_hint: [.5,1]
-			Label:
-				text: "Item"
-				font_size: 20
-			Label:
-				text: "Price"
-				font_size: 20
+				text: "Most bought"
+		ScrollView:
+			size_hint: [None, None]
+			size: [root.width, list_height]
+			GridLayout:
+				canvas.before:
+					Color:
+						rgba: (1,1,1,.2)
+					Rectangle:
+						pos: self.pos
+						size: self.size
+				width: self.minimum_width
+				do_scroll_y: False 
+				rows: 1
+				spacing: 10
+				size_hint_x: None
+				id: most_bought_item_list
+		Label		
 		BoxLayout:
-			
+			size_hint: [1, None]
+			height: 70			
 			orientation: "vertical"
 			BoxLayout:
-				padding: 0,0,15,0
-				size_hint: [1, .4]
+				padding: 0,0,15,0				
 				Label:
+					text: "Selected items"
+					font_size: 18
 					size_hint: [.5,1]
 				BoxLayout:
 					canvas.before:
@@ -394,10 +430,19 @@
 						color: black
 						font_size: 17
 						id: product_price_label
-			Label
+			Label		
 		BoxLayout:
-			size_hint: [1, .25]
-			Label:
+			padding: 10,10
+			size_hint_y: None
+			height: margin
+			Button:				
+				text: "Cancel"
+				size_hint: [.35, 1]
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release: root.to_login_and_logout()
+			Label
 			Button:
 				size_hint: [.7,1]
 				text: "Buy item"
@@ -409,25 +454,13 @@
 				size_hint: [.1,1]
 			Button:
 				size_hint: [.7,1]
-				text: "Buy and exit"
+				text: "Buy and logout"
 				font_size: button_font_size
 				background_normal: "kuvat/nappi_tausta.png"
 				background_down: "kuvat/nappi_tausta_pressed.png"
 				on_release: root.buy_and_exit()
 			Label:
-				size_hint: [.1,1]
-		BoxLayout:
-			padding: 10,10
-			size_hint_y: None
-			height: margin
-			Button:				
-				text: "Back to menu"
-				size_hint: [.35, 1]
-				font_size: button_font_size
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_release: root.to_menu_and_logout()
-			Label	
+				size_hint: [.1,1]	
 			
 <CustomerScreen>:
 	BoxLayout:
@@ -654,7 +687,7 @@
                 	
 	
 <ItemButton>:
-	width: 150
+	width: list_height
 	size_hint_x: None
 	font_size: 30
 	color: (0,0,0,1)

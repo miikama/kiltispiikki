@@ -25,13 +25,15 @@ def load_customers():
     return customers
 
 
-'''Creates customer database if it doesn't exist'''
+'''Creates piikki database if it doesn't exist and adds customer and buy_action tables'''
 def enable_databases():      
         con = sqlite3.connect(full_path)
                 
         c = con.cursor()        
         c.execute('''CREATE TABLE IF NOT EXISTS customers (account_name text, password text,
          customer_name text, tab_value real)''')
+        
+        c.execute('''CREATE TABLE IF NOT EXISTS buy_actions (account_name text, item_name text, item_class text, buy_value real)''')
         
         con.commit()        
         con.close()
@@ -86,9 +88,16 @@ class Customer():
         con.close()          
            
         
-    '''Saves the buy somewhere'''    
-    def save_buy(self):
-        pass
+    '''Saves the buy information into buy_actions TABLE with values account_name, item, item_class, buy_value '''    
+    def save_buy(self, item):
+        con = sqlite3.connect(full_path)
+        
+        c = con.cursor()        
+        values = (self.account_name, item.name, item.item_class, item.price)
+        c.execute("INSERT INTO customers VALUES (?,?,?,?)", values)
+                
+        con.commit()        
+        con.close() 
     
     '''Gets the items that the customer has bought, prob dict with item ids as keys'''
     def load_buy_history(self):
@@ -96,16 +105,24 @@ class Customer():
     
     '''returns the n most bought items'''
     def n_most_bought(self):
-        pass
+        con = sqlite3.connect(full_path)
+        
+        c = con.cursor()
+        c.execute("SELECT account_name, item, COUNT(item) FROM buy_actions WHERE account_name=? GROUP BY account_name,item", self.customer_name)
+        data = c.fetchall()
+        
+        print(data)
     
     '''customer pays money to the tab'''
     def pay_to_tab(self, amount):
         self.tab_value = self.tab_value + amount
+        self.update_tab_value()
     
     
     '''customer buys something using the tab'''
     def pay_from_tab(self, amount):
         self.tab_value = self.tab_value - amount
+        self.update_tab_value()
     
     
     '''Updates the customers tab_value in the database'''
