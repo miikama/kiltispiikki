@@ -1,6 +1,6 @@
 import sqlite3
 import os
-
+from piikki_utilities import Item
 
 full_path = "{}/{}".format(os.getcwd(), "piikki.db")  #on a computer
 #full_path = "/sdcard/data/piikki.db"         #MAYBE NO   #on android, create the data folder on your home folder which is /sdcard
@@ -8,6 +8,7 @@ full_path = "{}/{}".format(os.getcwd(), "piikki.db")  #on a computer
 
 '''Returns a list[Customer] of all customers or None if there are no customers'''
 def load_customers():
+    
     
     customers = []
     
@@ -32,8 +33,15 @@ def enable_databases():
         c = con.cursor()        
         c.execute('''CREATE TABLE IF NOT EXISTS customers (account_name text, password text,
          customer_name text, tab_value real)''')
+        con.commit() 
+        c.close()       
+        con.close()
+                
+        con = sqlite3.connect(full_path)
+        c = con.cursor()
         
         c.execute('''CREATE TABLE IF NOT EXISTS buy_actions (account_name text, item_name text, item_class text, buy_value real)''')
+        print("table created")
         
         con.commit()        
         con.close()
@@ -88,30 +96,40 @@ class Customer():
         con.close()          
            
         
-    '''Saves the buy information into buy_actions TABLE with values account_name, item, item_class, buy_value '''    
+    '''Saves the buy information into buy_actions TABLE with values account_name, item_name, item_class, buy_value '''    
     def save_buy(self, item):
         con = sqlite3.connect(full_path)
         
         c = con.cursor()        
         values = (self.account_name, item.name, item.item_class, item.price)
-        c.execute("INSERT INTO customers VALUES (?,?,?,?)", values)
+        c.execute("INSERT INTO buy_actions VALUES (?,?,?,?)", values)
                 
         con.commit()        
         con.close() 
     
     '''Gets the items that the customer has bought, prob dict with item ids as keys'''
     def load_buy_history(self):
-        pass
+        pass   
+    
+        
     
     '''returns the n most bought items'''
-    def n_most_bought(self):
+    def most_bought(self):
         con = sqlite3.connect(full_path)
         
         c = con.cursor()
-        c.execute("SELECT account_name, item, COUNT(item) FROM buy_actions WHERE account_name=? GROUP BY account_name,item", self.customer_name)
+        c.execute("SELECT  item_name, buy_value, item_class, COUNT(item_name) FROM buy_actions WHERE account_name=? GROUP BY account_name,item_name", (self.account_name,))
         data = c.fetchall()
         
-        print(data)
+        con.close()
+        
+        items = [(Item(i[0], i[1], i[2]), i[3]) for i in data ]
+        items.sort(key=lambda x: x[1])
+        items.reverse()
+        print(items)
+        #data is list of tuples (item_name, number of bought)
+        return items
+        
     
     '''customer pays money to the tab'''
     def pay_to_tab(self, amount):

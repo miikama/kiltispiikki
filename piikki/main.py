@@ -58,7 +58,7 @@ class LoginScreen(Screen):
         else:
             self.main_app.current_customer = self.selected_account
             self.unselect_account()
-            self.manager.get_screen("osto").update_screen()
+            self.manager.get_screen("osto").update_screen_entering()
             self.manager.transition.direction = "left"
             self.manager.current = "osto"           
                 
@@ -150,6 +150,12 @@ class BuyScreen(Screen):
         #just sort the items based on class
         self.item_list.sort(key=lambda x: x.item_class, reverse=True)
         self.show_all_items()
+        
+    def update_screen_entering(self):
+        self.ids.account_label.text = self.main_app.current_customer.account_name
+        self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
+        self.ids.tab_value_label.color = self.tab_color()
+        self.show_most_bought()
     
     '''Updates the customer account name and the tab value when entering the screen and when needed'''
     def update_screen(self):
@@ -223,6 +229,23 @@ class BuyScreen(Screen):
                 self.button_list.append(button)
                 container.add_widget(button)
         
+    def show_most_bought(self):
+        if self.item_list == None or self.main_app.current_customer == None: pass
+        else:
+            most_bought = self.main_app.current_customer.most_bought()
+            if most_bought:
+                most_bought_list = [x[0] for x in most_bought]
+                container = self.ids.most_bought_item_list
+                container.clear_widgets()
+                for item in most_bought_list:
+                    button = ItemButton(item, text = "",
+                                         background_normal = item.normal_background,
+                                         background_down = item.pressed_background)
+                    button.bind(on_press=self.select_item)
+                    self.button_list.append(button)
+                    container.add_widget(button)     
+
+        
     def select_item(self, button):
         if self.selected_item == None:
             button.background_normal = button.item.pressed_background
@@ -259,7 +282,6 @@ class BuyScreen(Screen):
             self.main_app.current_customer.pay_from_tab(self.selected_item.price)
             self.main_app.current_customer.save_buy(self.selected_item)
             self.update_screen()
-            self.main_app.current_customer.n_most_bought()
 
     def buy_and_exit(self):
         if self.selected_item == None: pass
