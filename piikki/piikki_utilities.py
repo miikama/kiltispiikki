@@ -1,13 +1,12 @@
 from PIL import Image
-
+import os
 
 # All the items are on their own separate lines
 
 item_file_path = "items.txt"
 customer_file_path = "customers.txt"
-
-'''TODO: maybe single item id
-        sorting items based on class'''
+full_path = os.getcwd()
+#full_path = "/sdcard/data
 
 class Item():
     
@@ -15,29 +14,29 @@ class Item():
         self.name = name
         self.price = price
         self.item_class = item_class #string with value Candy, Soft drink or Food
-        self.normal_background = "{}{}{}".format("itempics/", name, "_normal_pic.png")
-        self.pressed_background = "{}{}{}".format("itempics/",name, "_pressed_pic.png")  
+        self.normal_background = "{}{}{}{}".format(full_path, "/itempics/", name, "_normal_pic.png")
+        self.pressed_background = "{}{}{}{}".format(full_path, "/itempics/",name, "_pressed_pic.png")  
 
 
 def add_item(name, price, filename, item_class):
-    file = open("items.txt", "a")    
+    file = open(full_path + "/items.txt", "a")    
     normal_background, pressed_background = make_item_backgrounds(name, filename)
     
-    file.write("{},{},{},{},{}\n".format(name, price,item_class, normal_background, pressed_background))
+    file.write("{},{},{}\n".format(name, price,item_class))
     file.close()
     
     
 def update_item_list():
-    file = open("items.txt", "r")
+    file = open(full_path + "/items.txt", "r")
     
     items = []
-    file.readline()
+    file.readline() #reads the first description line
     
     for line in file:
         a = line.split(",")
         name = a[0]
         price = float(a[1])
-        item_class = a[2]
+        item_class = a[2][:-1]
         items.append(Item(name,price, item_class))
         
     return items
@@ -50,14 +49,14 @@ def make_item_backgrounds(name,filename):
     item_name = name.lower()
     
     pic = Image.open(filename)    
-    border = Image.open("kuvat/border1.png")    
+    border = Image.open(full_path + "/kuvat/border1.png")    
     
     pic = pic.resize((300,300), Image.ANTIALIAS)
     border = border.resize((300,300), Image.ANTIALIAS)    
    
     pic2 = pic
-    pic1_path = "itempics/{}{}{}".format(item_name,"_normal_" , "pic.png")
-    pic2_path = "itempics/{}{}{}".format(item_name, "_pressed_" ,"pic.png")
+    pic1_path = full_path + "/itempics/{}{}{}".format(item_name,"_normal_" , "pic.png")
+    pic2_path = full_path + "/itempics/{}{}{}".format(item_name, "_pressed_" ,"pic.png")
    
     #creating normal background
     pic.paste(border, (0,0), border)    

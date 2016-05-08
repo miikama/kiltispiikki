@@ -1,7 +1,8 @@
-name,price,normal_background,pressed_background
-coca-cola,1.0,Soft drink,itempics/coca-cola_normal_pic.png,itempics/coca-cola_pressed_pic.png
-twix,0.7,Candy,itempics/twix_normal_pic.png,itempics/twix_pressed_pic.png
-mars,0.7,Candy,itempics/mars_normal_pic.png,itempics/mars_pressed_pic.png
-sprite,1.0,Soft drink,itempics/sprite_normal_pic.png,itempics/sprite_pressed_pic.png
-tupla,1.0,Candy,itempics/tupla_normal_pic.png,itempics/tupla_pressed_pic.png
-snickers,0.7,Candy,itempics/snickers_normal_pic.png,itempics/snickers_pressed_pic.png
+name,price, Item class
+coca-cola,1.0,Soft drink
+twix,0.7,Candy
+mars,0.7,Candy
+sprite,1.0,Soft drink
+tupla,1.0,Candy
+snickers,0.7,Candy
+Milky Way,0.7,Candy

@@ -41,7 +41,6 @@ def enable_databases():
         c = con.cursor()
         
         c.execute('''CREATE TABLE IF NOT EXISTS buy_actions (account_name text, item_name text, item_class text, buy_value real)''')
-        print("table created")
         
         con.commit()        
         con.close()
@@ -113,21 +112,19 @@ class Customer():
     
         
     
-    '''returns the n most bought items'''
+    '''returns the items in the order of most bought first together with the bought amount'''
     def most_bought(self):
         con = sqlite3.connect(full_path)
         
         c = con.cursor()
         c.execute("SELECT  item_name, buy_value, item_class, COUNT(item_name) FROM buy_actions WHERE account_name=? GROUP BY account_name,item_name", (self.account_name,))
-        data = c.fetchall()
-        
+        data = c.fetchall()        
         con.close()
         
         items = [(Item(i[0], i[1], i[2]), i[3]) for i in data ]
         items.sort(key=lambda x: x[1])
         items.reverse()
-        print(items)
-        #data is list of tuples (item_name, number of bought)
+        #items is list of tuples (Item, number of bought)
         return items
         
     

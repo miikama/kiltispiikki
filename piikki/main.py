@@ -438,7 +438,7 @@ class PiikkiApp(App):
         
     
     def build(self):
-        #customer.enable_databases()
+        customer.enable_databases()
         return self.man
 
 if __name__ == '__main__':
