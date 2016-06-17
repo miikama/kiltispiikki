@@ -1,6 +1,6 @@
 #:import sm kivy.uix.screenmanager
 
-#:set list_height 80
+#:set list_height 100
 #:set background_color (0, 0.5, 0.5, 1)
 #:set logo_color (0.65, 0.64, 0.18, 1)
 #:set black (0,0,0,1)
@@ -13,75 +13,83 @@
 
 
 <MenuScreen>:
-	BoxLayout:
-		canvas.before:
-			Color:
-				rgba: logo_color
-			Rectangle:
-				pos: self.pos
-				size: self.size				
-			Color:
-				rgba: (0,0,0,1)
-			Rectangle:
-				pos: self.x, self.y + margin
-				size: (self.width, self.height - 2 * margin)
-			Color:
-				rgba: (1,1,1,1)
-			Rectangle:
-				pos: root.center_x - root.width/ 2.5, root.center_y - (root.height - 200) / 2
-				size: root.height- 200, root.height-200
-				source: "kuvat/taustalogo.png"
-		orientation: "vertical"
-		BoxLayout:
-			size_hint_y: None
-			height: margin
-			Label
-			Label:
-				id: otsikko
-				text: "Kiltispiikki"
-				color: black
-				font_size: 30
-			Label
-		BoxLayout:
-			padding: 0, 0, 50,0
-			orientation: "horizontal"
-			Label
-			BoxLayout:
-				spacing: 10
-				size_hint: [.5, 1]
-				orientation: "vertical"
-				Label
-				Button:
-					text: "Buy something"					
-					size_hint: [1, .5]
-					font_size: 27
+    BoxLayout:
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: logo_color
+            Rectangle:
+                pos: self.pos
+                size: self.size				
+            Color:
+                rgba: (0,0,0,1)
+            Rectangle:
+                pos: self.x, self.y + margin
+                size: (self.width, self.height - 2 * margin)
+            Color:
+                rgba: (1,1,1,1)
+            Rectangle:
+                pos: root.center_x - root.width/ 2.5, root.center_y - (root.height - 200) / 2
+                size: root.height- 200, root.height-200
+                source: "kuvat/taustalogo.png"
+        BoxLayout:
+            size_hint_y: None
+            height: margin
+            Label
+            Label:
+                id: otsikko
+                text: "Kiltispiikki"
+                color: black
+                font_size: 30
+            Label
+        BoxLayout:
+            padding: 0, 0, 50,0
+            orientation: "horizontal"
+            Label
+            BoxLayout:
+                spacing: 10
+                size_hint: [.5, 1]
+                orientation: "vertical"
+                Label
+                Button:
+                    text: "Buy something"					
+                    size_hint: [1, .5]
+                    font_size: 27
                     background_normal: "kuvat/nappi_tausta.png"
-					background_down: "kuvat/nappi_tausta_pressed.png"
-					on_release:
-						root.manager.transition.direction="left"			
-						root.manager.current ="login"
-				Button:
-					text: "Create an account"
-					size_hint: [1, .5]
-					font_size: 27
-					background_normal: "kuvat/nappi_tausta.png"
-					background_down: "kuvat/nappi_tausta_pressed.png"
-					on_release:
-						root.manager.transition.direction="left"
-						root.manager.current = "account"
-				Button:
-					text: "To admin window"
-					size_hint: [1, .5]
-					font_size: 27
-					background_normal: "kuvat/nappi_tausta.png"
-					background_down: "kuvat/nappi_tausta_pressed.png"
-					on_release:
-						root.manager.transition.direction="left"
-						root.manager.current = "admin"
-				Label
-		Label:
-			size_hint_y: None
-			height: margin
+                    background_down: "kuvat/nappi_tausta_pressed.png"
+                    on_release:
+                        root.manager.transition.direction="left"			
+                        root.manager.current ="login"
+                Button:
+                    text: "Create an account"
+                    size_hint: [1, .5]
+                    font_size: 27
+                    background_normal: "kuvat/nappi_tausta.png"
+                    background_down: "kuvat/nappi_tausta_pressed.png"
+                    on_release:
+                        root.manager.transition.direction="left"
+                        root.manager.current = "account"
+                Button:
+                    text: "To admin window"
+                    size_hint: [1, .5]
+                    font_size: 27
+                    background_normal: "kuvat/nappi_tausta.png"
+                    background_down: "kuvat/nappi_tausta_pressed.png"
+                    on_release:
+                        root.manager.transition.direction="left"
+                        root.manager.current = "admin"
+                Button:
+                    text: "to test"
+                    font_size: 27
+                    background_normal: "kuvat/nappi_tausta.png"
+                    background_down: "kuvat/nappi_tausta_pressed.png"
+                    on_release:
+                        root.manager.transition.direction="left"
+                        root.manager.current = "test"
+                Label
+        Label:
+            size_hint_y: None
+            height: margin
 
 
 <LoginScreen>:
@@ -684,12 +692,58 @@
                 	root.manager.transition.direction = "right"
                 	root.manager.current = "admin"
                 	
-                	
+ 
+	
+			
+<TestScreen>:
+    BoxLayout:
+        id: main_layout
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: logo_color
+            Rectangle:
+                pos: self.pos
+                size: self.size				
+            Color:
+                rgba: (0,0,0,1)
+            Rectangle:
+                pos: self.x, self.y + margin
+                size: (self.width, self.height - 2 * margin)
+            Color:
+                rgba: (1,1,1,1)
+            Rectangle:
+                pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+                size: root.height- 200, root.height-200
+                source: "kuvat/taustalogo.png"
+        BoxLayout:
+            orientation: "vertical"
+            Label:
+                id: test_label1
+            Label:
+                id: test_label2
+            Label:
+                id: test_label3
+        BoxLayout:
+            size_hint_y: None
+            height: margin
+            padding: 10, 10
+            Button:				
+                size_hint: [.35, 1]
+                text: "Back to menu"
+                font_size: button_font_size
+                background_normal: "kuvat/nappi_tausta.png"
+                background_down: "kuvat/nappi_tausta_pressed.png"
+                on_press:
+                    root.manager.transition.direction="right"					 
+                    root.manager.current = "menu"
+            Label
+                            	
 	
 <ItemButton>:
 	width: list_height
 	size_hint_x: None
-	font_size: 30
+	font_size: 15
 	color: (0,0,0,1)
 	
 <AccountButton>:

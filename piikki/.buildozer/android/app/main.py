@@ -2,14 +2,13 @@ from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
 from kivy.uix.button import Button
-from kivy.properties import ObjectProperty
 from kivy.clock import Clock
 from kivy.uix.dropdown import DropDown
-import sqlite3
+from piikki_utilities import  ItemHandler
 import os
-import piikki_utilities
 import customer
-
+import jnius
+    
 
 
 Builder.load_file('piikki.kv')
@@ -61,7 +60,7 @@ class LoginScreen(Screen):
         else:
             self.main_app.current_customer = self.selected_account
             self.unselect_account()
-            self.manager.get_screen("osto").update_screen()
+            self.manager.get_screen("osto").update_screen_entering()
             self.manager.transition.direction = "left"
             self.manager.current = "osto"           
                 
@@ -147,14 +146,56 @@ class BuyScreen(Screen):
         self.pressed_button = None
         self.button_list = []
               
-        item_list = None      
-
-        item_list = piikki_utilities.update_item_list()
-        container = self.ids.buy_item_list
-        if item_list == None: pass
+        self.item_list = self.main_app.item_handler.item_list
+                
+        #just sort the items based on class
+        self.item_list.sort(key=lambda x: x.item_class, reverse=True)
+        self.show_all_items()
+        
+    def update_item_list(self):
+        self.item_list = self.main_app.item_handler.update_item_list()
+        
+    def update_screen_entering(self):
+        self.ids.account_label.text = self.main_app.current_customer.account_name
+        self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
+        self.ids.tab_value_label.color = self.tab_color()
+        self.show_most_bought()
+    
+    '''Updates the customer account name and the tab value when entering the screen and when needed'''
+    def update_screen(self):
+        self.ids.account_label.text = self.main_app.current_customer.account_name
+        self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
+        self.ids.tab_value_label.color = self.tab_color()
+    
+    '''Changes the current customer of the app to None, unselects the items, and swithces screens to login screen'''
+    def to_login_and_logout(self):
+        self.main_app.current_customer = None
+        self.unselect_items()
+        self.manager.transition.direction="right"                     
+        self.manager.current = "login"
+        
+    def show_all_items(self):
+        if len(self.item_list) == 0: pass
         else:
-            for item in item_list:
-                texts = item.name[0].upper() + item.name[1:] + "\n" + str(item.price)
+            container = self.ids.buy_item_list
+            container.clear_widgets()
+            self.unselect_items()
+            for item in self.item_list:
+                button = ItemButton(item, text = item.name,
+                                     background_normal = item.normal_background,
+                                     background_down = item.pressed_background)
+                button.bind(on_press=self.select_item)
+                self.button_list.append(button)
+                container.add_widget(button)
+            
+    def show_candy(self):
+        if self.item_list == None: pass
+        else:
+            candy_list = filter(lambda x: x.item_class == "Candy", self.item_list)
+            container = self.ids.buy_item_list
+            container.clear_widgets()
+            self.unselect_items()
+            for item in candy_list:
                 button = ItemButton(item, text = "",
                                      background_normal = item.normal_background,
                                      background_down = item.pressed_background)
@@ -162,17 +203,55 @@ class BuyScreen(Screen):
                 self.button_list.append(button)
                 container.add_widget(button)
     
-    def update_screen(self):
-        self.ids.account_label.text = self.main_app.current_customer.account_name
-        self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
-        self.ids.tab_value_label.color = self.tab_color()
+    def show_soft_drinks(self):
+        if self.item_list == None: pass
+        else:
+            drink_list = filter(lambda x: x.item_class == "Soft drink", self.item_list)
+            container = self.ids.buy_item_list
+            container.clear_widgets()
+            self.unselect_items()
+            for item in drink_list:
+                button = ItemButton(item, text = "",
+                                     background_normal = item.normal_background,
+                                     background_down = item.pressed_background)
+                button.bind(on_press=self.select_item)
+                self.button_list.append(button)
+                container.add_widget(button)
     
-    
-    def to_menu_and_logout(self):
-        self.main_app.current_customer = None
-        self.unselect_items()
-        self.manager.transition.direction="right"                     
-        self.manager.current = "menu"
+    def show_food(self):
+        if self.item_list == None: pass
+        else:
+            food_list = filter(lambda x: x.item_class == "Food", self.item_list)
+            container = self.ids.buy_item_list
+            container.clear_widgets()
+            self.unselect_items()
+            for item in food_list:
+                button = ItemButton(item, text = "",
+                                     background_normal = item.normal_background,
+                                     background_down = item.pressed_background)
+                button.bind(on_press=self.select_item)
+                self.button_list.append(button)
+                container.add_widget(button)
+        
+    def show_most_bought(self):
+        if len(self.item_list) == 0 or self.main_app.current_customer == None: pass
+        else:
+            most_bought = self.main_app.current_customer.most_bought()
+            if most_bought:
+                most_bought_list = [x[0] for x in most_bought]
+                container = self.ids.most_bought_item_list
+                container.clear_widgets()
+                for item in most_bought_list:
+                    button = ItemButton(item, text = item.name,
+                                         background_normal = item.normal_background,
+                                         background_down = item.pressed_background)
+                    self.main_app.get_screen("test").ids.test_label3.text = item.normal_background
+                    button.bind(on_press=self.select_item)
+                    self.button_list.append(button)
+                    container.add_widget(button)     
+
+ 
+        
         
     def select_item(self, button):
         if self.selected_item == None:
@@ -208,15 +287,14 @@ class BuyScreen(Screen):
         if self.selected_item == None: pass
         else:
             self.main_app.current_customer.pay_from_tab(self.selected_item.price)
-            self.main_app.current_customer.update_tab_value()
+            self.main_app.current_customer.save_buy(self.selected_item)
             self.update_screen()
 
     def buy_and_exit(self):
         if self.selected_item == None: pass
         else:
             self.main_app.current_customer.pay_from_tab(self.selected_item.price)
-            self.main_app.current_customer.update_tab_value()
-            self.to_menu_and_logout()
+            self.to_login_and_logout()
             
     def tab_color(self):        
         tab = self.main_app.current_customer.tab_value 
@@ -241,7 +319,6 @@ class CustomerScreen(Screen):
             self.ids.warning_label.text = "Please enter a proper amount"
         else:
             self.main_app.current_customer.pay_to_tab(float(input.text))
-            self.main_app.current_customer.update_tab_value()
             self.update_screen()
             self.ids.warning_label.text = "Added {} succesfully to your tab".format(float(input.text))
             input.text= ""
@@ -288,23 +365,25 @@ class AdminScreen(Screen):
     
     
     def add_item(self):
+        warning_label = self.ids.warning_label
         name = self.ids.name_input.text
         price = ""
         try: price = float(self.ids.price_input.text)
-        except ValueError: pass
+        except ValueError: warning_label.text = "Invalid input, use the dot"
         file_name = self.ids.image_input.text
         item_class = self.ids.dropdown_button.text
         
-        warning_label = self.ids.warning_label
+        
         
         if name == "" or price == "" or file_name == "" or item_class == "No class selected":
             warning_label.text = "Please fill all the needed information"
         else:                    
-            piikki_utilities.add_item(name,price, file_name, item_class)
-            
+            self.main_app.item_handler.add_item(name,price, file_name, item_class)
+            self.main_app.item_handler.update_item_list()
             self.ids.name_input.text = ""
             self.ids.price_input.text = ""
-            self.ids.image_input.text = ""            
+            self.ids.image_input.text = ""    
+            self.manager.get_screen("osto").update_items()
             warning_label.text = "{} added succesfully".format(name)
             
         def empty_warning():
@@ -315,6 +394,9 @@ class AdminScreen(Screen):
 '''FileScreen is used to select item paths from the device'''        
 class FileScreen(Screen):
     pass  
+
+class TestScreen(Screen):
+    pass
 
 
 '''ItemButton is used in the BuyScreen to portray the items'''
@@ -344,31 +426,45 @@ class PiikkiManager(ScreenManager):
 
     def __init__(self, **kv):
         ScreenManager.__init__(self, **kv)
+        self.app = kv['piikki_app']
+        #pc
+        #path = os.getcwd()
+        #android
+        path = self.app.user_data_dir               
         
-        
-        self.current_customer = None        
+        self.current_customer = None
+        customer.full_path = path
+        customer.db_path = os.path.join(path, "piikki.db")   #to be changed from global variable to handler class
+        customer.enable_databases()
         self.customer_list = customer.load_customers()
+        self.item_handler = ItemHandler(path)
 
         self.add_widget(MenuScreen(name="menu", main_app = self))
+        self.add_widget(TestScreen(name="test", main_app=self))
         self.add_widget(LoginScreen(name="login", main_app = self))
         self.add_widget(AccountScreen(name="account", main_app = self))
         self.add_widget(CustomerScreen(name="customer", main_app = self))
         self.add_widget(BuyScreen(name="osto", main_app = self))
         self.add_widget(AdminScreen(name="admin", main_app = self))
         self.add_widget(FileScreen(name="select", main_app = self))
-
-        
-        
+  
+       
         
 
 '''Finally the main app class used by kivy'''        
 class PiikkiApp(App):    
     
-    man = PiikkiManager()
-        
+    
+ 
     
     def build(self):
-        #customer.enable_databases()
+        self.man = PiikkiManager(piikki_app = self)
+
+    
+        self.man.get_screen("test").ids.test_label1.text = self.user_data_dir
+        self.man.get_screen("test").ids.test_label2.text = os.getcwd()
+        #self.man.get_screen("test").ids.test_label3.text = os.path.join(os.getcwd(), "piikki.db")
+        
         return self.man
 
 if __name__ == '__main__':

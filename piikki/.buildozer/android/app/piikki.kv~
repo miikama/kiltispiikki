@@ -1,0 +1,699 @@
+#:import sm kivy.uix.screenmanager
+
+#:set list_height 150
+#:set background_color (0, 0.5, 0.5, 1)
+#:set logo_color (0.65, 0.64, 0.18, 1)
+#:set black (0,0,0,1)
+#:set white (1,1,1,1)
+#:set margin 70
+#:set button_font_size 26
+#:set button_back "kuvat/nappi_tausta.png"
+#:set button_back_pressed "kuvat/nappi_tausta_pressed.png"
+
+
+
+<MenuScreen>:
+	BoxLayout:
+		canvas.before:
+			Color:
+				rgba: logo_color
+			Rectangle:
+				pos: self.pos
+				size: self.size				
+			Color:
+				rgba: (0,0,0,1)
+			Rectangle:
+				pos: self.x, self.y + margin
+				size: (self.width, self.height - 2 * margin)
+			Color:
+				rgba: (1,1,1,1)
+			Rectangle:
+				pos: root.center_x - root.width/ 2.5, root.center_y - (root.height - 200) / 2
+				size: root.height- 200, root.height-200
+				source: "kuvat/taustalogo.png"
+		orientation: "vertical"
+		BoxLayout:
+			size_hint_y: None
+			height: margin
+			Label
+			Label:
+				id: otsikko
+				text: "Kiltispiikki"
+				color: black
+				font_size: 30
+			Label
+		BoxLayout:
+			padding: 0, 0, 50,0
+			orientation: "horizontal"
+			Label
+			BoxLayout:
+				spacing: 10
+				size_hint: [.5, 1]
+				orientation: "vertical"
+				Label
+				Button:
+					text: "Buy something"					
+					size_hint: [1, .5]
+					font_size: 27
+                    background_normal: "kuvat/nappi_tausta.png"
+					background_down: "kuvat/nappi_tausta_pressed.png"
+					on_release:
+						root.manager.transition.direction="left"			
+						root.manager.current ="login"
+				Button:
+					text: "Create an account"
+					size_hint: [1, .5]
+					font_size: 27
+					background_normal: "kuvat/nappi_tausta.png"
+					background_down: "kuvat/nappi_tausta_pressed.png"
+					on_release:
+						root.manager.transition.direction="left"
+						root.manager.current = "account"
+				Button:
+					text: "To admin window"
+					size_hint: [1, .5]
+					font_size: 27
+					background_normal: "kuvat/nappi_tausta.png"
+					background_down: "kuvat/nappi_tausta_pressed.png"
+					on_release:
+						root.manager.transition.direction="left"
+						root.manager.current = "admin"
+				Label
+		Label:
+			size_hint_y: None
+			height: margin
+
+
+<LoginScreen>:
+	BoxLayout:
+		canvas.before:
+			Color:
+				rgba: logo_color
+			Rectangle:
+				pos: self.pos
+				size: self.size				
+			Color:
+				rgba: (0,0,0,1)
+			Rectangle:
+				pos: self.x, self.y + margin
+				size: (self.width, self.height - 2 * margin)
+			Color:
+				rgba: (1,1,1,1)
+			Rectangle:
+				pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+				size: root.height- 200, root.height-200
+				source: "kuvat/taustalogo.png"
+		orientation: "vertical"
+		Label:
+			size_hint_y: None
+			height: margin
+		BoxLayout:
+			size_hint: [1, .7]
+			orientation: "horizontal"
+			padding: [20, 20, 20, 20]			
+			BoxLayout:				
+				Label
+				ScrollView:
+					size_hint: [None, None]
+					size: [root.width/2 - 50, self.parent.height]
+					GridLayout:
+						canvas.before:
+							Color:
+								rgba: (1,1,1,.8)
+							Rectangle:
+								pos:self.pos
+								size: self.size
+						height: self.minimum_height
+						do_scroll_x: False 
+						cols: 1
+						spacing: 5
+						size_hint_y: None
+						id: account_list
+				Label
+			BoxLayout:
+				orientation: "vertical"	
+				spacing: 5
+				Label:
+					id: info_label
+					size_hint: [1, .2]
+					text: "Please select your account from the list"		
+				Label:
+					id: account_label
+					size_hint: [1, .2]
+					text: ""
+				Label:
+					id: customer_name_label
+					size_hint: [1, .2]
+				Label:
+					id: tab_value_label
+					size_hint: [1, .2]					
+				Label:
+					size_hint: [1, .2]
+				BoxLayout:
+					size_hint: [1, .6]
+					Label
+					Button:
+						size_hint: [3, 1]
+						text: "Continue to buy"
+						font_size: button_font_size
+						background_normal: "kuvat/nappi_tausta.png"
+						background_down: "kuvat/nappi_tausta_pressed.png"
+						on_release:	root.login()
+					Label
+				BoxLayout:
+					size_hint: [1, .6]
+					Label
+					Button:
+						size_hint: [3,1]
+						font_size: button_font_size
+						background_normal: "kuvat/nappi_tausta.png"
+						background_down: "kuvat/nappi_tausta_pressed.png"
+						text: "View tab"
+						on_release:
+							root.view_account()
+					Label
+				Label:
+					id: warning_label
+				Label
+		BoxLayout:
+			size_hint: [1, None]
+			height: margin
+			padding: 10,10
+			Button:
+				text: "Back to menu"
+				size_hint: [.35, 1]
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release:
+					root.unselect_account()
+					root.manager.transition.direction="right"
+					root.manager.current = "menu"
+			Label
+
+
+
+<AccountScreen>:
+	BoxLayout:
+		canvas.before:
+			Color:
+				rgba: logo_color
+			Rectangle:
+				pos: self.pos
+				size: self.size				
+			Color:
+				rgba: (0,0,0,1)
+			Rectangle:
+				pos: self.x, self.y + margin
+				size: (self.width, self.height - 2 * margin)
+			Color:
+				rgba: (1,1,1,1)
+			Rectangle:
+				pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+				size: root.height- 200, root.height-200
+				source: "kuvat/taustalogo.png"
+		orientation: "vertical"
+		Label:
+			size_hint_y: None
+			height: margin
+		Label:
+			size_hint: [1, .3]
+			font_size: 20
+			text: "Fill in the following information to create an account"
+		BoxLayout:
+			size_hint: [1, .3]
+			Label:
+				text: "your account name:"
+			TextInput:
+				id: acc_name
+		BoxLayout:
+			size_hint: [1, .3]
+			Label:
+				text: "your given name:"
+			TextInput:
+				id: given_name
+		BoxLayout:
+			size_hint: [1, .3]
+			Label:
+				text: "your family name:"
+			TextInput:
+				id: family_name
+		BoxLayout:
+			size_hint: [1, .3]
+			Label: 
+				text: "password:"
+			TextInput:
+				password: True
+				id: password1
+		BoxLayout:
+			size_hint: [1, .3]
+			Label: 
+				text: "repeat password:"
+			TextInput:
+				password: True
+				id: password2
+		Label:
+			size_hint: [1, .2]
+		BoxLayout:
+			size_hint: [1, .4]
+			Label:
+				size_hint: [.7, 1]
+			Button:
+				text: "Create account"
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release:	root.create_account()
+			Label:
+				size_hint: [.7,1]
+		Label:
+			id: warning_label
+		BoxLayout:
+			size_hint_y: None
+			height: margin
+			padding: 10,10
+			Button:
+				text: "Back to menu"
+				size_hint: [.35, 1]
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release:
+					root.clear_fields()
+					root.manager.transition.direction="right"
+					root.manager.current = "menu"
+			Label
+			
+			
+			 	
+<BuyScreen>:
+	BoxLayout:
+		spacing: 10
+		canvas.before:
+			Color:
+				rgba: logo_color
+			Rectangle:
+				pos: self.pos
+				size: self.size				
+			Color:
+				rgba: (0,0,0,1)
+			Rectangle:
+				pos: self.x, self.y + margin
+				size: (self.width, self.height - 2 * margin)
+			Color:
+				rgba: (1,1,1,1)
+			Rectangle:
+				pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+				size: root.height- 200, root.height-200
+				source: "kuvat/taustalogo.png"
+		orientation: "vertical"
+		BoxLayout:
+			size_hint_y: None
+			height: margin
+			Label:
+				text: "Items in sale"
+				font_size: 30
+			GridLayout:
+				rows: 1
+				Label:
+					color: black
+					text_size: self.size
+					halign: "left"
+					valign: "middle"
+					text: "user: " 
+					font_size: 24	
+				Label:
+					size_hint_x: None
+					width: self.parent.width * 2 / 5
+					text_size: self.size
+					valign: "middle"					
+					id: account_label
+					font_size: 30
+				Label:
+					color: black
+					text_size: self.size
+					halign: "center"
+					valign: "middle"
+					text: "tab:"
+					font_size: 24
+				Label:
+					id: tab_value_label
+					color: (1,1,1,1)
+					halign: "left"
+					valign: "middle"
+					text_size: self.size
+					font_size: 35				
+		ScrollView:
+			size_hint: [None, None]
+			size: [root.width, list_height]
+			GridLayout:
+				canvas.before:
+					Color:
+						rgba: (1,1,1,.2)
+					Rectangle:
+						pos: self.pos
+						size: self.size
+				width: self.minimum_width
+				do_scroll_y: False 
+				rows: 1
+				spacing: 10
+				size_hint_x: None
+				id: buy_item_list	
+		BoxLayout:
+			size_hint: [1, .2]
+			Label:
+				text: "Selected items"
+				font_size: 18
+				size_hint: [.5,1]
+			Label:
+				text: "Item"
+				font_size: 20
+			Label:
+				text: "Price"
+				font_size: 20
+		BoxLayout:
+			
+			orientation: "vertical"
+			BoxLayout:
+				padding: 0,0,15,0
+				size_hint: [1, .4]
+				Label:
+					size_hint: [.5,1]
+				BoxLayout:
+					canvas.before:
+						Color:
+							rgba: (1,1,1,.8)
+						Rectangle:
+							pos:self.pos
+							size: self.size
+					Label:
+						color: black
+						font_size: 17
+						id: product_name_label
+					Label:
+						color: black
+						font_size: 17
+						id: product_price_label
+			Label
+		BoxLayout:
+			size_hint: [1, .25]
+			Label:
+			Button:
+				size_hint: [.7,1]
+				text: "Buy item"
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release: root.buy_item()
+			Label:
+				size_hint: [.1,1]
+			Button:
+				size_hint: [.7,1]
+				text: "Buy and exit"
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release: root.buy_and_exit()
+			Label:
+				size_hint: [.1,1]
+		BoxLayout:
+			padding: 10,10
+			size_hint_y: None
+			height: margin
+			Button:				
+				text: "Back to menu"
+				size_hint: [.35, 1]
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release: root.to_menu_and_logout()
+			Label	
+			
+<CustomerScreen>:
+	BoxLayout:
+		padding: 0,0,20,0
+		orientation: "vertical"
+		canvas.before:
+			Color:
+				rgba: logo_color
+			Rectangle:
+				pos: self.pos
+				size: self.size				
+			Color:
+				rgba: (0,0,0,1)
+			Rectangle:
+				pos: self.x, self.y + margin
+				size: (self.width, self.height - 2 * margin)
+			Color:
+				rgba: (1,1,1,1)
+			Rectangle:
+				pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+				size: root.height- 200, root.height-200
+				source: "kuvat/taustalogo.png"
+		BoxLayout:
+			size_hint_y: None
+			height: margin
+			Label:
+				text: "Your account"
+				font_size: 30
+			GridLayout:
+				rows: 1
+				Label:
+					color: black
+					text_size: self.size
+					halign: "left"
+					valign: "middle"
+					text: "user: " 
+					font_size: 24	
+				Label:
+					size_hint_x: None
+					width: self.parent.width * 2 / 5
+					text_size: self.size
+					valign: "middle"					
+					id: account_label
+					font_size: 30
+				Label:
+					color: black
+					text_size: self.size
+					halign: "center"
+					valign: "middle"
+					text: "tab:"
+					font_size: 24
+				Label:
+					id: tab_value_label
+					color: (1,1,1,1)
+					halign: "left"
+					valign: "middle"
+					text_size: self.size
+					font_size: 35
+		Label:
+			text: "Here you can view your account information and add cash too your tab"
+			font_size: 20 
+		BoxLayout:
+			size_hint: [1, .3]
+			Label: 
+				text: "Amount to add to tab"
+			TextInput:
+				id: add_tab_input
+		BoxLayout:
+			size_hint: [1, .3]
+			Label
+			Button:
+				text: "Add to tab"
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release: root.add_to_tab()
+		Label:
+			id: warning_label
+		Label
+		BoxLayout:
+			size_hint_y: None
+			height: margin
+			padding: 10,10
+			Button:
+				text: "Back to login"
+				size_hint: [.35, 1]
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_release:
+					root.on_leave_screen()
+					root.manager.transition.direction="right"
+					root.manager.current = "login"
+			Label				
+
+
+	
+			
+<AdminScreen>:
+	BoxLayout:
+		id: main_layout
+		orientation: "vertical"
+		canvas.before:
+			Color:
+				rgba: logo_color
+			Rectangle:
+				pos: self.pos
+				size: self.size				
+			Color:
+				rgba: (0,0,0,1)
+			Rectangle:
+				pos: self.x, self.y + margin
+				size: (self.width, self.height - 2 * margin)
+			Color:
+				rgba: (1,1,1,1)
+			Rectangle:
+				pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+				size: root.height- 200, root.height-200
+				source: "kuvat/taustalogo.png"
+		Label:
+			size_hint_y: None
+			height: margin
+		Label:
+			size_hint: [1, .3]
+			text: "Add a new item information"
+		BoxLayout:
+			size_hint: [1, .3]
+			BoxLayout:
+				Label:
+					text: "Name of the item"
+				TextInput:
+					id: name_input
+		BoxLayout:
+			size_hint: [1, .3]
+			BoxLayout:
+				Label:
+					text: "Price of the item"
+				TextInput:	
+					id: price_input	
+		BoxLayout:
+			size_hint: [1, .3]
+			BoxLayout:
+				Label:
+					text: "Item class"
+				Button:
+					text: "No class selected"
+					font_size: button_font_size
+					background_normal: "kuvat/nappi_tausta.png"
+					background_down: "kuvat/nappi_tausta_pressed.png"
+					id: dropdown_button
+		GridLayout:
+			size_hint: [1, .6]
+			rows: 2
+			columns: 2
+			Label:
+				text: "Background image path"
+			TextInput:	
+				id: image_input
+			Label:
+			Button:
+				text: "Choose picture"
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_press:
+					root.manager.transition.direction= "left"
+					root.manager.current = "select"
+		Label:
+			size_hint: [1, .2]
+		BoxLayout:
+			size_hint: [1, .4]
+			Label: 
+				size_hint: [.7, 1]
+			Button:
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				text: "Add item"
+				on_press: root.add_item()
+			Label:
+				size_hint: [.7,1]	
+		Label:
+			id: warning_label		
+		BoxLayout:
+			size_hint_y: None
+			height: margin
+			padding: 10, 10
+			Button:				
+				size_hint: [.35, 1]
+				text: "Back to menu"
+				font_size: button_font_size
+				background_normal: "kuvat/nappi_tausta.png"
+				background_down: "kuvat/nappi_tausta_pressed.png"
+				on_press:
+					root.manager.transition.direction="right"					 
+					root.manager.current = "menu"
+			Label
+		
+
+<FileScreen>:
+    BoxLayout:
+        size: root.size
+        pos: root.pos
+        orientation: "vertical"
+        FileChooserListView:
+            id: filechooser
+
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            Button:
+                text: "Cancel"
+                on_release: 
+                	root.manager.transition.direction = "right"
+                	root.manager.current = "admin"
+
+            Button:
+                text: "Load"
+                on_release:
+                	root.manager.get_screen("admin").ids.image_input.text = filechooser.selection[0]
+                	root.manager.transition.direction = "right"
+                	root.manager.current = "admin"
+                	
+                	
+	
+<ItemButton>:
+	width: 150
+	size_hint_x: None
+	font_size: 30
+	color: (0,0,0,1)
+	
+<AccountButton>:
+	height: 50
+	size_hint_y: None
+	font_size: 35
+    #background_color: logo_color 
+	background_normal: "kuvat/nappi_tausta.png"
+	background_down: "kuvat/nappi_tausta_pressed.png"
+	
+	
+<CustomDropDown>:
+    Button:
+        text: 'Soft drink'
+        size_hint_y: None
+        height: 40
+        font_size: button_font_size
+		background_normal: "kuvat/nappi_tausta.png"
+		background_down: "kuvat/nappi_tausta_pressed.png"
+        on_release: root.select(self.text)
+    Button:
+        text: 'Candy'
+        size_hint_y: None
+        height: 40
+        on_release: root.select(self.text)
+        font_size: button_font_size
+		background_normal: "kuvat/nappi_tausta.png"
+		background_down: "kuvat/nappi_tausta_pressed.png"
+    Button:
+        text: 'Food'
+        size_hint_y: None
+        height: 40
+        on_release: root.select(self.text)
+        font_size: button_font_size
+		background_normal: "kuvat/nappi_tausta.png"
+		background_down: "kuvat/nappi_tausta_pressed.png"
+	
+	
+
+					

@@ -4,8 +4,10 @@ from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.clock import Clock
 from kivy.uix.dropdown import DropDown
-import piikki_utilities
+from piikki_utilities import  ItemHandler
+import os
 import customer
+import jnius
     
 
 
@@ -144,12 +146,14 @@ class BuyScreen(Screen):
         self.pressed_button = None
         self.button_list = []
               
-        self.item_list = None      
-
-        self.item_list = piikki_utilities.update_item_list()
+        self.item_list = self.main_app.item_handler.item_list
+                
         #just sort the items based on class
         self.item_list.sort(key=lambda x: x.item_class, reverse=True)
         self.show_all_items()
+        
+    def update_item_list(self):
+        self.item_list = self.main_app.item_handler.update_item_list()
         
     def update_screen_entering(self):
         self.ids.account_label.text = self.main_app.current_customer.account_name
@@ -171,13 +175,13 @@ class BuyScreen(Screen):
         self.manager.current = "login"
         
     def show_all_items(self):
-        if self.item_list == None: pass
+        if len(self.item_list) == 0: pass
         else:
             container = self.ids.buy_item_list
             container.clear_widgets()
             self.unselect_items()
             for item in self.item_list:
-                button = ItemButton(item, text = "",
+                button = ItemButton(item, text = item.name,
                                      background_normal = item.normal_background,
                                      background_down = item.pressed_background)
                 button.bind(on_press=self.select_item)
@@ -230,7 +234,7 @@ class BuyScreen(Screen):
                 container.add_widget(button)
         
     def show_most_bought(self):
-        if self.item_list == None or self.main_app.current_customer == None: pass
+        if len(self.item_list) == 0 or self.main_app.current_customer == None: pass
         else:
             most_bought = self.main_app.current_customer.most_bought()
             if most_bought:
@@ -238,13 +242,16 @@ class BuyScreen(Screen):
                 container = self.ids.most_bought_item_list
                 container.clear_widgets()
                 for item in most_bought_list:
-                    button = ItemButton(item, text = "",
+                    button = ItemButton(item, text = item.name,
                                          background_normal = item.normal_background,
                                          background_down = item.pressed_background)
+                    self.main_app.get_screen("test").ids.test_label3.text = item.normal_background
                     button.bind(on_press=self.select_item)
                     self.button_list.append(button)
                     container.add_widget(button)     
 
+ 
+        
         
     def select_item(self, button):
         if self.selected_item == None:
@@ -358,23 +365,25 @@ class AdminScreen(Screen):
     
     
     def add_item(self):
+        warning_label = self.ids.warning_label
         name = self.ids.name_input.text
         price = ""
         try: price = float(self.ids.price_input.text)
-        except ValueError: pass
+        except ValueError: warning_label.text = "Invalid input, use the dot"
         file_name = self.ids.image_input.text
         item_class = self.ids.dropdown_button.text
         
-        warning_label = self.ids.warning_label
+        
         
         if name == "" or price == "" or file_name == "" or item_class == "No class selected":
             warning_label.text = "Please fill all the needed information"
         else:                    
-            piikki_utilities.add_item(name,price, file_name, item_class)
-            
+            self.main_app.item_handler.add_item(name,price, file_name, item_class)
+            self.main_app.item_handler.update_item_list()
             self.ids.name_input.text = ""
             self.ids.price_input.text = ""
-            self.ids.image_input.text = ""            
+            self.ids.image_input.text = ""    
+            self.manager.get_screen("osto").update_items()
             warning_label.text = "{} added succesfully".format(name)
             
         def empty_warning():
@@ -385,6 +394,9 @@ class AdminScreen(Screen):
 '''FileScreen is used to select item paths from the device'''        
 class FileScreen(Screen):
     pass  
+
+class TestScreen(Screen):
+    pass
 
 
 '''ItemButton is used in the BuyScreen to portray the items'''
@@ -414,31 +426,45 @@ class PiikkiManager(ScreenManager):
 
     def __init__(self, **kv):
         ScreenManager.__init__(self, **kv)
+        self.app = kv['piikki_app']
+        #pc
+        #path = os.getcwd()
+        #android
+        path = self.app.user_data_dir               
         
-        
-        self.current_customer = None        
+        self.current_customer = None
+        customer.full_path = path
+        customer.db_path = os.path.join(path, "piikki.db")   #to be changed from global variable to handler class
+        customer.enable_databases()
         self.customer_list = customer.load_customers()
+        self.item_handler = ItemHandler(path)
 
         self.add_widget(MenuScreen(name="menu", main_app = self))
+        self.add_widget(TestScreen(name="test", main_app=self))
         self.add_widget(LoginScreen(name="login", main_app = self))
         self.add_widget(AccountScreen(name="account", main_app = self))
         self.add_widget(CustomerScreen(name="customer", main_app = self))
         self.add_widget(BuyScreen(name="osto", main_app = self))
         self.add_widget(AdminScreen(name="admin", main_app = self))
         self.add_widget(FileScreen(name="select", main_app = self))
-
-        
-        
+  
+       
         
 
 '''Finally the main app class used by kivy'''        
 class PiikkiApp(App):    
     
-    man = PiikkiManager()
-        
+    
+ 
     
     def build(self):
-        customer.enable_databases()
+        self.man = PiikkiManager(piikki_app = self)
+
+    
+        self.man.get_screen("test").ids.test_label1.text = self.user_data_dir
+        self.man.get_screen("test").ids.test_label2.text = os.getcwd()
+        #self.man.get_screen("test").ids.test_label3.text = os.path.join(os.getcwd(), "piikki.db")
+        
         return self.man
 
 if __name__ == '__main__':

@@ -2,7 +2,8 @@ import sqlite3
 import os
 from piikki_utilities import Item
 
-full_path = "{}/{}".format(os.getcwd(), "piikki.db")  #on a computer
+full_path =  os.getcwd() #on a computer
+db_path = "{}/{}".format(os.getcwd(), "piikki.db")
 #full_path = "/sdcard/data/piikki.db"         #MAYBE NO   #on android, create the data folder on your home folder which is /sdcard
 
 
@@ -11,8 +12,7 @@ def load_customers():
     
     
     customers = []
-    
-    con = sqlite3.connect(full_path)        
+    con = sqlite3.connect(db_path)        
     c = con.cursor()      
     
     c.execute("SELECT * FROM customers")
@@ -28,7 +28,7 @@ def load_customers():
 
 '''Creates piikki database if it doesn't exist and adds customer and buy_action tables'''
 def enable_databases():      
-        con = sqlite3.connect(full_path)
+        con = sqlite3.connect(db_path)
                 
         c = con.cursor()        
         c.execute('''CREATE TABLE IF NOT EXISTS customers (account_name text, password text,
@@ -37,7 +37,7 @@ def enable_databases():
         c.close()       
         con.close()
                 
-        con = sqlite3.connect(full_path)
+        con = sqlite3.connect(db_path)
         c = con.cursor()
         
         c.execute('''CREATE TABLE IF NOT EXISTS buy_actions (account_name text, item_name text, item_class text, buy_value real)''')
@@ -49,7 +49,7 @@ def enable_databases():
 '''Resets all tab values to 0, USE WITH CAUTION'''        
 def clear_tab_values():
     
-    con = sqlite3.connect(full_path)
+    con = sqlite3.connect(db_path)
             
     c = con.cursor()        
     c.execute("UPDATE customers SET tab_value=0.0")
@@ -61,7 +61,7 @@ def clear_tab_values():
 '''Returns row number where the account is in the database or None if it doesn't exist''' 
 def account_row(name):
         
-        con = sqlite3.connect(full_path)        
+        con = sqlite3.connect(db_path)        
         c = con.cursor()      
         
         c.execute("SELECT rowid FROM customers WHERE account_name = ?", (name,))
@@ -85,7 +85,7 @@ class Customer():
        
     '''all the data is stored in database piikki.db'''
     def create_new_account(self):
-        con = sqlite3.connect(full_path)
+        con = sqlite3.connect(db_path)
         
         c = con.cursor()        
         values = (self.account_name, self.password, self.customer_name, self.tab_value)
@@ -97,7 +97,7 @@ class Customer():
         
     '''Saves the buy information into buy_actions TABLE with values account_name, item_name, item_class, buy_value '''    
     def save_buy(self, item):
-        con = sqlite3.connect(full_path)
+        con = sqlite3.connect(db_path)
         
         c = con.cursor()        
         values = (self.account_name, item.name, item.item_class, item.price)
@@ -114,14 +114,14 @@ class Customer():
     
     '''returns the items in the order of most bought first together with the bought amount'''
     def most_bought(self):
-        con = sqlite3.connect(full_path)
+        con = sqlite3.connect(db_path)
         
         c = con.cursor()
         c.execute("SELECT  item_name, buy_value, item_class, COUNT(item_name) FROM buy_actions WHERE account_name=? GROUP BY account_name,item_name", (self.account_name,))
         data = c.fetchall()        
         con.close()
         
-        items = [(Item(i[0], i[1], i[2]), i[3]) for i in data ]
+        items = [(Item(i[0], i[1], i[2], full_path), i[3]) for i in data ]
         items.sort(key=lambda x: x[1])
         items.reverse()
         #items is list of tuples (Item, number of bought)
@@ -142,7 +142,7 @@ class Customer():
     
     '''Updates the customers tab_value in the database'''
     def update_tab_value(self):
-        con = sqlite3.connect(full_path)
+        con = sqlite3.connect(db_path)
         
         c = con.cursor()               
         c.execute("UPDATE customers SET tab_value=? WHERE account_name=?", (self.tab_value, self.account_name))
