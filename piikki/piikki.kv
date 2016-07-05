@@ -47,6 +47,7 @@
             orientation: "horizontal"
             Label
             BoxLayout:
+                id: menu_button_box
                 spacing: 10
                 size_hint: [.5, 1]
                 orientation: "vertical"
@@ -80,6 +81,7 @@
                         root.manager.current = "admin"
                 Button:
                     text: "to test"
+                    size_hint: [1, .5]
                     font_size: 27
                     background_normal: "kuvat/nappi_tausta.png"
                     background_down: "kuvat/nappi_tausta_pressed.png"
@@ -232,34 +234,32 @@
 			size_hint: [1, .3]
 			Label:
 				text: "your account name:"
-			TextInput:
-				id: acc_name
+            BoxLayout:
+                id: acc_name_container        
 		BoxLayout:
 			size_hint: [1, .3]
 			Label:
 				text: "your given name:"
-			TextInput:
-				id: given_name
+            BoxLayout:
+                id: given_name_container        
 		BoxLayout:
 			size_hint: [1, .3]
 			Label:
 				text: "your family name:"
-			TextInput:
-				id: family_name
+            BoxLayout:
+                id: family_name_container        
 		BoxLayout:
 			size_hint: [1, .3]
 			Label: 
 				text: "password:"
-			TextInput:
-				password: True
-				id: password1
+            BoxLayout:
+                id: password1_container        
 		BoxLayout:
 			size_hint: [1, .3]
 			Label: 
 				text: "repeat password:"
-			TextInput:
-				password: True
-				id: password2
+            BoxLayout:
+                id: password2_container        
 		Label:
 			size_hint: [1, .2]
 		BoxLayout:
@@ -534,8 +534,8 @@
 			size_hint: [1, .3]
 			Label: 
 				text: "Amount to add to tab"
-			TextInput:
-				id: add_tab_input
+			BoxLayout:
+				id: add_tab_input_container
 		BoxLayout:
 			size_hint: [1, .3]
 			Label
@@ -568,104 +568,104 @@
 	
 			
 <AdminScreen>:
-	BoxLayout:
-		id: main_layout
-		orientation: "vertical"
-		canvas.before:
-			Color:
-				rgba: logo_color
-			Rectangle:
-				pos: self.pos
-				size: self.size				
-			Color:
-				rgba: (0,0,0,1)
-			Rectangle:
-				pos: self.x, self.y + margin
-				size: (self.width, self.height - 2 * margin)
-			Color:
-				rgba: (1,1,1,1)
-			Rectangle:
-				pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
-				size: root.height- 200, root.height-200
-				source: "kuvat/taustalogo.png"
-		Label:
-			size_hint_y: None
-			height: margin
-		Label:
-			size_hint: [1, .3]
-			text: "Add a new item information"
-		BoxLayout:
-			size_hint: [1, .3]
-			BoxLayout:
-				Label:
-					text: "Name of the item"
-				TextInput:
-					id: name_input
-		BoxLayout:
-			size_hint: [1, .3]
-			BoxLayout:
-				Label:
-					text: "Price of the item"
-				TextInput:	
-					id: price_input	
-		BoxLayout:
-			size_hint: [1, .3]
-			BoxLayout:
-				Label:
-					text: "Item class"
-				Button:
-					text: "No class selected"
-					font_size: button_font_size
-					background_normal: "kuvat/nappi_tausta.png"
-					background_down: "kuvat/nappi_tausta_pressed.png"
-					id: dropdown_button
-		GridLayout:
-			size_hint: [1, .6]
-			rows: 2
-			columns: 2
-			Label:
-				text: "Background image path"
-			TextInput:	
-				id: image_input
-			Label:
-			Button:
-				text: "Choose picture"
-				font_size: button_font_size
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_press:
-					root.manager.transition.direction= "left"
-					root.manager.current = "select"
-		Label:
-			size_hint: [1, .2]
-		BoxLayout:
-			size_hint: [1, .4]
-			Label: 
-				size_hint: [.7, 1]
-			Button:
-				font_size: button_font_size
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				text: "Add item"
-				on_press: root.add_item()
-			Label:
-				size_hint: [.7,1]	
-		Label:
-			id: warning_label		
-		BoxLayout:
-			size_hint_y: None
-			height: margin
-			padding: 10, 10
-			Button:				
-				size_hint: [.35, 1]
-				text: "Back to menu"
-				font_size: button_font_size
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_press:
-					root.manager.transition.direction="right"					 
-					root.manager.current = "menu"
-			Label
+    BoxLayout:
+        id: main_layout
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: logo_color
+            Rectangle:
+                pos: self.pos
+                size: self.size				
+            Color:
+                rgba: (0,0,0,1)
+            Rectangle:
+                pos: self.x, self.y + margin
+                size: (self.width, self.height - 2 * margin)
+            Color:
+                rgba: (1,1,1,1)
+            Rectangle:
+                pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+                size: root.height- 200, root.height-200
+                source: "kuvat/taustalogo.png"
+        Label:
+            size_hint_y: None
+            height: margin
+        Label:
+            size_hint: [1, .3]
+            text: "Add a new item information"
+        BoxLayout:
+            size_hint: [1, .3]
+            BoxLayout:
+                Label:
+                    text: "Name of the item"
+                BoxLayout:
+                    id: name_input_container
+        BoxLayout:
+            size_hint: [1, .3]
+            BoxLayout:
+                Label:
+                    text: "Price of the item"
+                BoxLayout:
+                    id: price_input_container
+        BoxLayout:
+            size_hint: [1, .3]
+            BoxLayout:
+                Label:
+                    text: "Item class"
+                Button:
+                    text: "No class selected"
+                    font_size: button_font_size
+                    background_normal: "kuvat/nappi_tausta.png"
+                    background_down: "kuvat/nappi_tausta_pressed.png"
+                    id: dropdown_button
+        GridLayout:
+            size_hint: [1, .6]
+            rows: 2
+            columns: 2
+            Label:
+                text: "Background image path"
+            TextInput:	
+                id: image_input
+            Label:
+            Button:
+                text: "Choose picture"
+                font_size: button_font_size
+                background_normal: "kuvat/nappi_tausta.png"
+                background_down: "kuvat/nappi_tausta_pressed.png"
+                on_press:
+                    root.manager.transition.direction= "left"
+                    root.manager.current = "select"
+        Label:
+            size_hint: [1, .2]
+        BoxLayout:
+            size_hint: [1, .4]
+            Label: 
+                size_hint: [.7, 1]
+            Button:
+                font_size: button_font_size
+                background_normal: "kuvat/nappi_tausta.png"
+                background_down: "kuvat/nappi_tausta_pressed.png"
+                text: "Add item"
+                on_press: root.add_item()
+            Label:
+                size_hint: [.7,1]	
+        Label:
+            id: warning_label		
+        BoxLayout:
+            size_hint_y: None
+            height: margin
+            padding: 10, 10
+            Button:				
+                size_hint: [.35, 1]
+                text: "Back to menu"
+                font_size: button_font_size
+                background_normal: "kuvat/nappi_tausta.png"
+                background_down: "kuvat/nappi_tausta_pressed.png"
+                on_press:
+                    root.manager.transition.direction="right"					 
+                    root.manager.current = "menu"
+            Label
 		
 
 <FileScreen>:
@@ -724,6 +724,11 @@
                 id: test_label2
             Label:
                 id: test_label3
+            Button:
+                text: "vibrate"
+                on_release: root.vibrate()
+                background_normal: "kuvat/nappi_tausta.png"
+                background_down: "kuvat/nappi_tausta_pressed.png"
         BoxLayout:
             size_hint_y: None
             height: margin
@@ -761,8 +766,8 @@
         size_hint_y: None
         height: 40
         font_size: button_font_size
-		background_normal: "kuvat/nappi_tausta.png"
-		background_down: "kuvat/nappi_tausta_pressed.png"
+        background_normal: "kuvat/nappi_tausta.png"
+        background_down: "kuvat/nappi_tausta_pressed.png"
         on_release: root.select(self.text)
     Button:
         text: 'Candy'
@@ -770,16 +775,16 @@
         height: 40
         on_release: root.select(self.text)
         font_size: button_font_size
-		background_normal: "kuvat/nappi_tausta.png"
-		background_down: "kuvat/nappi_tausta_pressed.png"
+        background_normal: "kuvat/nappi_tausta.png"
+        background_down: "kuvat/nappi_tausta_pressed.png"
     Button:
         text: 'Food'
         size_hint_y: None
         height: 40
         on_release: root.select(self.text)
         font_size: button_font_size
-		background_normal: "kuvat/nappi_tausta.png"
-		background_down: "kuvat/nappi_tausta_pressed.png"
+        background_normal: "kuvat/nappi_tausta.png"
+        background_down: "kuvat/nappi_tausta_pressed.png"
 	
 	
 

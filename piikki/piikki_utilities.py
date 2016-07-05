@@ -32,6 +32,7 @@ class ItemHandler():
         
         file.write("{},{},{}\n".format(name, price,item_class))
         file.close()
+        self.update_item_list()
         
         
     def update_item_list(self):
@@ -47,7 +48,13 @@ class ItemHandler():
                 price = float(a[1])
                 item_class = a[2][:-1]
                 items.append(Item(name,price, item_class, self.full_path))
-        except IOError: pass
+                
+            file.close()
+            
+        except IOError:
+			file = open(self.full_path +"/items.txt", 'w')
+			file.write("name,price,Item class")
+			file.close()
             
         return items
         

@@ -46,7 +46,7 @@ requirements = kivy,sqlite3, pil, pyjnius
 #presplash.filename = %(source.dir)s/data/presplash.png
 
 # (str) Icon of the application
-#icon.filename = %(source.dir)s/data/icon.png
+icon.filename = kuvat/taustalogo_musta.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
 orientation = landscape
@@ -75,7 +75,7 @@ android.permissions = WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
 #android.minapi = 9
 
 # (int) Android SDK version to use
-#android.sdk = 20
+android.sdk = 20
 
 # (str) Android NDK version to use
 #android.ndk = 9c
@@ -109,7 +109,7 @@ android.permissions = WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
-#android.add_src =
+#android.add_src = google-play-services_lib/classes.jar
 
 # (str) python-for-android branch to use, if not master, useful to try
 # not yet merged features.
@@ -136,13 +136,12 @@ android.permissions = WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
 #android.wakelock = False
 
 # (list) Android application meta-data to set (key=value format)
-#android.meta_data =
+android.meta_data = com.google.android.gms.version=31
 
 # (list) Android library project to add (will be added in the
 # project.properties automatically.)
-#android.library_references =
+android.library_references= play-services-drive/
 
-#
 # iOS specific
 #
 

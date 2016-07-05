@@ -4,10 +4,12 @@ from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.clock import Clock
 from kivy.uix.dropdown import DropDown
+from kivy.uix.textinput import TextInput
 from piikki_utilities import  ItemHandler
+from jnius import autoclass
 import os
 import customer
-import jnius
+
     
 
 
@@ -15,7 +17,7 @@ Builder.load_file('piikki.kv')
 
 '''MenuScreen is the landing screen of the app'''
 class MenuScreen(Screen):
-    pass   
+    pass
  
 '''LoginScreen is used for login'''  
 class LoginScreen(Screen):
@@ -24,7 +26,7 @@ class LoginScreen(Screen):
         super(LoginScreen, self).__init__(**kv)
         self.main_app = kv['main_app']
         self.selected_account = None
-        
+            
         if self.main_app.customer_list == None: pass
         else:
             for cust in self.main_app.customer_list:
@@ -92,14 +94,19 @@ class AccountScreen(Screen):
     
     def __init__(self, **kv):
         Screen.__init__(self, **kv)
-        self.main_app = kv['main_app']    
+        self.main_app = kv['main_app']  
+        self.acc_name_input =self.main_app.add_input(self.ids.acc_name_container)
+        self.given_name_input = self.main_app.add_input(self.ids.given_name_container)
+        self.family_name_input = self.main_app.add_input(self.ids.family_name_container)
+        self.password1 = self.main_app.add_input(self.ids.password1_container, True)
+        self.password2 = self.main_app.add_input(self.ids.password2_container, True)
         
     def create_account(self):
-        acc_name = self.ids.acc_name.text
-        given_name = self.ids.given_name.text
-        family_name = self.ids.family_name.text
-        password1 = self.ids.password1.text
-        password2 = self.ids.password2.text
+        acc_name = self.acc_name_input.text
+        given_name = self.given_name_input.text
+        family_name = self.family_name_input.text
+        password1 = self.password1.text
+        password2 = self.password2.text
         
         warning_label = self.ids.warning_label
                 
@@ -128,11 +135,11 @@ class AccountScreen(Screen):
         Clock.schedule_once(lambda dt: empty_warning(), 7)
 
     def clear_fields(self):
-        self.ids.acc_name.text = ""
-        self.ids.given_name.text = ""
-        self.ids.family_name.text = ""
-        self.ids.password1.text = ""
-        self.ids.password2.text = ""      
+        self.acc_name_input.text = ""
+        self.given_name_input.text = ""
+        self.family_name_input.text = ""
+        self.password1.text = ""
+        self.password2.text = ""      
                  
     
 '''BuyScreen displays the items in sale and handles buy transactions'''            
@@ -311,18 +318,22 @@ class CustomerScreen(Screen):
     
     def __init__(self, **kv):
         super(CustomerScreen, self).__init__(**kv)
-        self.main_app = kv['main_app']    
+        self.main_app = kv['main_app'] 
+        self.add_tab_input = self.main_app.add_input(self.ids.add_tab_input_container)
         
     def add_to_tab(self):
-        input = self.ids.add_tab_input
-        if input.text == "" or float(input.text) >150.0:
+        tab_input = self.add_tab_input
+        try:
+            if tab_input.text == "" or float(tab_input.text) >150.0:
+                self.ids.warning_label.text = "Please enter a proper amount"
+            else:
+                self.main_app.current_customer.pay_to_tab(float(tab_input.text))
+                self.update_screen()
+                self.ids.warning_label.text = "Added {} succesfully to your tab".format(float(tab_input.text))
+                tab_input.text= ""
+        except ValueError:
             self.ids.warning_label.text = "Please enter a proper amount"
-        else:
-            self.main_app.current_customer.pay_to_tab(float(input.text))
-            self.update_screen()
-            self.ids.warning_label.text = "Added {} succesfully to your tab".format(float(input.text))
-            input.text= ""
-        
+            
         
         def empty_warning():
             self.ids.warning_label.text = ""        
@@ -362,28 +373,27 @@ class AdminScreen(Screen):
         mainbutton = self.ids.dropdown_button
         mainbutton.bind(on_release=dropdown.open)
         dropdown.bind(on_select=lambda instance, x: setattr(mainbutton, 'text', x))
+        self.price_input = self.main_app.add_input(self.ids.price_input_container)
+        self.name_input = self.main_app.add_input(self.ids.name_input_container)
     
     
     def add_item(self):
         warning_label = self.ids.warning_label
-        name = self.ids.name_input.text
+        name = self.name_input.text
         price = ""
-        try: price = float(self.ids.price_input.text)
+        try: price = float(self.price_input.text)
         except ValueError: warning_label.text = "Invalid input, use the dot"
         file_name = self.ids.image_input.text
-        item_class = self.ids.dropdown_button.text
-        
-        
+        item_class = self.ids.dropdown_button.text       
         
         if name == "" or price == "" or file_name == "" or item_class == "No class selected":
             warning_label.text = "Please fill all the needed information"
         else:                    
             self.main_app.item_handler.add_item(name,price, file_name, item_class)
-            self.main_app.item_handler.update_item_list()
-            self.ids.name_input.text = ""
-            self.ids.price_input.text = ""
+            self.name_input.text = ""
+            self.price_input.text = ""
             self.ids.image_input.text = ""    
-            self.manager.get_screen("osto").update_items()
+            self.manager.get_screen("osto").update_item_list()
             warning_label.text = "{} added succesfully".format(name)
             
         def empty_warning():
@@ -396,9 +406,23 @@ class FileScreen(Screen):
     pass  
 
 class TestScreen(Screen):
-    pass
-
-
+    
+    def __init__(self, **kv):
+        super(TestScreen, self).__init__(**kv)
+        self.main_app = kv['main_app']
+        
+    def vibrate(self):
+        PythonActivity = autoclass('org.renpy.android.PythonActivity')
+        Context = autoclass('android.content.Context')
+        activity = PythonActivity.mActivity
+        vibrator = activity.getSystemService(Context.VIBRATOR_SERVICE)
+        if vibrator.hasVibrator():
+            vibrator.vibrate(100)
+        else:
+            print("no vibrator")
+        
+        
+        
 '''ItemButton is used in the BuyScreen to portray the items'''
 class ItemButton(Button):
     
@@ -428,9 +452,9 @@ class PiikkiManager(ScreenManager):
         ScreenManager.__init__(self, **kv)
         self.app = kv['piikki_app']
         #pc
-        #path = os.getcwd()
+        path = os.getcwd()
         #android
-        path = self.app.user_data_dir               
+        #path = self.app.user_data_dir               
         
         self.current_customer = None
         customer.full_path = path
@@ -447,13 +471,18 @@ class PiikkiManager(ScreenManager):
         self.add_widget(BuyScreen(name="osto", main_app = self))
         self.add_widget(AdminScreen(name="admin", main_app = self))
         self.add_widget(FileScreen(name="select", main_app = self))
+    
+    #add a text input to a given container, used by multiple screens
+    def add_input(self, container, passw=False):
+        text_input = TextInput(password=passw)
+        container.add_widget(text_input)
+        return text_input
   
        
         
 
 '''Finally the main app class used by kivy'''        
 class PiikkiApp(App):    
-    
     
  
     
