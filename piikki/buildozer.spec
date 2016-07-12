@@ -66,7 +66,7 @@ orientation = landscape
 fullscreen = 1
 
 # (list) Permissions
-android.permissions = WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE
+android.permissions = WRITE_EXTERNAL_STORAGE, READ_EXTERNAL_STORAGE, GET_ACCOUNTS
 
 # (int) Android API to use
 #android.api = 19
@@ -136,7 +136,7 @@ android.sdk = 20
 #android.wakelock = False
 
 # (list) Android application meta-data to set (key=value format)
-android.meta_data = com.google.android.gms.version=31
+android.meta_data = com.google.android.gms.version=31,com.google.android.apps.drive.APP_ID='kiltispiikki'
 
 # (list) Android library project to add (will be added in the
 # project.properties automatically.)

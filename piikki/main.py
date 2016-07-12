@@ -482,12 +482,17 @@ class PiikkiManager(ScreenManager):
         
 
 '''Finally the main app class used by kivy'''        
-class PiikkiApp(App):    
+class PiikkiApp(App):  
+    
+
     
  
     
     def build(self):
         self.man = PiikkiManager(piikki_app = self)
+        
+        from gdrive import GoogleClient
+        self.googleClient = GoogleClient()
 
     
         self.man.get_screen("test").ids.test_label1.text = self.user_data_dir
