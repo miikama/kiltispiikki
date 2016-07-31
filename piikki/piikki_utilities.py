@@ -1,5 +1,6 @@
 from PIL import Image
-import os
+from kivy.logger import Logger
+#import os
 #import time
 
 #full_path = os.getcwd()
@@ -27,16 +28,20 @@ class ItemHandler():
         self.full_path = new_path
 
     def add_item(self,name, price, filename, item_class):
+        
         file = open(self.full_path + "/items.txt", "a")    
         normal_background, pressed_background = self.make_item_backgrounds(name, filename)
         
-        file.write("{},{},{}\n".format(name, price,item_class))
+        file.write("{},{},{}\n".format(name.lower(), price,item_class))
         file.close()
         self.update_item_list()
+        
+        return Item(name,price, item_class, self.full_path)
         
         
     def update_item_list(self):
         items = []
+        #make new file if one does not exist
         try:
             file = open(self.full_path + "/items.txt", "r")        
         
@@ -48,6 +53,7 @@ class ItemHandler():
                 price = float(a[1])
                 item_class = a[2][:-1]
                 items.append(Item(name,price, item_class, self.full_path))
+                items.sort(key=lambda x: x.name)
                 
             file.close()
             
@@ -58,7 +64,13 @@ class ItemHandler():
             
         return items
         
+    def update_item_price(self,item,new_price):
+        Logger.info('Item_handler: on update_item_price with item {} and new price {}'.format(item.name,new_price))
+        pass
         
+    def delete_item(self,item):
+        Logger.info('Item_handler: about to delete {}'.format(item.name))
+        pass    
     
     def make_item_backgrounds(self, name,filename):
         

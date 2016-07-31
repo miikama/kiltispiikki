@@ -47,10 +47,10 @@ if platform == 'android':
     Rstring = autoclass("android.R$string")
     Rid = autoclass("android.R$id")
 
+    Drive = autoclass('com.google.android.gms.drive.Drive')
     Builder = autoclass("com.google.android.gms.common.api.GoogleApiClient$Builder")
     PythonActivity = autoclass('org.renpy.android.PythonActivity')
     Plus = autoclass("com.google.android.gms.plus.Plus")
-    Drive = autoclass('com.google.android.gms.drive.Drive')
 
     class GoogleApiClientConnectionCallback(PythonJavaClass):
         __javainterfaces__ = ['com.google.android.gms.common.api.GoogleApiClient$ConnectionCallbacks',
@@ -143,7 +143,7 @@ if platform == 'android':
                     addApi(Drive.API).addScope(Drive.SCOPE_FILE).build()
                 self.connection_callback.client = mGoogleApiClient
             except JavaException:
-                Logger.info('retrieving client failed big time')
+                Logger.info('Google: retrieving client failed big time')
                 return None
             return mGoogleApiClient
 
@@ -159,7 +159,7 @@ if platform == 'android':
             if self.client and self.is_connected():
                 try:
                     self.client.disconnect()
-                except JavaException, ex:
+                except JavaException:
                     Logger.error("Google: error while logout")
 
         def is_connected(self):
