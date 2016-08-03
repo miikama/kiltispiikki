@@ -23,6 +23,9 @@ class ItemHandler():
     def __init__(self, path):
         self.full_path = path
         self.item_list = self.update_item_list()
+        
+    def get_items(self):
+        return self.item_list
     
     def update_path(self, new_path):
         self.full_path = new_path
@@ -66,11 +69,50 @@ class ItemHandler():
         
     def update_item_price(self,item,new_price):
         Logger.info('Item_handler: on update_item_price with item {} and new price {}'.format(item.name,new_price))
-        pass
+        
+        from tempfile import mkstemp
+        from shutil import move
+        from os import remove, close
+        
+        #Create temp file
+        fh, abs_path = mkstemp()
+        with open(abs_path,'w') as new_file:
+            with open(self.full_path + "/items.txt") as old_file:
+                for line in old_file:
+                    if(line.split(',')[0] ==item.name):
+                        new_file.write("{},{},{}\n".format(item.name.lower(), new_price,item.item_class))
+                        Logger.info('ItemHandler: update price replace called')
+                    else:
+                        new_file.write(line)
+        close(fh)
+        
+        #Remove original file
+        remove(self.full_path +"/items.txt" )
+        #Move new file
+        move(abs_path, self.full_path +"/items.txt")
+        self.update_item_list()
         
     def delete_item(self,item):
         Logger.info('Item_handler: about to delete {}'.format(item.name))
-        pass    
+        
+        from tempfile import mkstemp
+        from shutil import move
+        from os import remove, close
+        
+        #Create temp file
+        fh, abs_path = mkstemp()
+        with open(abs_path,'w') as new_file:
+            with open(self.full_path + "/items.txt") as old_file:
+                for line in old_file:
+                    if(line.split(',')[0] ==item.name):
+                        pass
+                    else:
+                        new_file.write(line)
+        close(fh)
+        #Remove original file
+        remove(self.full_path +"/items.txt" )
+        #Move new file
+        move(abs_path, self.full_path +"/items.txt")    
     
     def make_item_backgrounds(self, name,filename):
         

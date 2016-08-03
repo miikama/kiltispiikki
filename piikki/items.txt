@@ -6,5 +6,4 @@ sprite,1.0,Soft drink
 tupla,1.0,Candy
 snickers,0.7,Candy
 milky way,0.7,Candy
-fanta,1.0,Soft drink
-fanta,1.0,Soft drink
+novelle,1.0,Soft drink

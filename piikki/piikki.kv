@@ -901,12 +901,12 @@
         text: 'Update price'
         background_normal: "kuvat/nappi_tausta.png"
         background_down: "kuvat/nappi_tausta_pressed.png"
-        on_release: root.container.parent.parent.parent.update_item_price(root.item)
+        on_release: root.container.parent.parent.parent.parent.update_item_price(root.item)
     Button:
         text: 'Delete item'
         background_normal: "kuvat/nappi_tausta.png"
         background_down: "kuvat/nappi_tausta_pressed.png"
-        on_release: root.container.parent.parent.parent.delete_item(root.item)
+        on_release: root.container.parent.parent.parent.parent.delete_item(root.item)
         
 <AddItemLayout>    
     size_hint: (None,None)
@@ -926,7 +926,7 @@
         text: 'Do it'
         background_normal: "kuvat/nappi_tausta.png"
         background_down: "kuvat/nappi_tausta_pressed.png"
-        on_release: root.container.parent.parent.parent.add_item() 
+        on_release: root.container.parent.parent.parent.parent.add_item() 
 
 	
 <ItemButton>:

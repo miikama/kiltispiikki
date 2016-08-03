@@ -157,7 +157,7 @@ class BuyScreen(Screen):
         self.pressed_button = None
         self.button_list = []
               
-        self.item_list = self.main_app.item_handler.item_list
+        self.item_list = self.main_app.item_handler.get_items()
                 
         #just sort the items based on class
         self.item_list.sort(key=lambda x: x.item_class, reverse=True)
@@ -165,12 +165,16 @@ class BuyScreen(Screen):
         
     def update_item_list(self):
         self.item_list = self.main_app.item_handler.update_item_list()
+        Logger.info('BuyScreen: called update_item_list')
         
     def update_screen_entering(self):
         self.ids.account_label.text = self.main_app.current_customer.account_name
         self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
         self.ids.tab_value_label.color = self.tab_color()
+        self.update_item_list()
         self.show_most_bought()
+        self.show_all_items()
+        Logger.info('BuyScreen: called update_screen_entering')
     
     '''Updates the customer account name and the tab value when entering the screen and when needed'''
     def update_screen(self):
@@ -185,13 +189,18 @@ class BuyScreen(Screen):
         self.manager.transition.direction="right"                     
         self.manager.current = "login"
         
+    def clear_button_list(self):
+        self.button_list=[]    
+        
     def show_all_items(self):
         if len(self.item_list) == 0: pass
         else:
             container = self.ids.buy_item_list
             container.clear_widgets()
+            self.clear_button_list()
             self.unselect_items()
             for item in self.item_list:
+                Logger.info('BuyScreen: item: {}, price: {}'.format(item.name, item.price))
                 button = ItemButton(item, text = item.name,
                                      background_normal = item.normal_background,
                                      background_down = item.pressed_background)
@@ -380,30 +389,7 @@ class AdminScreen(Screen):
 #        dropdown.bind(on_select=lambda instance, x: setattr(mainbutton, 'text', x))
 #        self.price_input = self.main_app.add_input(self.ids.price_input_container)
 #        self.name_input = self.main_app.add_input(self.ids.name_input_container)
-    
-    
-#    def add_item(self):
-#        warning_label = self.ids.warning_label
-#        name = self.name_input.text
-#        price = ""
-#        try: price = float(self.price_input.text)
-#        except ValueError: warning_label.text = "Invalid input, use the dot"
-#        file_name = self.ids.image_input.text
-#        item_class = self.ids.dropdown_button.text       
-#        
-#        if name == "" or price == "" or file_name == "" or item_class == "No class selected":
-#            warning_label.text = "Please fill all the needed information"
-#        else:                    
-#            self.main_app.item_handler.add_item(name,price, file_name, item_class)
-#            self.name_input.text = ""
-#            self.price_input.text = ""
-#            self.ids.image_input.text = ""    
-#            self.manager.get_screen("osto").update_item_list()
-#            warning_label.text = "{} added succesfully".format(name)
-#            
-#        def empty_warning():
-#            warning_label.text = ""        
-#        Clock.schedule_once(lambda dt: empty_warning(), 7)
+
 
 
 '''AccManageScreen is used by admin to monitor and change accounts balances and 
@@ -439,10 +425,12 @@ class ItemManageScreen(Screen):
         p = AddItemPopup(self)    
         p.open()
     
+    #TODO update the price label 
     def update_item_price(self, item):        
         p = UpdateItemPopup(item)    
         p.open()
     
+    #TODO remove the item from container
     def delete_item(self, item):
         p = DeleteItemPopup(item)
         p.open()
@@ -518,6 +506,7 @@ class UpdateItemPopup(Popup):
         try: 
             new_price = float(self.price_input.text)
             App.get_running_app().man.item_handler.update_item_price(self.item,new_price)
+            
         except ValueError: pass
 
         self.dismiss()
@@ -620,11 +609,11 @@ class AddItemPopup(Popup):
             elif not os.path.isfile(file_name):
                 self.warning_label.text = "picture does not exist"
             else:
+                #where the update happens
                 sm = App.get_running_app().man
                 it = sm.item_handler.add_item(name, price,
                                              file_name, item_class)
                 self.parent_screen.add_one_item(it)
-                sm.get_screen("osto").update_item_list()
                 self.dismiss()
         except ValueError: self.warning_label.text = "Invalid input, use the dot"
         
