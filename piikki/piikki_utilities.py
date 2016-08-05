@@ -39,7 +39,7 @@ class ItemHandler():
         file.close()
         self.update_item_list()
         
-        return Item(name,price, item_class, self.full_path)
+        return Item(name.lower(),price, item_class, self.full_path)
         
         
     def update_item_list(self):

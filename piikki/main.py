@@ -165,7 +165,6 @@ class BuyScreen(Screen):
         
     def update_item_list(self):
         self.item_list = self.main_app.item_handler.update_item_list()
-        Logger.info('BuyScreen: called update_item_list')
         
     def update_screen_entering(self):
         self.ids.account_label.text = self.main_app.current_customer.account_name
@@ -174,7 +173,6 @@ class BuyScreen(Screen):
         self.update_item_list()
         self.show_most_bought()
         self.show_all_items()
-        Logger.info('BuyScreen: called update_screen_entering')
     
     '''Updates the customer account name and the tab value when entering the screen and when needed'''
     def update_screen(self):
@@ -200,8 +198,7 @@ class BuyScreen(Screen):
             self.clear_button_list()
             self.unselect_items()
             for item in self.item_list:
-                Logger.info('BuyScreen: item: {}, price: {}'.format(item.name, item.price))
-                button = ItemButton(item, text = item.name,
+                button = ItemButton(item, text = "",
                                      background_normal = item.normal_background,
                                      background_down = item.pressed_background)
                 button.bind(on_press=self.select_item)
@@ -259,10 +256,11 @@ class BuyScreen(Screen):
             most_bought = self.main_app.current_customer.most_bought()
             if most_bought:
                 most_bought_list = [x[0] for x in most_bought]
+                most_bought_list = filter(lambda x: self.item_exists_update_price(x), most_bought_list)
                 container = self.ids.most_bought_item_list
                 container.clear_widgets()
                 for item in most_bought_list:
-                    button = ItemButton(item, text = item.name,
+                    button = ItemButton(item, text = "",
                                          background_normal = item.normal_background,
                                          background_down = item.pressed_background)
                     self.main_app.get_screen("test").ids.test_label3.text = item.normal_background
@@ -315,6 +313,14 @@ class BuyScreen(Screen):
         else:
             self.main_app.current_customer.pay_from_tab(self.selected_item.price)
             self.to_login_and_logout()
+            
+    #in most bought this is used to check whether item exists and if it does, update price            
+    def item_exists_update_price(self,item):
+        for it in self.item_list:
+            if it.name == item.name:
+                item.price = it.price
+                return True
+        return False
             
     def tab_color(self):        
         tab = self.main_app.current_customer.tab_value 
@@ -427,13 +433,20 @@ class ItemManageScreen(Screen):
     
     #TODO update the price label 
     def update_item_price(self, item):        
-        p = UpdateItemPopup(item)    
+        p = UpdateItemPopup(self,item)    
         p.open()
     
     #TODO remove the item from container
     def delete_item(self, item):
-        p = DeleteItemPopup(item)
+        p = DeleteItemPopup(self,item)
         p.open()
+        
+    def get_itemlayout(self, item):
+        for layout in self.ids.item_manage_container.children:
+            if isinstance(layout, ManageItemLayout):
+                if layout.item.name == item.name:
+                    return layout
+        return None
         
 '''FileScreen is used to select item paths from the device'''        
 class FileScreen(Screen):
@@ -478,8 +491,9 @@ class AddItemLayout(BoxLayout):
 '''Popup created in python side'''
 class UpdateItemPopup(Popup):
     
-    def __init__(self,item, **kv):
+    def __init__(self,manage_screen,item, **kv):
         super(UpdateItemPopup, self).__init__(**kv)
+        self.manage_screen = manage_screen
         self.item =item
         self.title = 'Update item price'
         self.size_hint = (None,None)
@@ -506,6 +520,7 @@ class UpdateItemPopup(Popup):
         try: 
             new_price = float(self.price_input.text)
             App.get_running_app().man.item_handler.update_item_price(self.item,new_price)
+            self.manage_screen.get_itemlayout(self.item).ids.price_label.text = str(new_price)
             
         except ValueError: pass
 
@@ -514,8 +529,9 @@ class UpdateItemPopup(Popup):
 '''Popup created in python side'''
 class DeleteItemPopup(Popup):
     
-    def __init__(self,item, **kv):
+    def __init__(self,manage_screen, item, **kv):
         super(DeleteItemPopup, self).__init__(**kv)
+        self.parent_screen = manage_screen
         self.item =item
         self.title = 'Do you wish to delete {}'.format(item.name)
         self.size_hint = (None,None)
@@ -535,6 +551,12 @@ class DeleteItemPopup(Popup):
     def confirm(self, callback):
 
         App.get_running_app().man.item_handler.delete_item(self.item)
+        layout_to_delete = self.parent_screen.get_itemlayout(self.item)
+        Logger.info('DeleteitemPopup: the layout: {}'.format(layout_to_delete))
+        if layout_to_delete != None:
+            self.parent_screen.ids.item_manage_container.remove_widget(self.parent_screen.get_itemlayout(self.item))
+        else:
+            Logger.info('DeleteItemPopup: could not find layout to be deleted')
         self.dismiss()
         
 
