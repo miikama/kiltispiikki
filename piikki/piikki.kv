@@ -720,6 +720,32 @@
         Label:
             size_hint_y: None
             height: margin
+            text: 'Manage customer accounts'
+            font_size: 30
+        Label:
+            size_hint_y: None
+            height: 10
+        BoxLayout:
+            size_hint: [None,None]
+            width: root.width
+            height: root.height - 2*margin - 20
+            Label
+            ScrollView:
+                size_hint: [None, None]
+                size: [root.width - 20, self.parent.height]
+                GridLayout:
+                    canvas.before:
+                        Color:
+                            rgba: (0,0,0,1)
+                        Rectangle:
+                            pos:self.pos
+                            size: self.size
+                    height: self.minimum_height
+                    cols: 1
+                    spacing: 5
+                    size_hint_y: None
+                    id: customer_container
+            Label
         Label:
             id: warning_label		
         BoxLayout:
@@ -877,6 +903,21 @@
                     root.manager.transition.direction="right"					 
                     root.manager.current = "menu"
             Label
+
+<CustomerLayout>
+    size_hint: (None,None)
+    height: manage_list_height
+    width: root.container.width
+    spacing: 10
+    padding: 10
+    canvas.before:
+        Color: 
+            rgba: manage_list_color
+        Rectangle:
+            pos:self.pos
+            size: self.size 
+    Label:
+        text: root.customer.customer_name
 
 
 <ManageItemLayout>    

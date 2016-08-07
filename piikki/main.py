@@ -11,8 +11,8 @@ from kivy.uix.popup import Popup
 from kivy.logger import Logger
 from kivy.properties import ObjectProperty
 from piikki_utilities import  ItemHandler
+from customer import CustomerHandler, Customer
 import os
-import customer
 
     
 
@@ -31,9 +31,9 @@ class LoginScreen(Screen):
         self.main_app = kv['main_app']
         self.selected_account = None
             
-        if self.main_app.customer_list == None: pass
+        if len(self.main_app.customer_handler.customers) == 0: pass
         else:
-            for cust in self.main_app.customer_list:
+            for cust in self.main_app.customer_handler.customers:
                 button = AccountButton(cust, text = cust.account_name)
                 button.bind(on_release=self.select_account)
                 self.ids.account_list.add_widget(button)
@@ -102,32 +102,31 @@ class AccountScreen(Screen):
         self.acc_name_input =self.main_app.add_input(self.ids.acc_name_container)
         self.given_name_input = self.main_app.add_input(self.ids.given_name_container)
         self.family_name_input = self.main_app.add_input(self.ids.family_name_container)
-        self.password1 = self.main_app.add_input(self.ids.password1_container, True)
-        self.password2 = self.main_app.add_input(self.ids.password2_container, True)
+        #self.password1 = self.main_app.add_input(self.ids.password1_container, True)
+        #self.password2 = self.main_app.add_input(self.ids.password2_container, True)
         
     def create_account(self):
         acc_name = self.acc_name_input.text
         given_name = self.given_name_input.text
         family_name = self.family_name_input.text
-        password1 = self.password1.text
-        password2 = self.password2.text
+        #password1 = self.password1.text
+        #password2 = self.password2.text
         
         warning_label = self.ids.warning_label
                 
-        if acc_name == "" or given_name == "" or family_name == "" or password1 == "" or password2 == "":
+        if acc_name == "" or given_name == "" or family_name == "":
             warning_label.text = "Please fill in all the information"
-        elif password1 != password2:
-            warning_label.text = "The passwords have to match"
+#        elif password1 != password2:
+#            warning_label.text = "The passwords have to match"
         else:
             '''making the names have format John Doe'''
             customer_name = given_name + " " + family_name
             if len(given_name) > 1 and len(family_name) > 1:
                 customer_name = given_name[0].upper() + given_name[1:].lower() + " " + family_name[0].upper() + family_name[1:].lower()
                 
-            cust = customer.Customer(acc_name,password1, customer_name )
-            if customer.account_row(acc_name) == None :
-                cust.create_new_account()
-                self.main_app.customer_list.append(cust)
+            cust = Customer(acc_name, customer_name )
+            if self.main_app.customer_handler.account_row(acc_name) == None :
+                self.main_app.customer_handler.create_new_account(cust)
                 self.main_app.get_screen("login").add_account(cust)                
                 warning_label.text = "Account created"
             else:  warning_label.text = ("account exists already")
@@ -142,8 +141,6 @@ class AccountScreen(Screen):
         self.acc_name_input.text = ""
         self.given_name_input.text = ""
         self.family_name_input.text = ""
-        self.password1.text = ""
-        self.password2.text = ""      
                  
     
 '''BuyScreen displays the items in sale and handles buy transactions'''            
@@ -253,7 +250,7 @@ class BuyScreen(Screen):
     def show_most_bought(self):
         if len(self.item_list) == 0 or self.main_app.current_customer == None: pass
         else:
-            most_bought = self.main_app.current_customer.most_bought()
+            most_bought = self.main_app.customer_handler.most_bought(self.main_app.current_customer)
             if most_bought:
                 most_bought_list = [x[0] for x in most_bought]
                 most_bought_list = filter(lambda x: self.item_exists_update_price(x), most_bought_list)
@@ -304,14 +301,15 @@ class BuyScreen(Screen):
     def buy_item(self):
         if self.selected_item == None: pass
         else:
-            self.main_app.current_customer.pay_from_tab(self.selected_item.price)
-            self.main_app.current_customer.save_buy(self.selected_item)
+            self.main_app.customer_handler.pay_from_tab(self.main_app.current_customer, self.selected_item.price)
+            self.main_app.customer_handler.save_buy(self.main_app.current_customer, self.selected_item)
             self.update_screen()
 
     def buy_and_exit(self):
         if self.selected_item == None: pass
         else:
-            self.main_app.current_customer.pay_from_tab(self.selected_item.price)
+            self.main_app.customer_handler.pay_from_tab(self.main_app.current_customer, self.selected_item.price)
+            self.main_app.customer_handler.save_buy(self.main_app.current_customer, self.selected_item)
             self.to_login_and_logout()
             
     #in most bought this is used to check whether item exists and if it does, update price            
@@ -346,7 +344,7 @@ class CustomerScreen(Screen):
             if tab_input.text == "" or float(tab_input.text) >150.0:
                 self.ids.warning_label.text = "Please enter a proper amount"
             else:
-                self.main_app.current_customer.pay_to_tab(float(tab_input.text))
+                self.main_app.customer_handler.pay_to_tab(self.main_app.current_customer, float(tab_input.text))
                 self.update_screen()
                 self.ids.warning_label.text = "Added {} succesfully to your tab".format(float(tab_input.text))
                 tab_input.text= ""
@@ -406,6 +404,11 @@ class AccManageScreen(Screen):
         super(AccManageScreen, self).__init__(**kv)
         self.main_app = kv['main_app']
         
+        
+        for cust in self.main_app.customer_handler.customers:
+            layout = CustomerLayout(cust, self.ids.customer_container)
+            self.ids.customer_container.add_widget(layout)
+        
 
 '''FileManageScreen is used by admin to add, delete and update items'''
 class ItemManageScreen(Screen):
@@ -461,6 +464,12 @@ class TestScreen(Screen):
     def test(self):
         self.app.googleClient.connect()
         
+class CustomerLayout(BoxLayout):
+    
+    def __init__(self, customer, container, **kv):
+        self.customer = customer
+        self.container = container
+        super(CustomerLayout, self).__init__(**kv)
         
 class ManageItemLayout(BoxLayout):
     
@@ -689,11 +698,15 @@ class PiikkiManager(ScreenManager):
             path = os.getcwd()  
         
         self.current_customer = None
-        customer.full_path = path
-        customer.db_path = os.path.join(path, "piikki.db")   #to be changed from global variable to handler class
-        customer.enable_databases()
-        self.customer_list = customer.load_customers()
+        
+        #customer.full_path = path
+        #customer.db_path = os.path.join(path, "piikki.db")   #to be changed from global variable to handler class
+        #self.customer_list = customer.load_customers()
+        self.customer_handler = CustomerHandler(path)
+        self.customer_handler.enable_databases()
+        self.customer_handler.load_customers()        
         self.item_handler = ItemHandler(path)
+        
 
         self.add_widget(MenuScreen(name="menu", main_app = self))
         self.add_widget(TestScreen(name="test", main_app=self))
