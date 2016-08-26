@@ -98,7 +98,7 @@ class CustomerHandler():
     def account_row(self,name):
             
             con = sqlite3.connect(self.db_path)        
-            c = con.cursor()      
+            c = con.cursor()        
             
             c.execute("SELECT rowid FROM customers WHERE account_name = ?", (name,))
             data=c.fetchone()
@@ -165,26 +165,43 @@ class CustomerHandler():
     '''customer buys something using the tab'''
     def pay_from_tab(self,customer, amount):
         customer.pay_from_tab(amount)
-        self.update_tab_value(customer)
+        self.update_tab_value(customer, customer.tab_value)
     
     
     '''Updates the customers tab_value in the database'''
-    def update_tab_value(self,customer):
+    def update_tab_value(self,customer, new_balance):
+        
+        customer.set_tab_value(new_balance)
         con = sqlite3.connect(self.db_path)
         
         c = con.cursor()               
         c.execute("UPDATE customers SET tab_value=? WHERE account_name=?", (customer.tab_value, customer.account_name))
                 
         con.commit()        
-        con.close()
+        con.close()        
+        
+    def delete_customer(self, customer):
+        Logger.info('CustomerHandler: delete customer called for {}'.format(customer.customer_name))
     
+        con = sqlite3.connect(self.db_path)
+        
+        c = con.cursor()               
+        c.execute("DELETE FROM customers WHERE account_name=?", (customer.account_name,))
+        Logger.info('CustomerHandler: customer list: {}'.format(self.customers))
+        self.customers = list((x for x in self.customers if customer.account_name != x.account_name))
+        #TODO remove entries made by this customer from the bought 
+        Logger.info('CustomerHandler: customer list: {}'.format(self.customers))        
+        
+        con.commit()        
+        con.close()
+        
     
 '''class Customer portrays users of the tab'''
 class Customer():
     
     def __init__(self, account_name, full_name, tab_value = 0.0):       
-        self.customer_name = full_name
-        self.account_name = account_name
+        self.customer_name = full_name.encode('utf-8')
+        self.account_name = account_name.encode('utf-8')
         self.tab_value = tab_value
         
     '''customer pays money to the tab'''
@@ -194,6 +211,10 @@ class Customer():
     '''customer buys something using the tab'''
     def pay_from_tab(self, amount):
         self.tab_value = self.tab_value - amount
+        
+    '''Set customer tab_value to given'''
+    def set_tab_value(self,amount):
+        self.tab_value = amount
            
     
     

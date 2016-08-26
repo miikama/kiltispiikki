@@ -887,8 +887,8 @@
             Button:
                 text: "vibrate"
                 on_release: root.test()
-                background_normal: "kuvat/nappi_tausta.png"
-                background_down: "kuvat/nappi_tausta_pressed.png"
+                background_normal: button_back
+                background_down: button_back_pressed
         BoxLayout:
             size_hint_y: None
             height: margin
@@ -918,6 +918,19 @@
             size: self.size 
     Label:
         text: root.customer.customer_name
+    Label:
+        id: balance_label
+        text: str(root.customer.tab_value)
+    Button:
+        text: "Set new balance"
+        background_normal: button_back
+        background_down: button_back_pressed
+        on_release: root.update_tab_value(root.customer)
+    Button: 
+        text: "Delete account"
+        background_normal: button_back
+        background_down: button_back_pressed
+        on_release: root.delete_customer(root.customer)
 
 
 <ManageItemLayout>    

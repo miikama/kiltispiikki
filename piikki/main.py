@@ -31,17 +31,17 @@ class LoginScreen(Screen):
         self.main_app = kv['main_app']
         self.selected_account = None
             
-        if len(self.main_app.customer_handler.customers) == 0: pass
-        else:
+                
+    def on_pre_enter(self):
+        if self.main_app.customer_handler.customers:    
             for cust in self.main_app.customer_handler.customers:
                 button = AccountButton(cust, text = cust.account_name)
                 button.bind(on_release=self.select_account)
                 self.ids.account_list.add_widget(button)
-                
-    def add_account(self, cust):
-        button = AccountButton(cust, text = cust.account_name)
-        button.bind(on_release=self.select_account)
-        self.ids.account_list.add_widget(button)                        
+
+    def on_leave(self):                
+        self.ids.account_list.clear_widgets()   
+        self.unselect_account()                    
         
     def select_account(self, button):   
         self.selected_account=button.account
@@ -65,8 +65,6 @@ class LoginScreen(Screen):
             warning_label.text = "Please select an account"
         else:
             self.main_app.current_customer = self.selected_account
-            self.unselect_account()
-            self.manager.get_screen("osto").update_screen_entering()
             self.manager.transition.direction = "left"
             self.manager.current = "osto"           
                 
@@ -127,7 +125,6 @@ class AccountScreen(Screen):
             cust = Customer(acc_name, customer_name )
             if self.main_app.customer_handler.account_row(acc_name) == None :
                 self.main_app.customer_handler.create_new_account(cust)
-                self.main_app.get_screen("login").add_account(cust)                
                 warning_label.text = "Account created"
             else:  warning_label.text = ("account exists already")
             
@@ -160,16 +157,16 @@ class BuyScreen(Screen):
         self.item_list.sort(key=lambda x: x.item_class, reverse=True)
         self.show_all_items()
         
-    def update_item_list(self):
-        self.item_list = self.main_app.item_handler.update_item_list()
-        
-    def update_screen_entering(self):
+    def on_pre_enter(self):
         self.ids.account_label.text = self.main_app.current_customer.account_name
         self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
         self.ids.tab_value_label.color = self.tab_color()
         self.update_item_list()
         self.show_most_bought()
         self.show_all_items()
+        
+    def update_item_list(self):
+        self.item_list = self.main_app.item_handler.update_item_list()   
     
     '''Updates the customer account name and the tab value when entering the screen and when needed'''
     def update_screen(self):
@@ -384,7 +381,8 @@ class AdminScreen(Screen):
     
     def __init__(self,  **kv):
         Screen.__init__(self,  **kv)
-        self.main_app = kv['main_app']    
+        self.main_app = kv['main_app'] 
+   
                  
 #        dropdown = CustomDropDown()
 #        self.dropdown = dropdown
@@ -402,12 +400,16 @@ class AccManageScreen(Screen):
     
     def __init__(self, **kv):
         super(AccManageScreen, self).__init__(**kv)
-        self.main_app = kv['main_app']
+        self.main_app = kv['main_app']        
         
-        
+    def on_pre_enter(self):
         for cust in self.main_app.customer_handler.customers:
             layout = CustomerLayout(cust, self.ids.customer_container)
             self.ids.customer_container.add_widget(layout)
+            
+    def on_leave(self):
+        self.ids.customer_container.clear_widgets()
+            
         
 
 '''FileManageScreen is used by admin to add, delete and update items'''
@@ -434,12 +436,10 @@ class ItemManageScreen(Screen):
         p = AddItemPopup(self)    
         p.open()
     
-    #TODO update the price label 
     def update_item_price(self, item):        
         p = UpdateItemPopup(self,item)    
         p.open()
     
-    #TODO remove the item from container
     def delete_item(self, item):
         p = DeleteItemPopup(self,item)
         p.open()
@@ -465,11 +465,24 @@ class TestScreen(Screen):
         self.app.googleClient.connect()
         
 class CustomerLayout(BoxLayout):
+    customer = ObjectProperty(None)
     
     def __init__(self, customer, container, **kv):
         self.customer = customer
         self.container = container
         super(CustomerLayout, self).__init__(**kv)
+
+        for child in self.children[int(len(self.children)/2):int(len(self.children))]:
+            self.remove_widget(child)
+            
+    def update_tab_value(self,customer):
+        Logger.info('AccManageScreen: called update_tab_value')
+        p = UpdateCustomerTabPopup(self, customer)
+        p.open()
+    
+    def delete_customer(self, customer):
+        p = DeleteCustomerPopup(self,customer)
+        p.open()
         
 class ManageItemLayout(BoxLayout):
     
@@ -494,8 +507,80 @@ class AddItemLayout(BoxLayout):
         super(AddItemLayout, self).__init__(**kv)
         
         #stupid bug again
-        for child in self.children[2:4]:
+        Logger.info('AddItemLayout: length of the children {}'.format(len(self.children)))
+        for child in self.children:
+            Logger.info('AddItemLayout: The child is {}'.format(child))
+        for child in self.children[int(len(self.children)/2):int(len(self.children))]:
             self.remove_widget(child)
+            
+'''Popup created in python side'''
+class UpdateCustomerTabPopup(Popup):
+    
+    def __init__(self,layout, customer, **kv):
+        super(UpdateCustomerTabPopup, self).__init__(**kv)
+        self.customer_layout = layout
+        self.customer =customer
+        self.title = 'Set new tab value for {}'.format(customer.customer_name) 
+        self.size_hint = (None,None)
+        self.size = (300,300)
+        b = BoxLayout(orientation='vertical',
+                      spacing = 10, padding = 10)
+        b.add_widget(Label(text="Current tab value: {}".format(customer.tab_value)))
+        self.balance_input = TextInput()
+        b.add_widget(self.balance_input)
+        self.info_label = Label(size_hint=[1,.1])
+        b.add_widget(self.info_label)
+        b2 = BoxLayout(orientation='horizontal',spacing=10, padding=10)        
+        b2.add_widget(Button(text='Cancel',
+                            background_normal='kuvat/nappi_tausta.png',
+                            background_down='kuvat/nappi_tausta_pressed.png',
+                            on_release=self.dismiss)) 
+        b2.add_widget(Button(text='Confirm', 
+                            background_normal='kuvat/nappi_tausta.png',
+                            background_down='kuvat/nappi_tausta_pressed.png',
+                            on_release=self.update_tab_value))               
+        b.add_widget(b2)
+        self.content = b
+        
+    def update_tab_value(self, callback):
+        if self.balance_input.text.isnumeric():
+            App.get_running_app().man.customer_handler.update_tab_value(self.customer, float(self.balance_input.text))
+            self.customer_layout.ids.balance_label.text = str(float(self.balance_input.text))
+            Logger.info('UpdateCustomerTabPopup: updated customer {}'.format(self.customer.customer_name))
+            self.dismiss()       
+        else:
+            self.info_label.text = "Not valid number"
+            Logger.info('UpdateCustomerTabPopup: Not valid number')
+            
+'''Popup created in python side'''
+class DeleteCustomerPopup(Popup):
+    
+    def __init__(self,layout, customer, **kv):
+        super(DeleteCustomerPopup, self).__init__(**kv)
+        self.customer_layout = layout
+        self.customer = customer
+        self.title = 'Do you wish to remove account for {} ?'.format(customer.customer_name)
+        self.size_hint = (None,None)
+        self.size = (300,300)
+        b = BoxLayout(orientation='vertical',
+                      spacing = 10, padding = 10)
+        b.add_widget(Button(text='Cancel',
+                            background_normal='kuvat/nappi_tausta.png',
+                            background_down='kuvat/nappi_tausta_pressed.png',
+                            on_release=self.dismiss))      
+        b.add_widget(Button(text='Confirm', 
+                            background_normal='kuvat/nappi_tausta.png',
+                            background_down='kuvat/nappi_tausta_pressed.png',
+                            on_release=self.confirm))
+          
+        self.content = b
+        
+    def confirm(self, callback):
+
+        App.get_running_app().man.customer_handler.delete_customer(self.customer)
+        self.customer_layout.container.remove_widget(self.customer_layout) 
+        self.dismiss()
+        
 
 '''Popup created in python side'''
 class UpdateItemPopup(Popup):
