@@ -382,16 +382,6 @@ class AdminScreen(Screen):
     def __init__(self,  **kv):
         Screen.__init__(self,  **kv)
         self.main_app = kv['main_app'] 
-   
-                 
-#        dropdown = CustomDropDown()
-#        self.dropdown = dropdown
-#        mainbutton = self.ids.dropdown_button
-#        mainbutton.bind(on_release=dropdown.open)
-#        dropdown.bind(on_select=lambda instance, x: setattr(mainbutton, 'text', x))
-#        self.price_input = self.main_app.add_input(self.ids.price_input_container)
-#        self.name_input = self.main_app.add_input(self.ids.name_input_container)
-
 
 
 '''AccManageScreen is used by admin to monitor and change accounts balances and 
@@ -409,7 +399,16 @@ class AccManageScreen(Screen):
             
     def on_leave(self):
         self.ids.customer_container.clear_widgets()
-            
+        
+    def confirm_replace_cust_db(self):
+        p = ConfirmationPopup(self.main_app.customer_handler.replace_customer_db,
+                              "Are you sure you wish to replace the current customers?")
+        p.open()
+        
+    def confirm_backup_customers(self):
+        p = ConfirmationPopup(self.main_app.customer_handler.backup_customers,
+                              "Do you wish to backup your customer db? (by uploading to drive)")
+        p.open()
         
 
 '''FileManageScreen is used by admin to add, delete and update items'''
@@ -436,20 +435,9 @@ class ItemManageScreen(Screen):
         p = AddItemPopup(self)    
         p.open()
     
-    def update_item_price(self, item):        
-        p = UpdateItemPopup(self,item)    
-        p.open()
+
     
-    def delete_item(self, item):
-        p = DeleteItemPopup(self,item)
-        p.open()
         
-    def get_itemlayout(self, item):
-        for layout in self.ids.item_manage_container.children:
-            if isinstance(layout, ManageItemLayout):
-                if layout.item.name == item.name:
-                    return layout
-        return None
         
 '''FileScreen is used to select item paths from the device'''        
 class FileScreen(Screen):
@@ -475,14 +463,18 @@ class CustomerLayout(BoxLayout):
         for child in self.children[int(len(self.children)/2):int(len(self.children))]:
             self.remove_widget(child)
             
-    def update_tab_value(self,customer):
-        Logger.info('AccManageScreen: called update_tab_value')
-        p = UpdateCustomerTabPopup(self, customer)
+    def update_tab_value(self):
+        p = UpdateCustomerTabPopup(self, self.customer)
         p.open()
     
-    def delete_customer(self, customer):
-        p = DeleteCustomerPopup(self,customer)
+    def confirm_delete_customer(self):
+        title = 'Do you wish to remove account for {} ?'.format(self.customer.customer_name)
+        p = ConfirmationPopup(self.delete_customer, title)
         p.open()
+        
+    def delete_customer(self):
+        App.get_running_app().man.customer_handler.delete_customer(self.customer)
+        self.container.remove_widget(self) 
         
 class ManageItemLayout(BoxLayout):
     
@@ -498,6 +490,20 @@ class ManageItemLayout(BoxLayout):
         for child in self.children[4:9]:
             self.remove_widget(child)
             
+    def confirm_delete_item(self):
+        title = 'Do you wish to delete {}?'.format(self.item.name)
+        p = ConfirmationPopup(self.delete_item, title)
+        p.open()
+        
+    def delete_item(self):
+        App.get_running_app().man.item_handler.delete_item(self.item)
+        self.container.remove_widget(self)
+    
+    def update_item_price(self):        
+        p = UpdateItemPopup(self,self.item)    
+        p.open()
+        
+            
 class AddItemLayout(BoxLayout):
     
     container = ObjectProperty(None)
@@ -512,6 +518,32 @@ class AddItemLayout(BoxLayout):
             Logger.info('AddItemLayout: The child is {}'.format(child))
         for child in self.children[int(len(self.children)/2):int(len(self.children))]:
             self.remove_widget(child)
+            
+class ConfirmationPopup(Popup):
+    
+    def __init__(self, func_on_confirmation,title="", **kv):
+        super(ConfirmationPopup, self).__init__(**kv)
+        self.title = title
+        self.size_hint = (None,None)
+        self.size = (400,150)
+        self.func_on_confirmation = func_on_confirmation
+        b = BoxLayout(orientation='horizontal',
+                      spacing = 10, padding = 10)
+        b.add_widget(Button(text='Cancel',
+                            background_normal='kuvat/nappi_tausta.png',
+                            background_down='kuvat/nappi_tausta_pressed.png',
+                            on_release=self.dismiss))      
+        b.add_widget(Button(text='Confirm', 
+                            background_normal='kuvat/nappi_tausta.png',
+                            background_down='kuvat/nappi_tausta_pressed.png',
+                            on_release=self.confirm))
+          
+        self.content = b
+        
+    def confirm(self, callback):
+        self.func_on_confirmation()
+        self.dismiss()
+            
             
 '''Popup created in python side'''
 class UpdateCustomerTabPopup(Popup):
@@ -546,48 +578,17 @@ class UpdateCustomerTabPopup(Popup):
         if self.balance_input.text.isnumeric():
             App.get_running_app().man.customer_handler.update_tab_value(self.customer, float(self.balance_input.text))
             self.customer_layout.ids.balance_label.text = str(float(self.balance_input.text))
-            Logger.info('UpdateCustomerTabPopup: updated customer {}'.format(self.customer.customer_name))
             self.dismiss()       
         else:
             self.info_label.text = "Not valid number"
-            Logger.info('UpdateCustomerTabPopup: Not valid number')
-            
-'''Popup created in python side'''
-class DeleteCustomerPopup(Popup):
-    
-    def __init__(self,layout, customer, **kv):
-        super(DeleteCustomerPopup, self).__init__(**kv)
-        self.customer_layout = layout
-        self.customer = customer
-        self.title = 'Do you wish to remove account for {} ?'.format(customer.customer_name)
-        self.size_hint = (None,None)
-        self.size = (300,300)
-        b = BoxLayout(orientation='vertical',
-                      spacing = 10, padding = 10)
-        b.add_widget(Button(text='Cancel',
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
-                            on_release=self.dismiss))      
-        b.add_widget(Button(text='Confirm', 
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
-                            on_release=self.confirm))
-          
-        self.content = b
-        
-    def confirm(self, callback):
-
-        App.get_running_app().man.customer_handler.delete_customer(self.customer)
-        self.customer_layout.container.remove_widget(self.customer_layout) 
-        self.dismiss()
         
 
 '''Popup created in python side'''
 class UpdateItemPopup(Popup):
     
-    def __init__(self,manage_screen,item, **kv):
+    def __init__(self,manage_layout,item, **kv):
         super(UpdateItemPopup, self).__init__(**kv)
-        self.manage_screen = manage_screen
+        self.manage_layout= manage_layout
         self.item =item
         self.title = 'Update item price'
         self.size_hint = (None,None)
@@ -604,9 +605,7 @@ class UpdateItemPopup(Popup):
         b.add_widget(Button(text='Cancel',
                             background_normal='kuvat/nappi_tausta.png',
                             background_down='kuvat/nappi_tausta_pressed.png',
-                            on_release=self.dismiss))
-        
-        
+                            on_release=self.dismiss))       
         self.content = b
         
     def confirm(self, callback):
@@ -614,43 +613,8 @@ class UpdateItemPopup(Popup):
         try: 
             new_price = float(self.price_input.text)
             App.get_running_app().man.item_handler.update_item_price(self.item,new_price)
-            self.manage_screen.get_itemlayout(self.item).ids.price_label.text = str(new_price)
-            
+            self.manage_layout.ids.price_label.text = str(new_price)            
         except ValueError: pass
-
-        self.dismiss()
-        
-'''Popup created in python side'''
-class DeleteItemPopup(Popup):
-    
-    def __init__(self,manage_screen, item, **kv):
-        super(DeleteItemPopup, self).__init__(**kv)
-        self.parent_screen = manage_screen
-        self.item =item
-        self.title = 'Do you wish to delete {}'.format(item.name)
-        self.size_hint = (None,None)
-        self.size = (300,300)
-        b = BoxLayout(orientation='vertical',
-                      spacing = 10, padding = 10)
-        b.add_widget(Button(text='Confirm', 
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
-                            on_release=self.confirm))
-        b.add_widget(Button(text='Cancel',
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
-                            on_release=self.dismiss))        
-        self.content = b
-        
-    def confirm(self, callback):
-
-        App.get_running_app().man.item_handler.delete_item(self.item)
-        layout_to_delete = self.parent_screen.get_itemlayout(self.item)
-        Logger.info('DeleteitemPopup: the layout: {}'.format(layout_to_delete))
-        if layout_to_delete != None:
-            self.parent_screen.ids.item_manage_container.remove_widget(self.parent_screen.get_itemlayout(self.item))
-        else:
-            Logger.info('DeleteItemPopup: could not find layout to be deleted')
         self.dismiss()
         
 
@@ -783,13 +747,7 @@ class PiikkiManager(ScreenManager):
             path = os.getcwd()  
         
         self.current_customer = None
-        
-        #customer.full_path = path
-        #customer.db_path = os.path.join(path, "piikki.db")   #to be changed from global variable to handler class
-        #self.customer_list = customer.load_customers()
         self.customer_handler = CustomerHandler(path)
-        self.customer_handler.enable_databases()
-        self.customer_handler.load_customers()        
         self.item_handler = ItemHandler(path)
         
 

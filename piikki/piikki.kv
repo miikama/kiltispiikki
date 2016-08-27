@@ -9,6 +9,7 @@
 #:set white (1,1,1,1)
 #:set margin 70
 #:set button_font_size 26
+#:set button_height 80
 #:set button_back "kuvat/nappi_tausta.png"
 #:set button_back_pressed "kuvat/nappi_tausta_pressed.png"
 
@@ -594,65 +595,6 @@
         Label:
             size_hint_y: None
             height: margin
-#        Label:
-#            size_hint: [1, .3]
-#            text: "Add a new item information"
-#        BoxLayout:
-#            size_hint: [1, .3]
-#            BoxLayout:
-#                Label:
-#                    text: "Name of the item"
-#                BoxLayout:
-#                    id: name_input_container
-#        BoxLayout:
-#            size_hint: [1, .3]
-#            BoxLayout:
-#                Label:
-#                    text: "Price of the item"
-#                BoxLayout:
-#                    id: price_input_container
-#        BoxLayout:
-#            size_hint: [1, .3]
-#            BoxLayout:
-#                Label:
-#                    text: "Item class"
-#                Button:
-#                    text: "No class selected"
-#                    font_size: button_font_size
-#                    background_normal: "kuvat/nappi_tausta.png"
-#                    background_down: "kuvat/nappi_tausta_pressed.png"
-#                    id: dropdown_button
-#        GridLayout:
-#            size_hint: [1, .6]
-#            rows: 2
-#            columns: 2
-#            Label:
-#                text: "Background image path"
-#            TextInput:	
-#                id: image_input
-#            Label:
-#            Button:
-#                text: "Choose picture"
-#                font_size: button_font_size
-#                background_normal: "kuvat/nappi_tausta.png"
-#                background_down: "kuvat/nappi_tausta_pressed.png"
-#                on_press:
-#                    root.manager.transition.direction= "left"
-#                    root.manager.current = "select"
-#        Label:
-#            size_hint: [1, .2]
-#        BoxLayout:
-#            size_hint: [1, .4]
-#            Label: 
-#                size_hint: [.7, 1]
-#            Button:
-#                font_size: button_font_size
-#                background_normal: "kuvat/nappi_tausta.png"
-#                background_down: "kuvat/nappi_tausta_pressed.png"
-#                text: "Add item"
-#                on_press: root.add_item()
-#            Label:
-#                size_hint: [.7,1]	
         Label:
         BoxLayout:
             orientation: 'horizontal'
@@ -721,14 +663,28 @@
             size_hint_y: None
             height: margin
             text: 'Manage customer accounts'
-            font_size: 30
-        Label:
+            font_size: 30            
+        BoxLayout:
             size_hint_y: None
-            height: 10
+            height: button_height
+            spacing: 10
+            padding: 10
+            Button:
+                text: "Load customers from csv"
+                font_size: button_font_size
+                background_normal: button_back
+                background_down: button_back_pressed
+                on_release: root.confirm_replace_cust_db()
+            Button:
+                text: "Backup customers"
+                font_size: button_font_size
+                background_normal: button_back
+                background_down: button_back_pressed
+                on_release: root.confirm_backup_customers()
         BoxLayout:
             size_hint: [None,None]
             width: root.width
-            height: root.height - 2*margin - 20
+            height: root.height - 2*margin - 100
             Label
             ScrollView:
                 size_hint: [None, None]
@@ -925,12 +881,12 @@
         text: "Set new balance"
         background_normal: button_back
         background_down: button_back_pressed
-        on_release: root.update_tab_value(root.customer)
+        on_release: root.update_tab_value()
     Button: 
         text: "Delete account"
         background_normal: button_back
         background_down: button_back_pressed
-        on_release: root.delete_customer(root.customer)
+        on_release: root.confirm_delete_customer()
 
 
 <ManageItemLayout>    
@@ -956,12 +912,12 @@
         text: 'Update price'
         background_normal: "kuvat/nappi_tausta.png"
         background_down: "kuvat/nappi_tausta_pressed.png"
-        on_release: root.container.parent.parent.parent.parent.update_item_price(root.item)
+        on_release: root.update_item_price()
     Button:
         text: 'Delete item'
         background_normal: "kuvat/nappi_tausta.png"
         background_down: "kuvat/nappi_tausta_pressed.png"
-        on_release: root.container.parent.parent.parent.parent.delete_item(root.item)
+        on_release: root.confirm_delete_item()
         
 <AddItemLayout>    
     size_hint: (None,None)

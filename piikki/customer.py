@@ -28,6 +28,8 @@ class CustomerHandler():
     def __init__(self,path):
         self.full_path = path
         self.db_path =os.path.join(path, "piikki.db")
+        self.enable_databases()
+        self.load_customers()
 
     '''Returns a list[Customer] of all customers or None if there are no customers'''
     def load_customers(self):       
@@ -39,7 +41,7 @@ class CustomerHandler():
         c.execute("SELECT * FROM customers")
         data=c.fetchall()
         con.close()
-        if data is None: return None
+        if data is None: pass
         else: 
             for customer in data:
                 customers.append(Customer(customer[0], customer[2], tab_value=customer[3]))
@@ -67,32 +69,39 @@ class CustomerHandler():
             con.close()
         
     def save_csv(self):
-        
-        #f = open('customers_csv.txt', 'w')
-        
-        Logger.info('called save csv, not implemented yet')
+        from time import strftime
+        time_now_string = strftime("%d-%m-%Y_%H:%M")
+        f = open('customers_csv_{}.txt'.format(time_now_string), 'w')        
+        for c in self.customers:
+            f.write('{},{},{}\n'.format(c.account_name,c.customer_name,str(c.tab_value)))
+        Logger.info('called save csv, filename: customers_csv_{}.txt'.format(time_now_string))
+        return ''
             
-    def load_csv(self):
-        
-        
-        try: f = open('customers.txt', 'r')
-        except IOError: Logger.info('tried to load a nonexisting csv')
+    def load_csv(self, file_name='customers.txt'):       
+           
         customers = []    
         
-        for line in f:
-            values = line.split(',')
-            acc_name = values[0]
-            full_name = values[1]
-            value = float(values[2])
-            customers.append(Customer(acc_name, full_name,value ))
-            
-        f.close()    
+        try: 
+            f = open(file_name, 'r')         
+            for line in f:
+                values = line.split(',')
+                acc_name = values[0]
+                full_name = values[1]
+                value = float(values[2])
+                customers.append(Customer(acc_name, full_name,value ))
+                
+            f.close()    
+        except IOError: Logger.info('tried to load a nonexisting csv {}'.format(file_name))
         return customers
     
+            
+    def backup_customers(self):
+        csv_name = self.save_csv()
+        Logger.info('CustomerHandler: backup customers called')
         
-        
-
-    
+    def replace_customer_db(self):
+        new_customers = self.load_csv()
+        Logger.info('CustomerHandler: replace customers called')
 
     '''Returns row number where the account is in the database or None if it doesn't exist''' 
     def account_row(self,name):
@@ -187,13 +196,12 @@ class CustomerHandler():
         
         c = con.cursor()               
         c.execute("DELETE FROM customers WHERE account_name=?", (customer.account_name,))
-        Logger.info('CustomerHandler: customer list: {}'.format(self.customers))
         self.customers = list((x for x in self.customers if customer.account_name != x.account_name))
         #TODO remove entries made by this customer from the bought 
-        Logger.info('CustomerHandler: customer list: {}'.format(self.customers))        
         
         con.commit()        
         con.close()
+
         
     
 '''class Customer portrays users of the tab'''
