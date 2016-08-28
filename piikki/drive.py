@@ -1,126 +1,146 @@
-"""
-Created on Sun Jul  3 17:15:06 2016
-
-@author: miika
-"""
-
+from __future__ import print_function
+import httplib2
+import os
 from kivy.logger import Logger
-from kivy.utils import platform
 
+import apiclient
+from apiclient import discovery
+import oauth2client
+from oauth2client import client
+from oauth2client import tools
 
+try:
+    import argparse
+    flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
+except ImportError:
+    flags = None
 
-
-class AbstractGoogleClient(object):
-    def __init__(self):
-        self.client = self._get_client()
-
-    def _get_client(self):
-        return None
-
-    def connect(self, success_callback=None, fail_callback=None):
-        Logger.info('Google: connecting...')
-
-    def logout(self):
-        Logger.info('Google: log out...')
-
-    def is_connected(self):
-        pass
-
-
-class DummyGoogleClient(AbstractGoogleClient):
-    def __init__(self):
-        super(DummyGoogleClient, self).__init__()
-        self.client = self._get_client()
-        self.connected = False
-
-    def connect(self, success_callback=None, fail_callback=None):
-        super(DummyGoogleClient, self).connect(success_callback=None, fail_callback=None)
-        if success_callback:
-            success_callback()
-        self.connected = True
-
-    def is_connected(self):
-        super(DummyGoogleClient, self).is_connected()
-        return self.connected
-
-    def logout(self):
-        super(DummyGoogleClient, self).logout()
-        self.connected = False
-
-
-if platform == 'android':
-
-    from jnius import PythonJavaClass, autoclass, java_method, JavaException
-    
-    PythonActivity = autoclass('org.renpy.android.PythonActivity')
-    activity = PythonActivity.mActivity
-    
-    Builder = autoclass("com.google.android.gms.common.api.GoogleApiClient$Builder")
-    Drive = autoclass('com.google.android.gms.drive.Drive')
-    ConnectionResult = autoclass('com.google.android.gms.common.ConnectionResult')
-    GooglePlayServicesUtil = autoclass('com.google.android.gms.common.GooglePlayServicesUtil')
-    GoogleApiClient = autoclass('com.google.android.gms.common.api.GoogleApiClient')
-    
-    
-    class DriveAccessClient(PythonJavaClass):
-        __javainterfaces__ = ['com.google.android.gms.common.api.GoogleApiClient$ConnectionCallbacks',
-                              'com.google.android.gms.common.api.GoogleApiClient$OnConnectionFailedListener']
-        __javacontext__ = 'app'
-        
-        def __init__(self):
-            super(DriveAccessClient, self).__init__()
-            self.on_connected_callback = None
-            self.resolving_failure_callback = None
-            self.in_resolving_connection = False
-            self.mGoogleApiClient = None
+# If modifying these scopes, delete your previously saved credentials
+# at ~/.credentials/drive-python-quickstart.json
+SCOPES = 'https://www.googleapis.com/auth/drive'
+CLIENT_SECRET_FILE = 'client_secret.json'
+APPLICATION_NAME = 'Drive API Kiltispiikki'
             
-        @java_method('(Landroid/os/Bundle;)V')
-        def onConnected(self, connectionHint):
-            Logger.info("Google: successfully logged in")
-            #Drive.DriveApi.newDriveContents(getGoogleApiClient()).setResultCallback(driveContentsCallback);
+class DriveClient():
 
-            if self.on_connected_callback:
-                self.on_connected_callback()
-                
-
-        @java_method('(V;)V')
-        def onResume(self):
-            super(DriveAccessClient,self).onResume()
-            if self.mGoogleApiClient == None:
-                try:
-                     mGoogleApiClient = Builder(self.app). \
-                        addConnectionCallbacks(self). \
-                        addOnConnectionFailedListener(self). \
-                        addApi(Drive.API).addScope(Drive.SCOPE_FILE).build()
-                     self.mGoogleApiClient = mGoogleApiClient
-                except JavaException:
-                    Logger.info('failed building googleapiclient')
-            self.mGoogleApiClient.connect()
-              
-        
-         
-        @java_method('(IILAndroid/content/Intent;)V')
-        def on_activity_result(self, requestCode, resultCode, data):
-            Logger.info("Google: back to activity result. %s, %s" % (requestCode, resultCode))
-            super(DriveAccessClient, self).onActivityResult(requestCode, resultCode, data)
-
-        
-          /**
-     * Handles resolution callbacks.
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode,
-            Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_RESOLUTION && resultCode == RESULT_OK) {
-            mGoogleApiClient.connect();
-        }
-    }   
     
-
-
-
-
-
-
-
+    def __init__(self):
+        self.credentials = None
+        self.service = None
+    
+    def get_credentials(self):
+        """Gets valid user credentials from storage.
+    
+        If nothing has been stored, or if the stored credentials are invalid,
+        the OAuth2 flow is completed to obtain the new credentials.
+    
+        Returns:
+            Credentials, the obtained credential.
+        """
+        home_dir = os.path.expanduser('~')
+        credential_dir = os.path.join(home_dir, '.credentials')
+        if not os.path.exists(credential_dir):
+            os.makedirs(credential_dir)
+        credential_path = os.path.join(credential_dir,
+                                       'drive-kiltispiikki.json')
+    
+        store = oauth2client.file.Storage(credential_path)
+        credentials = store.get()
+        if not credentials or credentials.invalid:
+            flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+            flow.user_agent = APPLICATION_NAME
+            if flags:
+                credentials = tools.run_flow(flow, store, flags)
+            else: # Needed only for compatibility with Python 2.6
+                credentials = tools.run(flow, store)
+            print('Storing credentials to ' + credential_path)
+        return credentials    
+        
+    def connect(self):
+        """Shows basic usage of the Google Drive API.
+    
+        Creates a Google Drive API service object and outputs the names and IDs
+        for up to 10 files.
+        """
+        credentials = self.get_credentials()
+        http = credentials.authorize(httplib2.Http())
+        service = discovery.build('drive', 'v3', http=http)
+        return service
+    
+        '''results = self.service.files().list(
+            pageSize=10,fields="nextPageToken, files(id, name)").execute()
+        items = results.get('files', [])
+        if not items:
+            print('No files found.')
+        else:
+            print('Files:')
+            for item in items:
+                print('{0} ({1})'.format(item['name'], item['id']))
+         '''       
+         
+    def upload_file(self, filename = None):
+        if self.service == None:
+            self.service = self.connect()
+            if self.service == None:
+                Logger.info('DriveClient: Connecting to drive failed')
+                return
+        #no filename given -> abort        
+        if not filename: return False
+            
+        FILENAME = filename
+        #filetype on drive, docs filetype required for export
+        MIMETYPE = 'application/vnd.google-apps.document'
+        #filename on this system and the name of the uploaded file on drive
+        TITLE = FILENAME
+        #general description
+        DESCRIPTION = 'Csv list of account_name,customer_name,tab_value'
+        #The Kiltispiikkivarmuuskopiot folder on hupi.mestarit drive
+        PARENTFOLDER = '0BxdutqQIi9bzYWJsU0ExM2hUbXM'
+        
+        media_body = apiclient.http.MediaFileUpload(
+                            FILENAME,
+                            resumable=True
+                        )
+        # The body contains the metadata for the file. Name on drive
+        body = {
+          'description': DESCRIPTION,
+          'name':TITLE,
+          'parents':[PARENTFOLDER],
+          'mimeType':MIMETYPE,
+        }
+        
+        # Perform the request and print the result.
+        self.service.files().create(body=body, media_body=media_body).execute()
+        #return true if upload successful
+        return True
+        
+    def download_latest_csv(self):
+        if self.service == None:
+            self.service = self.connect()
+            if self.service == None:
+                Logger.info('DriveClient: Connecting to drive failed')
+                return
+                
+        results = self.service.files().list(
+                    pageSize=10,fields="nextPageToken, files(id, name)",
+                    q="'0BxdutqQIi9bzYWJsU0ExM2hUbXM' in parents",
+                    orderBy="createdTime desc").execute()
+        #import pprint
+        #pprint.pprint(results)
+        
+        items = results.get('files', [])
+        if not items:
+            Logger.info('DriveClient: No files in the Kiltispiikki folder.')
+            return
+        else:
+            download_id = items[0]['id']
+            file1 = self.service.files().export(
+                    fileId=download_id, mimeType='text/plain').execute()
+            if file1:
+                fn = items[0]['name']
+                with open(fn, 'wb') as fh:
+                    fh.write(file1)
+                Logger.info('DriveClient: downloaded {}'.format(fn))                
+            return items[0]['name']
+                
+   
