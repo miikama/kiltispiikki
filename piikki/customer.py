@@ -84,13 +84,6 @@ class CustomerHandler():
         c.close()       
         con.close()
                 
-        con = sqlite3.connect(self.db_path)
-        c = con.cursor()
-        
-        c.execute('''CREATE TABLE IF NOT EXISTS buy_actions (account_name str, item_name str, item_class str, buy_value real)''')
-        
-        con.commit()        
-        con.close()
             
     
     '''all the data is stored in database piikki.db'''
@@ -181,7 +174,7 @@ class CustomerHandler():
             f.write('{},{},{}\n'.format(c.account_name,c.customer_name,str(c.tab_value)))
             
         Logger.info('called save csv, filename: {}'.format(filename))
-        return filename
+        return filename, time_now_string
             
     def load_csv(self, file_name='customers.txt'):       
            
@@ -199,14 +192,15 @@ class CustomerHandler():
         except IOError: Logger.info('tried to load a nonexisting csv {}'.format(file_name))
         return customers
     
-            
+    #also updates the settings        
     def backup_customers(self):
-        csv_name = self.save_csv()
+        csv_name, time_str = self.save_csv()
         #upload to drive inside a different thread not to block the ui thread
         def upload_to_drive():
             google_client = DriveClient()
             google_client.upload_file(csv_name)
-            os.remove(csv_name)
+            App.get_running_app().settings.update_settings(update_time=time_str)
+            os.remove(csv_name)            
             InformationPopup('File uploaded')
             Logger.info('CustomerHandler: upload thread finished')
             

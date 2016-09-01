@@ -67,16 +67,6 @@ class DriveClient():
         service = discovery.build('drive', 'v3', http=http)
         return service
     
-        '''results = self.service.files().list(
-            pageSize=10,fields="nextPageToken, files(id, name)").execute()
-        items = results.get('files', [])
-        if not items:
-            print('No files found.')
-        else:
-            print('Files:')
-            for item in items:
-                print('{0} ({1})'.format(item['name'], item['id']))
-         '''       
          
     def upload_file(self, filename = None):
         if self.service == None:

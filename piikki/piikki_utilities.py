@@ -1,5 +1,6 @@
 from PIL import Image
 from kivy.logger import Logger
+from datetime import datetime, timedelta
 #import os
 #import time
 
@@ -15,7 +16,82 @@ class Item():
         self.item_class = item_class #string with value Candy, Soft drink or Food
         self.normal_background = "{}{}{}{}".format(full_path, "/itempics/", name.lower(), "_normal_pic.png")
         self.pressed_background = "{}{}{}{}".format(full_path, "/itempics/",name.lower(), "_pressed_pic.png")
-
+        
+class Settings():
+    
+    def __init__(self, full_path):
+        self.full_path = full_path
+        self.last_backup = self.read_settings()
+        self.time_between_backups = timedelta(days=3)
+        
+     
+    '''reads settings.txt file and return the options as a list 
+        (currently only one option so no list)'''       
+    def read_settings(self):
+        last_backup_date = None
+        #make new file if one does not exist
+        try:
+            file = open(self.full_path + "/settings.txt", "r")           
+            #commenting on the settings if the first char is '#'
+            
+            for line in file:
+                if line[0] == '#': continue
+                line_wo_newline = line[:-1]
+                a = line_wo_newline.split("=")
+                if a[0]=='last_backup':
+                    last_backup_date = a[1]                
+                    last_backup_date = datetime.strptime(last_backup_date, '%d-%m-%Y_%H:%M')
+                if a[0]=='days_between_backups':
+                    self.time_between_backups=timedelta(days=float(a[1]))
+            file.close()
+            
+        except IOError:
+            file = open(self.full_path +"/settings.txt", 'w')
+            file.write('#this file contains settings\n')
+            file.write('last_backup=None\n')
+            file.write('days_between_backups=3\n')            
+            file.close()
+            
+        return last_backup_date
+        return None
+     
+    #if time from the last backup is longer than n days set in settings.txt
+    def time_to_backup(self):
+        
+        if self.last_backup == None: return True
+        if self.last_backup + self.time_between_backups < datetime.now():   
+            Logger.info('Settings: time to backup {}'.format(True))
+            return True
+        Logger.info('Settings: time to backup {}'.format(False))
+        return False        
+    
+    #updates the last updated time
+    def update_settings(self, update_time=None):
+        
+        from tempfile import mkstemp
+        from shutil import move
+        from os import remove, close
+        
+        #Create temp file
+        fh, abs_path = mkstemp()
+        with open(abs_path,'w') as new_file:
+            with open(self.full_path + "/settings.txt") as old_file:
+                for line in old_file:
+                    if update_time:
+                        if(line.split('=')[0] =='last_backup'):                        
+                            new_file.write("{}={}\n".format('last_backup', update_time))
+                        else:
+                            new_file.write(line)
+                    else:
+                        new_file.write(line)
+        close(fh)
+        
+        #Remove original file
+        remove(self.full_path +"/settings.txt" )
+        #Move new file
+        move(abs_path, self.full_path +"/settings.txt")
+    
+    
 class ItemHandler():
 
     item_list = []

@@ -8,7 +8,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
 from kivy.logger import Logger
 from kivy.properties import ObjectProperty
-from piikki_utilities import  ItemHandler
+from piikki_utilities import  ItemHandler, Settings
 from customer import CustomerHandler, Customer
 from popups import *
 import os
@@ -579,19 +579,16 @@ class PiikkiManager(ScreenManager):
 class PiikkiApp(App):  
     
 
-    
+    def check_back_up(self):
+        if self.settings.time_to_backup():
+            self.man.customer_handler.backup_customers()
  
     
     def build(self):
         self.man = PiikkiManager(piikki_app = self)
-        
-        from gdrive import GoogleClient
-        self.googleClient = GoogleClient()
-
-    
-        self.man.get_screen("test").ids.test_label1.text = self.user_data_dir
-        self.man.get_screen("test").ids.test_label2.text = os.getcwd()
-        #self.man.get_screen("test").ids.test_label3.text = os.path.join(os.getcwd(), "piikki.db")
+        self.settings = Settings(os.getcwd())
+        self.check_back_up()
+        Clock.schedule_interval(lambda dt: self.check_back_up(), 40000)
         
         return self.man
 
