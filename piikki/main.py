@@ -445,8 +445,6 @@ class TestScreen(Screen):
         super(TestScreen, self).__init__(**kv)
         self.app = App.get_running_app()
         
-    def test(self):
-        self.app.googleClient.connect()
         
 class CustomerLayout(BoxLayout):
     customer = ObjectProperty(None)
