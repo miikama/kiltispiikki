@@ -8,7 +8,7 @@ Kiltispiikki uses platform independent python package kivy for the GUI. Used sql
 
 https://kivy.org/docs/installation/installation.html
 
-install kivy dependencies
+install kivy dependencies on RasPi
 
 ```
 sudo apt-get update
@@ -19,7 +19,7 @@ sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf
 		    gstreamer1.0-{omx,alsa} python-dev cython
 ```
 
-install kivy (had to install cython separately on raspi)
+install kivy (RasPi only found old package versions of cython so had to rename the old version first)
 
 ```
 sudo pip install git+https://github.com/kivy/kivy.git@master
