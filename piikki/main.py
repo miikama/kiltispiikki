@@ -7,16 +7,19 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
 from kivy.logger import Logger
+from kivy.config import Config
 from kivy.properties import ObjectProperty
 from piikki_utilities import  ItemHandler, Settings
 from customer import CustomerHandler, Customer
 from popups import *
 import os
 
-    
+   
 
 
 Builder.load_file('piikki.kv')
+Config.read("~/.kivy/config.ini")
+
 
 '''MenuScreen is the landing screen of the app'''
 class MenuScreen(Screen):
