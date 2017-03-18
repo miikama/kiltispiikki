@@ -1,0 +1,5 @@
+**.pyc
+piikki/*csv*.txt
+
+# client secret file, do not include.
+piikki/client_secret.json
