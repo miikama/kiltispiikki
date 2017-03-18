@@ -24,7 +24,7 @@ class Settings():
         self.last_backup = self.read_settings()
         self.time_between_backups = timedelta(days=3)
         
-     
+     #TODO problems with multiple computers with different versions of settings.txt and different last backups
     '''reads settings.txt file and return the options as a list 
         (currently only one option so no list)'''       
     def read_settings(self):
@@ -39,8 +39,12 @@ class Settings():
                 line_wo_newline = line[:-1]
                 a = line_wo_newline.split("=")
                 if a[0]=='last_backup':
-                    last_backup_date = a[1]                
-                    last_backup_date = datetime.strptime(last_backup_date, '%d-%m-%Y_%H:%M')
+                    last_backup_date = a[1]
+                    if last_backup_date == "None":
+			last_backup_date = None
+			Logger.info("Settings: no last backup based on settings")
+                    else:
+			last_backup_date = datetime.strptime(last_backup_date, '%d-%m-%Y_%H:%M')
                 if a[0]=='days_between_backups':
                     self.time_between_backups=timedelta(days=float(a[1]))
             file.close()
@@ -53,7 +57,6 @@ class Settings():
             file.close()
             
         return last_backup_date
-        return None
      
     #if time from the last backup is longer than n days set in settings.txt
     def time_to_backup(self):
