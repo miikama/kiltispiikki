@@ -195,9 +195,10 @@ class CustomerHandler():
     #also updates the settings        
     def backup_customers(self):
         csv_name, time_str = self.save_csv()
+        
+        google_client = DriveClient()
         #upload to drive inside a different thread not to block the ui thread
-        def upload_to_drive():
-            google_client = DriveClient()
+        def upload_to_drive():            
             google_client.upload_file(csv_name)
             App.get_running_app().settings.update_settings(update_time=time_str)
             os.remove(csv_name)            

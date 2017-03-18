@@ -126,6 +126,13 @@
 			padding: [20, 20, 20, 20]			
 			BoxLayout:				
 				Label
+				BoxLayout:
+					orientation: "vertical"
+					id: login_filter_layout
+					Button:
+						text: "eka"
+					Button:
+						text: "toka"
 				ScrollView:
 					size_hint: [None, None]
 					size: [root.width/2 - 50, self.parent.height]
@@ -842,7 +849,7 @@
                 id: test_label3
             Button:
                 text: "vibrate"
-                on_release: root.test()
+                on_release: root.app.stop()
                 background_normal: button_back
                 background_down: button_back_pressed
         BoxLayout:

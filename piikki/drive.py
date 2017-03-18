@@ -25,7 +25,7 @@ class DriveClient():
 
     
     def __init__(self):
-        self.credentials = None
+        self.credentials = self.get_credentials()
         self.service = None
     
     def get_credentials(self):
