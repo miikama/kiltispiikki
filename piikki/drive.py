@@ -47,7 +47,10 @@ class DriveClient():
         store = oauth2client.file.Storage(credential_path)
         credentials = store.get()
         if not credentials or credentials.invalid:
-            flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+	    try:
+		flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+	    except oauth2client.clientsecrets.InvalidClientSecretsError:
+		Logger.info("Drive: invalid client secret, authentication failed")		    
             flow.user_agent = APPLICATION_NAME
             if flags:
                 credentials = tools.run_flow(flow, store, flags)
