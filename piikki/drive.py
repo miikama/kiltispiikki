@@ -49,14 +49,15 @@ class DriveClient():
         if not credentials or credentials.invalid:
 	    try:
 		flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+		flow.user_agent = APPLICATION_NAME
+		if flags:
+		    credentials = tools.run_flow(flow, store, flags)
+		else: # Needed only for compatibility with Python 2.6
+		    credentials = tools.run(flow, store)
+		print('Storing credentials to ' + credential_path)
 	    except oauth2client.clientsecrets.InvalidClientSecretsError:
-		Logger.info("Drive: invalid client secret, authentication failed")		    
-            flow.user_agent = APPLICATION_NAME
-            if flags:
-                credentials = tools.run_flow(flow, store, flags)
-            else: # Needed only for compatibility with Python 2.6
-                credentials = tools.run(flow, store)
-            print('Storing credentials to ' + credential_path)
+		Logger.info("Drive: creation of client secrets faield, prob missing client_secret.json")		    
+            
         return credentials    
         
     def connect(self):
