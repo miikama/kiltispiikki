@@ -1,5 +1,14 @@
+
+#config has to be first import and set before anything else
+from kivy.config import Config
+   
+#Config.read("~/.kivy/config.ini")
+Config.set('kivy', 'keyboard_mode', 'systemanddock')
+
+
 from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.core.window import Window
 from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.clock import Clock
@@ -7,18 +16,17 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
 from kivy.logger import Logger
-from kivy.config import Config
+
 from kivy.properties import ObjectProperty
 from piikki_utilities import  ItemHandler, Settings
 from customer import CustomerHandler, Customer
 from popups import *
 import os
 
-   
-
-
 Builder.load_file('piikki.kv')
-Config.read("~/.kivy/config.ini")
+
+
+
 
 
 '''MenuScreen is the landing screen of the app'''
@@ -104,7 +112,18 @@ class AccountScreen(Screen):
         self.family_name_input = self.main_app.add_input(self.ids.family_name_container)
         #self.password1 = self.main_app.add_input(self.ids.password1_container, True)
         #self.password2 = self.main_app.add_input(self.ids.password2_container, True)
+        self.acc_name_input.bind(on_text_validate=self.on_enter_press)
+        self.given_name_input.bind(on_text_validate=self.on_enter_press)
+        self.family_name_input.bind(on_text_validate=self.on_enter_press)
+
+    #function for handling enter presses when writing
+    def on_enter_press(self,instance):
+	self.create_account()
+	Logger.info('AccountScreen: on_text_validate called focus')
+	    
         
+        
+    #function called when new account is created. Validates text inputs and creates customer through in customer_handler
     def create_account(self):
         acc_name = self.acc_name_input.text
         given_name = self.given_name_input.text
@@ -570,6 +589,8 @@ class PiikkiManager(ScreenManager):
     #add a text input to a given container, used by multiple screens
     def add_input(self, container, passw=False):
         text_input = TextInput(password=passw)
+	text_input.write_tab = False
+	text_input.multiline = False
         container.add_widget(text_input)
         return text_input
   

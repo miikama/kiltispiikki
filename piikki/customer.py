@@ -242,15 +242,14 @@ class CustomerHandler():
             data=c.fetchone()
             con.close()
             if data is None: return None
-            else: return data[0]    
-            
+            else: return data[0]          
        
         
     
     '''customer pays money to the tab'''
     def pay_to_tab(self,customer, amount):
         customer.pay_to_tab(amount)
-        self.update_tab_value(customer)
+        self.update_tab_value(customer, customer.tab_value)
     
     
     '''customer buys something using the tab'''
