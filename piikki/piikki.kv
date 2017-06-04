@@ -118,6 +118,7 @@
 				source: "kuvat/taustalogo.png"
 		orientation: "vertical"
 		Label:
+			id: warning_label
 			size_hint_y: None
 			height: margin
 		BoxLayout:
@@ -126,13 +127,6 @@
 			padding: [20, 20, 20, 20]			
 			BoxLayout:				
 				Label
-				BoxLayout:
-					orientation: "vertical"
-					id: login_filter_layout
-					Button:
-						text: "eka"
-					Button:
-						text: "toka"
 				ScrollView:
 					size_hint: [None, None]
 					size: [root.width/2 - 50, self.parent.height]
@@ -145,56 +139,91 @@
 								size: self.size
 						height: self.minimum_height
 						do_scroll_x: False 
-						cols: 1
+						cols: 2
 						spacing: 5
 						size_hint_y: None
 						id: account_list
 				Label
 			BoxLayout:
-				orientation: "vertical"	
-				spacing: 5
-				Label:
-					id: info_label
-					size_hint: [1, .2]
-					text: "Please select your account from the list"		
-				Label:
-					id: account_label
-					size_hint: [1, .2]
-					text: ""
-				Label:
-					id: customer_name_label
-					size_hint: [1, .2]
-				Label:
-					id: tab_value_label
-					size_hint: [1, .2]					
-				Label:
-					size_hint: [1, .2]
+				orientation: "vertical"
 				BoxLayout:
-					size_hint: [1, .6]
-					Label
-					Button:
-						size_hint: [3, 1]
-						text: "Continue to buy"
-						font_size: button_font_size
-						background_normal: "kuvat/nappi_tausta.png"
-						background_down: "kuvat/nappi_tausta_pressed.png"
-						on_release:	root.login()
-					Label
+					spacing:5
+					Label:
+						canvas.before:
+							Color:
+								rgba: (1,1,1,.8)
+							Rectangle:
+								pos:(self.pos[0], self.pos[1])
+								size: (self.size[0],self.size[1])
+						color: black
+						font_size: 17
+						id: filter_input_label
+					Button:	
+						text: "<-"
+						on_release: root.on_remove_filter_text()
+						background_normal: button_back
+						background_down: button_back_pressed
+						size_hint: [None,None]
+						size: [50,self.parent.size[1]]
+				Label:
+					size_hint_y: None
+					size: [self.size[0], 5]
+				GridLayout:
+					size_hint_y: None
+					size: [self.size[0], 200]
+					spacing: 5
+					row_default_height: 40
+					col_default_width: 40
+					row_force_default: True
+					col_force_default: True
+					id: filter_button_container
+					rows: 4				
 				BoxLayout:
-					size_hint: [1, .6]
-					Label
+					orientation: "horizontal"
+					Label:
+						id: info_label
+						size_hint: [1, .2]
+						text: "Please select your account from the list"		
+				
+				BoxLayout:
+					spacing: 5
+					orientation: "horizontal"					
+					canvas.before:
+						Color:
+							rgba: (1,1,1,.8)
+						Rectangle:
+							pos:(self.pos[0], self.pos[1] + 5)
+							size: (self.size[0],self.size[1] - 10)
+					Label:
+						id: account_label
+						color: black
+						font_size: 17
+						text: ""
+					Label:
+						id: customer_name_label
+						color: black
+						font_size: 17
+					Label:
+						id: tab_value_label	
+						color: black
+						font_size: 17
+				BoxLayout:
+					spacing: 5
+					orientation: "horizontal"
 					Button:
 						size_hint: [3,1]
 						font_size: button_font_size
 						background_normal: "kuvat/nappi_tausta.png"
 						background_down: "kuvat/nappi_tausta_pressed.png"
 						text: "View tab"
-						on_release:
-							root.view_account()
-					Label
-				Label:
-					id: warning_label
-				Label
+						on_release: root.view_account()
+					Button:
+						size_hint: [3, 1]
+						text: "Continue to buy"
+						font_size: button_font_size
+						background_normal: "kuvat/nappi_tausta.png"
+						background_down: "kuvat/nappi_tausta_pressed.png"
+						on_release:root.login()										
 		BoxLayout:
 			size_hint: [1, None]
 			height: margin
@@ -327,7 +356,7 @@
 		orientation: "vertical"
 		BoxLayout:
 			size_hint_y: None
-			height: margin
+			size: [self.size[0],margin]
 			Label:
 				text: "Items in sale"
 				font_size: 30
@@ -402,27 +431,65 @@
 				rows: 1
 				spacing: 10
 				size_hint_x: None
-				id: buy_item_list	
+				id: buy_item_list
+		Label:
+			size_hint_y: None
+			size: [self.size[0], 5]
 		BoxLayout:
+			orientation: "horizontal"
+			spacing: 5
+			size_hint_y: None
+			size: [self.size[0], 70]
 			Label:
-				text: "Most bought"
-		ScrollView:
-			size_hint: [None, None]
-			size: [root.width, list_height]
+			    size_hint_x: None
+			    size: [5, self.size[1]]
 			GridLayout:
+				size_hint_x: .85
+				id: product_filter_button_container
+				spacing: 5
+				rows: 2
+			Label:
+				size_hint_x: .15
 				canvas.before:
 					Color:
-						rgba: (1,1,1,.2)
+						rgba: (1,1,1,.8)
 					Rectangle:
-						pos: self.pos
-						size: self.size
-				width: self.minimum_width
-				do_scroll_y: False 
-				rows: 1
-				spacing: 10
-				size_hint_x: None
-				id: most_bought_item_list
-		Label		
+						pos:(self.pos[0], self.pos[1])
+						size: (self.size[0],self.size[1])
+				color: black
+				font_size: 25
+				id: product_filter_label
+			Button:	
+				text: "<-"
+				on_release: root.on_remove_filter_text()
+				background_normal: button_back
+				background_down: button_back_pressed
+				size_hint: [None,None]
+				size: [50,self.parent.size[1]]	
+			Label:
+			    size_hint_x: None
+			    size: [5, self.size[1]]
+		BoxLayout:
+			orientation: "horizontal"
+			Label:
+				text: "Most\nbought:"					
+				font_size: 20
+			ScrollView:
+				size_hint: [None, None]
+				size: [root.width - 100, list_height]
+				GridLayout:
+					canvas.before:
+						Color:
+							rgba: (1,1,1,.2)
+						Rectangle:
+							pos: self.pos
+							size: self.size
+					width: self.minimum_width
+					do_scroll_y: False 
+					rows: 1
+					spacing: 10
+					size_hint_x: None
+					id: most_bought_item_list
 		BoxLayout:
 			size_hint: [1, None]
 			height: 70			
@@ -956,8 +1023,7 @@
 <AccountButton>:
 	height: 50
 	size_hint_y: None
-	font_size: 35
-    #background_color: logo_color 
+	font_size: 20
 	background_normal: "kuvat/nappi_tausta.png"
 	background_down: "kuvat/nappi_tausta_pressed.png"
 	

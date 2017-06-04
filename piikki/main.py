@@ -15,6 +15,8 @@ from kivy.clock import Clock
 from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.widget import Widget
+from kivy.graphics import BorderImage
 from kivy.logger import Logger
 
 from kivy.properties import ObjectProperty
@@ -39,19 +41,30 @@ class LoginScreen(Screen):
     def __init__(self, **kv):
         super(LoginScreen, self).__init__(**kv)
         self.main_app = kv['main_app']
-        self.selected_account = None
-            
-                
+        self.selected_account = None	    
+        
+        self.test_button = Button(text="press")
+        
+        filter_chars = "abcdefghijklmnopqrstuwxyzo"
+        self.init_filter_buttons(filter_chars)
+        
+    
+
+    #implements a method for kivy screen
     def on_pre_enter(self):
         if self.main_app.customer_handler.customers:    
             for cust in self.main_app.customer_handler.customers:
-                button = AccountButton(cust, text = cust.account_name)
-                button.bind(on_release=self.select_account)
-                self.ids.account_list.add_widget(button)
+                self.make_account_button(cust)
 
     def on_leave(self):                
         self.ids.account_list.clear_widgets()   
-        self.unselect_account()                    
+        self.unselect_account()
+        self.ids.filter_input_label.text = ""
+        
+    def make_account_button(self,customer):
+	button = AccountButton(customer, text = customer.account_name)
+	button.bind(on_release=self.select_account)
+	self.ids.account_list.add_widget(button)
         
     def select_account(self, button):   
         self.selected_account=button.account
@@ -66,6 +79,7 @@ class LoginScreen(Screen):
         self.ids.tab_value_label.text = ""
         self.ids.customer_name_label.text = ""
         self.ids.info_label.text = "Please select your account from the list"
+        
         
         
     def login(self):
@@ -100,6 +114,36 @@ class LoginScreen(Screen):
             warning_label.text = ""        
         Clock.schedule_once(lambda dt: empty_warning(), 7)
         
+        
+    #filter visible account based on the text on filter_input_label
+    def filter_account_buttons(self):
+	filter_text = self.ids.filter_input_label.text
+        self.ids.account_list.clear_widgets()   
+	for cust in self.main_app.customer_handler.customers:
+	    if filter_text in cust.account_name:
+		self.make_account_button(cust)
+	
+        
+    
+    #initializes filter buttons for names
+    def init_filter_buttons(self, char_list):
+	for char in char_list:
+	    butt = Button(text=char, font_size=16,
+			    background_normal='kuvat/nappi_tausta.png',
+                            background_down='kuvat/nappi_tausta_pressed.png')
+	    butt.bind(on_release=self.on_filter_button_press)
+	    self.ids.filter_button_container.add_widget(butt)
+	    
+	    
+	    
+    def on_filter_button_press(self, button):
+	self.ids.filter_input_label.text += button.text
+	self.filter_account_buttons()
+	
+    def on_remove_filter_text(self):
+	self.ids.filter_input_label.text = self.ids.filter_input_label.text[0:-1] 
+	self.filter_account_buttons()
+        
 
 '''AccountScreen is used for creating a new accouont'''
 class AccountScreen(Screen):
@@ -119,10 +163,7 @@ class AccountScreen(Screen):
     #function for handling enter presses when writing
     def on_enter_press(self,instance):
 	self.create_account()
-	Logger.info('AccountScreen: on_text_validate called focus')
-	    
-        
-        
+       
     #function called when new account is created. Validates text inputs and creates customer through in customer_handler
     def create_account(self):
         acc_name = self.acc_name_input.text
@@ -177,6 +218,7 @@ class BuyScreen(Screen):
         #just sort the items based on class
         self.item_list.sort(key=lambda x: x.item_class, reverse=True)
         self.show_all_items()
+        self.init_filter_buttons("abcdefghijklmnopqrstuwxyz")
         
     def on_pre_enter(self):
         self.ids.account_label.text = self.main_app.current_customer.account_name
@@ -282,6 +324,50 @@ class BuyScreen(Screen):
                     button.bind(on_press=self.select_item)
                     self.button_list.append(button)
                     container.add_widget(button)     
+                    
+    
+    #filter visible products based on the text on product_filter_label
+    def filter_products(self):
+	filter_text = self.ids.product_filter_label.text
+	if self.item_list == None: pass
+        else:
+            container = self.ids.buy_item_list
+            container.clear_widgets()
+            self.unselect_items()
+            for item in self.item_list:
+		if filter_text in item.name:
+		    button = ItemButton(item, text = "",
+					background_normal = item.normal_background,
+					background_down = item.pressed_background)
+		    button.bind(on_press=self.select_item)
+		    self.button_list.append(button)
+		    container.add_widget(button)
+	
+        
+    
+    #initializes filter buttons for names
+    def init_filter_buttons(self, char_list):
+	for char in char_list:
+	    butt = Button(text=char, font_size=16,
+			    background_normal='kuvat/nappi_tausta.png',
+                            background_down='kuvat/nappi_tausta_pressed.png')
+	    butt.bind(on_release=self.on_filter_button_press)
+	    
+	    self.ids.product_filter_button_container.add_widget(butt)
+	    #with butt.canvas.before:
+	#	border_image = BorderImage( size=(butt.width, butt.height),
+	#		    pos=(butt.x, butt.y),  border=(10, 10, 10, 10),
+	#		    source='kuvat/musta_reuna.png')
+	    
+    #determines what happens, when buttons with letters for filtering are pressed
+    def on_filter_button_press(self, button):
+	self.ids.product_filter_label.text += button.text
+	self.filter_products()
+	
+    #determines what happens when backspace is used
+    def on_remove_filter_text(self):
+	self.ids.product_filter_label.text = self.ids.product_filter_label.text[0:-1] 
+	self.filter_products()
 
  
         
@@ -530,8 +616,28 @@ class AddItemLayout(BoxLayout):
         
         #stupid bug again
         for child in self.children[int(len(self.children)/2):int(len(self.children))]:
-            self.remove_widget(child)           
+            self.remove_widget(child)   
+            
+            
+class MyInputListener(Widget):
+    
+    def __init__(self, parent_screen, **kv):
+	super(MyInputListener,self).__init__(**kv)
+	#self.orientation = "vertical"
+	#self.data_label = Label(text="saaas")
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self, 'text')
+        if self._keyboard.widget:
+	    print(self._keyboard.widget)
+        #self._keyboard.bind(on_key_down=self._on_keyboard_down)
+        #self.add_widget(self.data_label)
         
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self._on_keyboard_down)
+        self._keyboard = None
+        
+    def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+	pass
+        #self.data_label.text = self.data_label.text
         
         
 '''ItemButton is used in the BuyScreen to portray the items'''
@@ -548,7 +654,6 @@ class AccountButton(Button):
     def __init__(self,account, **kv):
         Button.__init__(self, **kv)
         self.account = account
-        
         
 class CustomDropDown(DropDown):
     pass
