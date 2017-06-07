@@ -48,7 +48,8 @@ class DriveClient():
         credentials = store.get()
         if not credentials or credentials.invalid:
 	    try:
-		flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+		c_secret_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),CLIENT_SECRET_FILE)
+		flow = client.flow_from_clientsecrets( c_secret_path, SCOPES)
 		flow.user_agent = APPLICATION_NAME
 		if flags:
 		    credentials = tools.run_flow(flow, store, flags)
