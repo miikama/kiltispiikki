@@ -28,7 +28,15 @@ import os
 Builder.load_file('piikki.kv')
 
 
-
+#:set background_color  (0.97, 0.94, 0.9, 1)
+#:set margin_color (0.97, 0.73, 0.2,1)
+#:set logo_color (1,1,1,.75) # old (0.65, 0.64, 0.18, 1)
+button_color = (0.26, 0.43, 0.56,1)
+#:set button_size [250,50]
+#:set bright_yellow (0.93, 0.96, 0.35,1)
+#:set black (0, 0, 0, 1)
+button_font_color = (0, 0, 0, 1)
+button_font_size = 26
 
 
 '''MenuScreen is the landing screen of the app'''
@@ -128,9 +136,9 @@ class LoginScreen(Screen):
     #initializes filter buttons for names
     def init_filter_buttons(self, char_list):
 	for char in char_list:
-	    butt = Button(text=char, font_size=16,
-			    background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png')
+	    butt = Button(text=char, font_size=button_font_size,
+			    background_normal='', color= button_font_color,
+                            background_color = button_color )
 	    butt.bind(on_release=self.on_filter_button_press)
 	    self.ids.filter_button_container.add_widget(butt)
 	    

@@ -204,7 +204,7 @@ class CustomerHandler():
             os.remove(csv_name)            
             InformationPopup('File uploaded')
             Logger.info('CustomerHandler: upload thread finished')
-            
+        
         thread1 = threading.Thread(group=None,target=upload_to_drive)
         thread1.start()         
         Logger.info('CustomerHandler: backup customers called')
