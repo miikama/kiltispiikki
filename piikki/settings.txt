@@ -1,3 +1,3 @@
 #this file contains settings
-last_backup=27-07-2017_12:33
+last_backup=30-07-2017_17:32
 days_between_backups=3

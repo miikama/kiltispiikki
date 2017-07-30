@@ -13,6 +13,12 @@ from kivy.logger import Logger
 from kivy.app import App
 import os
 
+
+
+button_color = (0.26, 0.43, 0.56,1)
+button_font_color = (0, 0, 0, 1)
+button_font_size = 26
+
 class ConfirmationPopup(Popup):
     
     def __init__(self, func_on_confirmation,title="", **kv):
@@ -24,12 +30,12 @@ class ConfirmationPopup(Popup):
         b = BoxLayout(orientation='horizontal',
                       spacing = 10, padding = 10)
         b.add_widget(Button(text='Cancel',
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.dismiss))      
         b.add_widget(Button(text='Confirm', 
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.confirm))
           
         self.content = b
@@ -43,8 +49,8 @@ class InformationPopup(Popup):
     def __init__(self, title):        
         p = Popup(title=title,size_hint=(None,None),size=(300,150))
         button = Button(text="okay", 
-                        background_normal='kuvat/nappi_tausta.png',
-                        background_down='kuvat/nappi_tausta_pressed.png',
+                        background_normal='', background_color = button_color,
+                        color= button_font_color, font_size = button_font_size,
                         on_release=p.dismiss)
         p.content = button
         p.open()          
@@ -69,12 +75,12 @@ class UpdateCustomerTabPopup(Popup):
         b.add_widget(self.info_label)
         b2 = BoxLayout(orientation='horizontal',spacing=10, padding=10)        
         b2.add_widget(Button(text='Cancel',
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.dismiss)) 
         b2.add_widget(Button(text='Confirm', 
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.update_tab_value))               
         b.add_widget(b2)
         self.content = b
@@ -104,12 +110,12 @@ class UpdateItemPopup(Popup):
         self.price_input = TextInput(text='With a dot e.g. 0.0')
         b.add_widget(self.price_input)
         b.add_widget(Button(text='Confirm', 
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.confirm))
         b.add_widget(Button(text='Cancel',
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.dismiss))       
         self.content = b
         
@@ -140,16 +146,16 @@ class AddItemPopup(Popup):
         self.price_input = TextInput(text='Price e.g. 0.0')
         b1 = BoxLayout(spacing = 10)
         self.soft_drink_button = Button(text = 'Soft drink',
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.select_type)
         self.candy_button = Button(text = 'Candy',
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.select_type)
         self.food_button = Button(text = 'Food',
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.select_type)
         self.warning_label = Label()
         l1 = Label(text='file name \'kuva.png\', in home/user/Pictures/')
@@ -165,12 +171,12 @@ class AddItemPopup(Popup):
         b.add_widget(self.path_input)
         b2 = BoxLayout(spacing = 10)
         b2.add_widget(Button(text='Cancel',
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.dismiss))
         b2.add_widget(Button(text='Add item', 
-                            background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png',
+                            background_normal='', background_color = button_color,
+                            color= button_font_color, font_size = button_font_size,
                             on_release=self.confirm))
         b.add_widget(self.warning_label)
         b.add_widget(b2)

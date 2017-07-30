@@ -28,13 +28,8 @@ import os
 Builder.load_file('piikki.kv')
 
 
-#:set background_color  (0.97, 0.94, 0.9, 1)
-#:set margin_color (0.97, 0.73, 0.2,1)
-#:set logo_color (1,1,1,.75) # old (0.65, 0.64, 0.18, 1)
+
 button_color = (0.26, 0.43, 0.56,1)
-#:set button_size [250,50]
-#:set bright_yellow (0.93, 0.96, 0.35,1)
-#:set black (0, 0, 0, 1)
 button_font_color = (0, 0, 0, 1)
 button_font_size = 26
 

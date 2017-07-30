@@ -1,8 +1,8 @@
 #:import sm kivy.uix.screenmanager
 
 #:set list_height 100
-#:set manage_list_height 100
-#:set manage_list_color (1, 1  , .6, .5)
+#:set manage_list_height 60
+#:set manage_list_color  (0.97, 0.73, 0.2,.9 ) #old (1, 1  , .6, .5)
 #:set background_color  (0.97, 0.94, 0.9, 1)
 #:set margin_color (0.97, 0.73, 0.2,1)
 #:set logo_color (1,1,1,.75) # old (0.65, 0.64, 0.18, 1)
@@ -288,18 +288,25 @@
             size_hint_y: None
             height: margin
         Label:
-            size_hint: [1, .3]
+            size_hint: [1, .1]
+        Label:
+            size_hint: [1, None]
+            size: button_size 
             font_size: button_font_size
             color: button_font_color
             canvas.before:
                 Color:
                     rgba: button_color
                 Rectangle:
-                    pos:self.pos
-                    size: self.size
+                    pos: (self.pos[0] +  20, self.pos[1])
+                    size: [self.size[0] - 40, self.size[1] ]
             text: "Fill in the following information to create an account"
+        Label:
+            size_hint: [1, .2]
         BoxLayout:
-            size_hint: [1, .3]
+            id: acc_name_container      
+            size_hint: [1, None]
+            size: button_size
             spacing: 5
             Label:
                 text: "your account name:"
@@ -311,56 +318,52 @@
                     Rectangle:
                         pos: self.pos
                         size: self.size
-        BoxLayout:
-            id: acc_name_container   
-            BoxLayout:
-                size_hint: [1, .3]
-                spacing: 5
-                Label:
-                    text: "your given name:"
-                    color: button_font_color
-                    font_size: button_font_size
-                    canvas.before:
-                        Color:
-                            rgba: button_color
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-        BoxLayout:
-            id: given_name_container       
-            BoxLayout:
-                size_hint: [1, .3]
-                spacing: 5
-                Label:
-                    text: "your family name:"
-                    color: button_font_color
-                    font_size: button_font_size
-                    canvas.before:
-                        Color:
-                            rgba: button_color
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-        BoxLayout:
-            id: family_name_container        
+        BoxLayout:               
+            size_hint: [1, None]
+            size: button_size        
+            id: given_name_container                
             spacing: 5
-            BoxLayout:
-                size_hint: [1, .3]
-                Label:
-                    text: ""
-                    color: button_font_color
-                    font_size: button_font_size
-                    background_color: button_color
-        BoxLayout:
-            id: password1_container        
-            BoxLayout:
-                size_hint: [1, .3]
-                Label: 
-                    text: ""
-        BoxLayout:
-            id: password2_container        
             Label:
-                size_hint: [1, .2]
+                text: "your given name:"
+                color: button_font_color
+                font_size: button_font_size
+                canvas.before:
+                    Color:
+                        rgba: button_color
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+        BoxLayout:            
+            size_hint: [1, None]
+            size: button_size
+            id: family_name_container                
+            spacing: 5
+            Label:
+                text: "your family name:"
+                color: button_font_color
+                font_size: button_font_size
+                canvas.before:
+                    Color:
+                        rgba: button_color
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+        BoxLayout:                        
+            spacing: 5        
+            id: password1_container        
+            size_hint: [1, .1]
+            Label:
+                text: ""
+                color: button_font_color
+                font_size: button_font_size
+                background_color: button_color
+        BoxLayout:                        
+            id: password2_container        
+            size_hint: [1, .1]
+            Label: 
+                text: ""  
+        Label:
+            size_hint: [1, .1]
         BoxLayout:
             size_hint: [1, .4]
             Label:
@@ -372,11 +375,13 @@
                 color: button_font_color
                 background_color: button_color
                 background_normal: ''
-                on_release:	root.create_account()
+                on_release: root.create_account()
             Label:
         Label:
             id: warning_label
-            size_hint: [1,.1]
+            size_hint: [1,.2]
+            color: button_font_color
+            font_size: button_font_size
         BoxLayout:
             size_hint_y: None
             height: margin
@@ -397,312 +402,349 @@
 			
 			 	
 <BuyScreen>:
-	BoxLayout:
-		spacing: 10
-		canvas.before:
-			Color:
-				rgba: logo_color
-			Rectangle:
-				pos: self.pos
-				size: self.size				
-			Color:
-				rgba: (0,0,0,1)
-			Rectangle:
-				pos: self.x, self.y + margin
-				size: (self.width, self.height - 2 * margin)
-			Color:
-				rgba: (1,1,1,1)
-			Rectangle:
-				pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
-				size: root.height- 200, root.height-200
-				source: "kuvat/taustalogo.png"
-		orientation: "vertical"
-		BoxLayout:
-			size_hint_y: None
-			size: [self.size[0],margin]
-			Label:
-				text: "Items in sale"
-				font_size: 30
-			GridLayout:
-				rows: 1
-				Label:
-					color: black
-					text_size: self.size
-					halign: "left"
-					valign: "middle"
-					text: "user: " 
-					font_size: 24	
-				Label:
-					size_hint_x: None
-					width: self.parent.width * 2 / 5
-					text_size: self.size
-					valign: "middle"					
-					id: account_label
-					font_size: 30
-				Label:
-					color: black
-					text_size: self.size
-					halign: "center"
-					valign: "middle"
-					text: "tab:"
-					font_size: 24
-				Label:
-					id: tab_value_label
-					color: (1,1,1,1)
-					halign: "left"
-					valign: "middle"
-					text_size: self.size
-					font_size: 35		
-		BoxLayout:
-			size_hint_y: None
-			height: 30
-			orientation: "horizontal"
-			spacing: 3
-			Button:
-				text: "All"
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_release: root.show_all_items()
-			Button: 
-				text: "Soft drinks"
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_release: root.show_soft_drinks()
-			Button:
-				text: "Candy"
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_release: root.show_candy()
-			Button: 
-				text: "Food"
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_release: root.show_food()
-			Label			
-		ScrollView:
-			size_hint: [None, None]
-			size: [root.width, list_height]
-			GridLayout:
-				canvas.before:
-					Color:
-						rgba: (1,1,1,.2)
-					Rectangle:
-						pos: self.pos
-						size: self.size
-				width: self.minimum_width
-				do_scroll_y: False 
-				rows: 1
-				spacing: 10
-				size_hint_x: None
-				id: buy_item_list
-		Label:
-			size_hint_y: None
-			size: [self.size[0], 5]
-		BoxLayout:
-			orientation: "horizontal"
-			spacing: 5
-			size_hint_y: None
-			size: [self.size[0], 70]
-			Label:
-			    size_hint_x: None
-			    size: [5, self.size[1]]
-			GridLayout:
-				size_hint_x: .85
-				id: product_filter_button_container
-				spacing: 5
-				rows: 2
-			Label:
-				size_hint_x: .15
-				canvas.before:
-					Color:
-						rgba: (1,1,1,.8)
-					Rectangle:
-						pos:(self.pos[0], self.pos[1])
-						size: (self.size[0],self.size[1])
-				color: black
-				font_size: 25
-				id: product_filter_label
-			Button:	
-				text: "<-"
-				on_release: root.on_remove_filter_text()
-				background_normal: button_back
-				background_down: button_back_pressed
-				size_hint: [None,None]
-				size: [50,self.parent.size[1]]	
-			Label:
-			    size_hint_x: None
-			    size: [5, self.size[1]]
-		BoxLayout:
-			orientation: "horizontal"
-			Label:
-				text: "Most\nbought:"					
-				font_size: 20
-			ScrollView:
-				size_hint: [None, None]
-				size: [root.width - 100, list_height]
-				GridLayout:
-					canvas.before:
-						Color:
-							rgba: (1,1,1,.2)
-						Rectangle:
-							pos: self.pos
-							size: self.size
-					width: self.minimum_width
-					do_scroll_y: False 
-					rows: 1
-					spacing: 10
-					size_hint_x: None
-					id: most_bought_item_list
-		BoxLayout:
-			size_hint: [1, None]
-			height: 70			
-			orientation: "vertical"
-			BoxLayout:
-				padding: 0,0,15,0				
-				Label:
-					text: "Selected items"
-					font_size: 18
-					size_hint: [.5,1]
-				BoxLayout:
-					canvas.before:
-						Color:
-							rgba: (1,1,1,.8)
-						Rectangle:
-							pos:self.pos
-							size: self.size
-					Label:
-						color: black
-						font_size: 17
-						id: product_name_label
-					Label:
-						color: black
-						font_size: 17
-						id: product_price_label
-			Label		
-		BoxLayout:
-			padding: 10,10
-			size_hint_y: None
-			height: margin
-			Button:				
-				text: "Cancel"
-				size_hint: [.35, 1]
-				font_size: button_font_size
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_release: root.to_login_and_logout()
-			Label
-			Button:
-				size_hint: [.7,1]
-				text: "Buy item"
-				font_size: button_font_size
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_release: root.buy_item()
-			Label:
-				size_hint: [.1,1]
-			Button:
-				size_hint: [.7,1]
-				text: "Buy and logout"
-				font_size: button_font_size
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_release: root.buy_and_exit()
-			Label:
-				size_hint: [.1,1]	
-			
+    BoxLayout:
+        spacing: 10
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: margin_color
+            Rectangle:
+                pos: self.pos
+                size: self.size				
+            Color:
+                rgba: background_color
+            Rectangle:
+                pos: self.x, self.y + margin
+                size: (self.width, self.height - 2 * margin)
+            Color:
+                rgba: logo_color
+            Rectangle:
+                pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+                size: root.height- 200, root.height-200
+                source: "kuvat/taustalogo_musta.png"        
+        BoxLayout:
+            size_hint_y: None
+            size: [self.size[0],margin]
+            Label:
+                text: "Items in sale"
+                size_hint_x: .6
+                halign: "left"
+                color: button_font_color
+                font_size: button_font_size   
+                background_color: (1,1,1,0)
+                background_down: ''
+                background_normal: ''            
+            Label:
+                size_hint_x: .1
+                color: button_font_color                
+                font_size: button_font_size  
+                halign: "right"
+                valign: "middle"
+                text: "user: "                 
+            Label:
+                size_hint_x: .3                
+                halign: "left"
+                valign: "middle"					
+                id: account_label
+                font_size: button_font_size
+                color: button_font_color
+            Label:
+                size_hint_x: .2
+                color: button_font_color
+                font_size: button_font_size
+                halign: "right"
+                valign: "middle"
+                text: "tab:"                
+            Label:
+                size_hint_x: .2
+                id: tab_value_label
+                color: button_font_color
+                halign: "left"
+                valign: "middle"                
+                font_size: 35		
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            orientation: "horizontal"
+            spacing: 3
+            Button:
+                text: "All"
+                font_size: button_font_size
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
+                on_release: root.show_all_items()
+            Button: 
+                text: "Soft drinks"
+                font_size: button_font_size
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
+                on_release: root.show_soft_drinks()
+            Button:
+                text: "Candy"
+                font_size: button_font_size
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
+                on_release: root.show_candy()
+            Button: 
+                text: "Food"
+                font_size: button_font_size
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
+                on_release: root.show_food()
+                Label			
+        ScrollView:
+            size_hint: [None, None]
+            size: [root.width, list_height]
+            GridLayout:
+                canvas.before:
+                    Color:
+                        rgba: (1,1,1,.2)
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                width: self.minimum_width
+                do_scroll_y: False 
+                rows: 1
+                spacing: 10
+                size_hint_x: None
+                id: buy_item_list
+        Label:
+            size_hint_y: None
+            size: [self.size[0], 5]
+        BoxLayout:
+            orientation: "horizontal"
+            spacing: 5
+            size_hint_y: None
+            size: [self.size[0], 70]
+            Label:
+                size_hint_x: None
+                size: [5, self.size[1]]
+            GridLayout:
+                size_hint_x: .85
+                id: product_filter_button_container
+                spacing: 5
+                rows: 2
+            Label:
+                size_hint_x: .15
+                canvas.before:
+                    Color:
+                        rgba: (1,1,1,.8)
+                    Rectangle:
+                        pos:(self.pos[0], self.pos[1])
+                        size: (self.size[0],self.size[1])
+                color: black
+                font_size: 25
+                id: product_filter_label
+            Button:	
+                text: "<-"
+                on_release: root.on_remove_filter_text()
+                font_size: button_font_size
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
+                size_hint: [None,None]
+                size: [50,self.parent.size[1]]	
+            Label:
+                size_hint_x: None
+                size: [5, self.size[1]]
+        BoxLayout:
+            orientation: "horizontal"
+            Label:
+                text: "Most\nbought:"					
+                font_size: 20
+            ScrollView:
+                size_hint: [None, None]
+                size: [root.width - 100, list_height]
+                GridLayout:
+                    canvas.before:
+                        Color:
+                            rgba: (1,1,1,.2)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    width: self.minimum_width
+                    do_scroll_y: False 
+                    rows: 1
+                    spacing: 10
+                    size_hint_x: None
+                    id: most_bought_item_list
+        BoxLayout:
+            size_hint: [1, None]
+            height: 70			
+            orientation: "vertical"
+            BoxLayout:
+                padding: 0,0,15,0				
+                Label:
+                    text: "Selected items"
+                    font_size: 18
+                    size_hint: [.5,1]
+                BoxLayout:
+                    canvas.before:
+                        Color:
+                            rgba: (1,1,1,.8)
+                        Rectangle:
+                            pos:self.pos
+                            size: self.size
+                    Label:
+                        color: black
+                        font_size: 17
+                        id: product_name_label
+                    Label:
+                        color: black
+                        font_size: 17
+                        id: product_price_label
+        Label		
+        BoxLayout:
+            padding: 10,10
+            size_hint_y: None
+            height: margin
+            Button:				
+                text: "Cancel"
+                size_hint: [.35, 1]
+                font_size: button_font_size
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
+                on_release: root.to_login_and_logout()
+            Label
+            Button:
+                size_hint: [.7,1]
+                text: "Buy item"
+                font_size: button_font_size
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
+                on_release: root.buy_item()
+            Label:
+                size_hint: [.1,1]
+            Button:
+                size_hint: [.7,1]
+                text: "Buy and logout"
+                font_size: button_font_size
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
+                on_release: root.buy_and_exit()
+            Label:
+                size_hint: [.1,1]	
+                
+                
+                
 <CustomerScreen>:
-	BoxLayout:
-		padding: 0,0,20,0
-		orientation: "vertical"
-		canvas.before:
-			Color:
-				rgba: logo_color
-			Rectangle:
-				pos: self.pos
-				size: self.size				
-			Color:
-				rgba: (0,0,0,1)
-			Rectangle:
-				pos: self.x, self.y + margin
-				size: (self.width, self.height - 2 * margin)
-			Color:
-				rgba: (1,1,1,1)
-			Rectangle:
-				pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
-				size: root.height- 200, root.height-200
-				source: "kuvat/taustalogo.png"
-		BoxLayout:
-			size_hint_y: None
-			height: margin
-			Label:
-				text: "Your account"
-				font_size: 30
-			GridLayout:
-				rows: 1
-				Label:
-					color: black
-					text_size: self.size
-					halign: "left"
-					valign: "middle"
-					text: "user: " 
-					font_size: 24	
-				Label:
-					size_hint_x: None
-					width: self.parent.width * 2 / 5
-					text_size: self.size
-					valign: "middle"					
-					id: account_label
-					font_size: 30
-				Label:
-					color: black
-					text_size: self.size
-					halign: "center"
-					valign: "middle"
-					text: "tab:"
-					font_size: 24
-				Label:
-					id: tab_value_label
-					color: (1,1,1,1)
-					halign: "left"
-					valign: "middle"
-					text_size: self.size
-					font_size: 35
-		Label:
-			text: "Here you can view your account information and add cash too your tab"
-			font_size: 20 
-		BoxLayout:
-			size_hint: [1, .3]
-			Label: 
-				text: "Amount to add to tab"
-			BoxLayout:
-				id: add_tab_input_container
-		BoxLayout:
-			size_hint: [1, .3]
-			Label
-			Button:
-				text: "Add to tab"
-				font_size: button_font_size
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_release: root.add_to_tab()
-		Label:
-			id: warning_label
-		Label
-		BoxLayout:
-			size_hint_y: None
-			height: margin
-			padding: 10,10
-			Button:
-				text: "Back to login"
-				size_hint: [.35, 1]
-				font_size: button_font_size
-				background_normal: "kuvat/nappi_tausta.png"
-				background_down: "kuvat/nappi_tausta_pressed.png"
-				on_release:
-					root.on_leave_screen()
-					root.manager.transition.direction="right"
-					root.manager.current = "login"
-			Label				
+    BoxLayout:
+        padding: 20,5,20,5
+        orientation: "vertical"
+        canvas.before:
+            Color:
+                rgba: margin_color
+            Rectangle:
+                pos: self.pos
+                size: self.size				
+            Color:
+                rgba: background_color
+            Rectangle:
+                pos: self.x, self.y + margin
+                size: (self.width, self.height - 2 * margin)
+            Color:
+                rgba: logo_color
+            Rectangle:
+                pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
+                size: root.height- 200, root.height-200
+                source: "kuvat/taustalogo_musta.png"
+        BoxLayout:
+            size_hint_y: None
+            height: margin
+            Label:
+                text: "Your account"
+                font_size: 30
+            GridLayout:
+                rows: 1
+                Label:
+                    color: button_font_color
+                    text_size: self.size
+                    halign: "left"
+                    valign: "middle"
+                    text: "user: " 
+                    font_size: 24	
+                Label:
+                    size_hint_x: None
+                    width: self.parent.width * 2 / 5
+                    text_size: self.size
+                    valign: "middle"					
+                    id: account_label
+                    font_size: 30
+                Label:
+                    color: button_font_color
+                    text_size: self.size
+                    halign: "center"
+                    valign: "middle"
+                    text: "tab:"
+                    font_size: 24
+                Label:
+                    id: tab_value_label
+                    color: (1,1,1,1)
+                    halign: "left"
+                    valign: "middle"
+                    text_size: self.size
+                    font_size: 35
+        Label: 
+            size_hint: [1, .1]
+        BoxLayout:
+            size_hint: [1, .5]
+            orientation: 'vertical'            
+            Button:                
+                text: "Here you can view your account information\n and add cash too your tab"
+                color: button_font_color
+                font_size: button_font_size            
+                background_color: button_color
+                background_normal: ''
+                background_down: ''            
+        Label: 
+            size_hint: [1, .1]
+        BoxLayout:
+            size_hint: [1, .3]
+            Button: 
+                text: "Amount to add to tab"
+                color: button_font_color
+                font_size: button_font_size
+                background_color: button_color
+                background_normal: ''
+                background_down: ''
+            BoxLayout:
+                id: add_tab_input_container
+        BoxLayout:
+            size_hint: [1, .3]
+            Label
+            Button:
+                text: "Add to tab"
+                font_size: button_font_size
+                color: button_font_color
+                background_color: button_color
+                background_normal: '' 
+                on_release: root.add_to_tab()
+        Label:
+            id: warning_label
+        Label
+        BoxLayout:
+            size_hint_y: None
+            height: margin
+            padding: 10,10
+            Button:
+                text: "Back to login"
+                size_hint: [.35, 1]
+                font_size: button_font_size
+                color: button_font_color
+                background_color: button_color
+                background_normal: ''                
+                on_release:
+                    root.on_leave_screen()
+                    root.manager.transition.direction="right"
+                    root.manager.current = "login"
+            Label				
 
 
 			
@@ -796,25 +838,26 @@
         orientation: "vertical"
         canvas.before:
             Color:
-                rgba: logo_color
+                rgba: margin_color
             Rectangle:
                 pos: self.pos
                 size: self.size				
             Color:
-                rgba: (0,0,0,1)
+                rgba: background_color
             Rectangle:
                 pos: self.x, self.y + margin
                 size: (self.width, self.height - 2 * margin)
             Color:
-                rgba: (1,1,1,1)
+                rgba: logo_color
             Rectangle:
                 pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
                 size: root.height- 200, root.height-200
-                source: "kuvat/taustalogo.png"
+                source: "kuvat/taustalogo_musta.png"
         Label:
             size_hint_y: None
             height: margin
             text: 'Manage customer accounts'
+            color: button_font_color
             font_size: 30            
         BoxLayout:
             size_hint_y: None
@@ -824,14 +867,16 @@
             Button:
                 text: "Load customers from csv"
                 font_size: button_font_size
-                background_normal: button_back
-                background_down: button_back_pressed
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
                 on_release: root.confirm_replace_cust_db()
             Button:
                 text: "Backup customers"
                 font_size: button_font_size
-                background_normal: button_back
-                background_down: button_back_pressed
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
                 on_release: root.confirm_backup_customers()
         BoxLayout:
             size_hint: [None,None]
@@ -844,7 +889,7 @@
                 GridLayout:
                     canvas.before:
                         Color:
-                            rgba: (0,0,0,1)
+                            rgba: (0,0,0,.2)
                         Rectangle:
                             pos:self.pos
                             size: self.size
@@ -855,7 +900,9 @@
                     id: customer_container
             Label
         Label:
-            id: warning_label		
+            id: warning_label	
+            color: button_font_color
+            font_size: button_font_size
         BoxLayout:
             size_hint_y: None
             height: margin
@@ -864,8 +911,9 @@
                 size_hint: [.35, 1]
                 text: "Back to settings"
                 font_size: button_font_size
-                background_normal: "kuvat/nappi_tausta.png"
-                background_down: "kuvat/nappi_tausta_pressed.png"
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
                 on_press:
                     root.manager.transition.direction="right"					 
                     root.manager.current = "admin"
@@ -880,26 +928,27 @@
         orientation: "vertical"
         canvas.before:
             Color:
-                rgba: logo_color
+                rgba: margin_color
             Rectangle:
                 pos: self.pos
                 size: self.size				
             Color:
-                rgba: (0,0,0,1)
+                rgba: background_color
             Rectangle:
                 pos: self.x, self.y + margin
                 size: (self.width, self.height - 2 * margin)
             Color:
-                rgba: (1,1,1,1)
+                rgba: logo_color
             Rectangle:
                 pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
                 size: root.height- 200, root.height-200
-                source: "kuvat/taustalogo.png"
+                source: "kuvat/taustalogo_musta.png"
         Label:            
             size_hint_y: None
             height: margin
             text: 'Manage your items'
             font_size: 30
+            color: button_font_color
         BoxLayout:
             size_hint: [None,1]
             width: root.width
@@ -910,7 +959,7 @@
                 GridLayout:
                     canvas.before:
                         Color:
-                            rgba: (0,0,0,1)
+                            rgba: (0,0,0,.2)
                         Rectangle:
                             pos:self.pos
                             size: self.size
@@ -927,9 +976,10 @@
             Button:				
                 size_hint: [.35, 1]
                 text: "Back to settings"
+                color: button_font_color
                 font_size: button_font_size
-                background_normal: "kuvat/nappi_tausta.png"
-                background_down: "kuvat/nappi_tausta_pressed.png"
+                background_normal: ''
+                background_color: button_color
                 on_press:
                     root.manager.transition.direction="right"					 
                     root.manager.current = "admin"
@@ -943,22 +993,20 @@
         orientation: "vertical"
         FileChooserListView:
             id: filechooser
-
         BoxLayout:
             size_hint_y: None
             height: 30
             Button:
                 text: "Cancel"
                 on_release: 
-                	root.manager.transition.direction = "right"
-                	root.manager.current = "admin"
-
+                    root.manager.transition.direction = "right"
+                    root.manager.current = "admin"
             Button:
                 text: "Load"
                 on_release:
-                	root.manager.get_screen("admin").ids.image_input.text = filechooser.selection[0]
-                	root.manager.transition.direction = "right"
-                	root.manager.current = "admin"
+                    root.manager.get_screen("admin").ids.image_input.text = filechooser.selection[0]
+                    root.manager.transition.direction = "right"
+                    root.manager.current = "admin"
                 	
  
 	
@@ -969,21 +1017,21 @@
         orientation: "vertical"
         canvas.before:
             Color:
-                rgba: logo_color
+                rgba: margin_color
             Rectangle:
                 pos: self.pos
                 size: self.size				
             Color:
-                rgba: (0,0,0,1)
+                rgba: background_color
             Rectangle:
                 pos: self.x, self.y + margin
                 size: (self.width, self.height - 2 * margin)
             Color:
-                rgba: (1,1,1,1)
+                rgba: logo_color
             Rectangle:
                 pos: root.center_x - (root.height-200) / 2, root.center_y - (root.height - 200) / 2
                 size: root.height- 200, root.height-200
-                source: "kuvat/taustalogo.png"
+                source: "kuvat/taustalogo_musta.png"
         BoxLayout:
             orientation: "vertical"
             Label:
@@ -1004,9 +1052,10 @@
             Button:				
                 size_hint: [.35, 1]
                 text: "Back to menu"
+                color: button_font_color
                 font_size: button_font_size
-                background_normal: "kuvat/nappi_tausta.png"
-                background_down: "kuvat/nappi_tausta_pressed.png"
+                background_normal: ''
+                background_color: button_color                
                 on_press:
                     root.manager.transition.direction="right"					 
                     root.manager.current = "menu"
@@ -1026,18 +1075,26 @@
             size: self.size 
     Label:
         text: root.customer.customer_name
+        color: button_font_color
+        font_size: button_font_size
     Label:
         id: balance_label
+        color: button_font_color
+        font_size: button_font_size
         text: str(root.customer.tab_value)
     Button:
         text: "Set new balance"
-        background_normal: button_back
-        background_down: button_back_pressed
+        font_size: button_font_size - 4
+        color: button_font_color
+        background_normal: ''
+        background_color: button_color
         on_release: root.update_tab_value()
     Button: 
         text: "Delete account"
-        background_normal: button_back
-        background_down: button_back_pressed
+        font_size: button_font_size - 4
+        color: button_font_color
+        background_normal: ''
+        background_color: button_color
         on_release: root.confirm_delete_customer()
 
 
@@ -1057,18 +1114,26 @@
         source: root.item.normal_background
     Label:
         text: root.item.name
+        color: button_font_color
+        font_size: button_font_size
     Label:
         text: str(root.item.price)
+        color: button_font_color
+        font_size: button_font_size
         id: price_label
     Button:
         text: 'Update price'
-        background_normal: "kuvat/nappi_tausta.png"
-        background_down: "kuvat/nappi_tausta_pressed.png"
+        color: button_font_color
+        font_size: button_font_size -4
+        background_normal: ''
+        background_color: button_color
         on_release: root.update_item_price()
     Button:
         text: 'Delete item'
-        background_normal: "kuvat/nappi_tausta.png"
-        background_down: "kuvat/nappi_tausta_pressed.png"
+        color: button_font_color
+        font_size: button_font_size -4
+        background_normal: ''
+        background_color: button_color
         on_release: root.confirm_delete_item()
         
 <AddItemLayout>    
@@ -1085,10 +1150,14 @@
             size: self.size 
     Label:
         text: 'Add new item'
+        font_size: button_font_size
+        color: button_font_color
     Button:
         text: 'Do it'
-        background_normal: "kuvat/nappi_tausta.png"
-        background_down: "kuvat/nappi_tausta_pressed.png"
+        color: button_font_color
+        font_size: button_font_size
+        background_normal: ''
+        background_color: button_color
         on_release: root.container.parent.parent.parent.parent.add_item() 
 
 	
