@@ -311,6 +311,7 @@ class BuyScreen(Screen):
                 container.add_widget(button)
         
     def show_most_bought(self):
+        #check if there are items or for some reasen a customer has not been selected (alwasy should be)
         if len(self.item_list) == 0 or self.main_app.current_customer == None: pass
         else:
             most_bought = self.main_app.customer_handler.most_bought(self.main_app.current_customer)
@@ -351,9 +352,9 @@ class BuyScreen(Screen):
     #initializes filter buttons for names
     def init_filter_buttons(self, char_list):
 	for char in char_list:
-	    butt = Button(text=char, font_size=16,
-			    background_normal='kuvat/nappi_tausta.png',
-                            background_down='kuvat/nappi_tausta_pressed.png')
+	    butt = Button(text=char, font_size=button_font_size,
+			    background_normal='',
+                            background_color=button_color, color=button_font_color)
 	    butt.bind(on_release=self.on_filter_button_press)
 	    
 	    self.ids.product_filter_button_container.add_widget(butt)
