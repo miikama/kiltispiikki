@@ -24,6 +24,7 @@ from piikki_utilities import  ItemHandler, Settings
 from customer import CustomerHandler, Customer
 from popups import *
 import os
+import re
 
 Builder.load_file('piikki.kv')
 
@@ -318,6 +319,7 @@ class BuyScreen(Screen):
             if most_bought:
                 most_bought_list = [x[0] for x in most_bought]
                 most_bought_list = filter(lambda x: self.item_exists_update_price(x), most_bought_list)
+                most_bought_list = most_bought_list[:3]
                 container = self.ids.most_bought_item_list
                 container.clear_widgets()
                 for item in most_bought_list:
@@ -444,8 +446,9 @@ class CustomerScreen(Screen):
     def __init__(self, **kv):
         super(CustomerScreen, self).__init__(**kv)
         self.main_app = kv['main_app'] 
-        self.add_tab_input = self.main_app.add_input(self.ids.add_tab_input_container)
-        
+        self.add_tab_input = FloatInput(write_tab=False, multiline=False)
+        self.ids.add_tab_input_container.add_widget(self.add_tab_input)
+                
     def add_to_tab(self):
         tab_input = self.add_tab_input
         try:
@@ -661,6 +664,18 @@ class AccountButton(Button):
         
 class CustomDropDown(DropDown):
     pass
+
+
+class FloatInput(TextInput):
+
+    pat = re.compile('[^0-9]')
+    def insert_text(self, substring, from_undo=False):
+        pat = self.pat
+        if '.' in self.text:
+            s = re.sub(pat, '', substring)
+        else:
+            s = '.'.join([re.sub(pat, '', s) for s in substring.split('.', 1)])
+        return super(FloatInput, self).insert_text(s, from_undo=from_undo)
 
         
         

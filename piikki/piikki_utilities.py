@@ -209,7 +209,7 @@ class ItemHandler():
         pic2_path = self.full_path + "/itempics/{}{}{}".format(item_name, "_pressed_" ,"pic.png")
        
         #creating normal background
-        pic.paste(border, (0,0), border)    
+        #pic.paste(border, (0,0), border)    
         pic.save(pic1_path ,"PNG")
         
         #creating the pressed background

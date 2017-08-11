@@ -6,3 +6,4 @@ sprite,1.0,Soft drink
 tupla,1.0,Candy
 snickers,0.7,Candy
 milky way,0.7,Candy
+noodles,5.1,Food
