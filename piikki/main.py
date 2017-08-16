@@ -19,14 +19,14 @@ from kivy.uix.widget import Widget
 from kivy.graphics import BorderImage
 from kivy.logger import Logger
 
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, DictProperty, NumericProperty
 from piikki_utilities import  ItemHandler, Settings
 from customer import CustomerHandler, Customer
 from popups import *
 import os
 import re
 
-Builder.load_file('piikki.kv')
+#Builder.load_file('piikki.kv')
 
 
 
@@ -37,7 +37,9 @@ button_font_size = 26
 
 '''MenuScreen is the landing screen of the app'''
 class MenuScreen(Screen):
-    pass
+    
+    def exit_app(self):
+        App.get_running_app().stop()
  
 '''LoginScreen is used for login'''  
 class LoginScreen(Screen):
@@ -56,6 +58,7 @@ class LoginScreen(Screen):
 
     #implements a method for kivy screen
     def on_pre_enter(self):
+        self.ids.info_label.font_size=button_font_size-5
         if self.main_app.customer_handler.customers:    
             for cust in self.main_app.customer_handler.customers:
                 self.make_account_button(cust)
@@ -76,6 +79,7 @@ class LoginScreen(Screen):
         self.ids.tab_value_label.text = str(button.account.tab_value)
         self.ids.customer_name_label.text = button.account.customer_name
         self.ids.info_label.text = "Selected account:"
+        self.ids.info_label.font_size=button_font_size
     
     def unselect_account(self):        
         self.selected_account = None
@@ -210,17 +214,15 @@ class AccountScreen(Screen):
 class BuyScreen(Screen):
     
     
+    
     def __init__(self, **kv):        
         super(BuyScreen, self).__init__( **kv)
         self.main_app = kv['main_app']
-        self.selected_item = None 
-        self.pressed_button = None
-        self.button_list = []
-              
+        
+        #item initialization
+        self.selected_items = {}
+        
         self.item_list = self.main_app.item_handler.get_items()
-                
-        #just sort the items based on class
-        self.item_list.sort(key=lambda x: x.item_class, reverse=True)
         self.show_all_items()
         self.init_filter_buttons("abcdefghijklmnopqrstuwxyz")
         
@@ -228,9 +230,14 @@ class BuyScreen(Screen):
         self.ids.account_label.text = self.main_app.current_customer.account_name
         self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
         self.ids.tab_value_label.color = self.tab_color()
-        self.update_item_list()
-        self.show_most_bought()
+        self.update_item_list()        
         self.show_all_items()
+        self.selected_items = {}
+        self.update_selected_items_table()
+        
+    def on_leave(self):
+        self.selected_items = {}
+        
         
     def update_item_list(self):
         self.item_list = self.main_app.item_handler.update_item_list()   
@@ -240,76 +247,71 @@ class BuyScreen(Screen):
         self.ids.account_label.text = self.main_app.current_customer.account_name
         self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
         self.ids.tab_value_label.color = self.tab_color()
+        self.update_selected_items_table()
     
     '''Changes the current customer of the app to None, unselects the items, and swithces screens to login screen'''
     def to_login_and_logout(self):
         self.main_app.current_customer = None
-        self.unselect_items()
         self.manager.transition.direction="right"                     
         self.manager.current = "login"
-        
-    def clear_button_list(self):
-        self.button_list=[]    
-        
+    
+    #shows all the items on the container 'buy_item_list' with classes and separators between classes    
     def show_all_items(self):
+        self.ids.product_filter_label.text = ''
         if len(self.item_list) == 0: pass
         else:
+            candy_list = filter(lambda x: x.item_class == "Candy", self.item_list)
+            drink_list = filter(lambda x: x.item_class == "Soft drink", self.item_list)
+            food_list = filter(lambda x: x.item_class == "Food", self.item_list)
+            sorted_items = candy_list + drink_list + food_list
             container = self.ids.buy_item_list
             container.clear_widgets()
-            self.clear_button_list()
-            self.unselect_items()
-            for item in self.item_list:
-                button = ItemButton(item, text = "",
-                                     background_normal = item.normal_background,
-                                     background_down = item.pressed_background)
-                button.bind(on_press=self.select_item)
-                self.button_list.append(button)
-                container.add_widget(button)
+            for item in candy_list:
+                item_layout = BuyItemLayout(item, container)
+                container.add_widget(item_layout)
+            container.add_widget(MySeparator())
+            for item in drink_list:
+                item_layout = BuyItemLayout(item, container)
+                container.add_widget(item_layout)
+            container.add_widget(MySeparator())
+            for item in food_list:
+                item_layout = BuyItemLayout(item, container)
+                container.add_widget(item_layout)
+            
             
     def show_candy(self):
+        self.ids.product_filter_label.text = ''
         if self.item_list == None: pass
         else:
             candy_list = filter(lambda x: x.item_class == "Candy", self.item_list)
             container = self.ids.buy_item_list
             container.clear_widgets()
-            self.unselect_items()
             for item in candy_list:
-                button = ItemButton(item, text = "",
-                                     background_normal = item.normal_background,
-                                     background_down = item.pressed_background)
-                button.bind(on_press=self.select_item)
-                self.button_list.append(button)
-                container.add_widget(button)
+                item_layout = BuyItemLayout(item, container)
+                container.add_widget(item_layout)
     
     def show_soft_drinks(self):
+        self.ids.product_filter_label.text = ''
         if self.item_list == None: pass
         else:
             drink_list = filter(lambda x: x.item_class == "Soft drink", self.item_list)
             container = self.ids.buy_item_list
             container.clear_widgets()
-            self.unselect_items()
             for item in drink_list:
-                button = ItemButton(item, text = "",
-                                     background_normal = item.normal_background,
-                                     background_down = item.pressed_background)
-                button.bind(on_press=self.select_item)
-                self.button_list.append(button)
-                container.add_widget(button)
+                item_layout = BuyItemLayout(item, container)
+                container.add_widget(item_layout)
     
     def show_food(self):
+        self.ids.product_filter_label.text = ''
         if self.item_list == None: pass
         else:
             food_list = filter(lambda x: x.item_class == "Food", self.item_list)
             container = self.ids.buy_item_list
             container.clear_widgets()
-            self.unselect_items()
             for item in food_list:
-                button = ItemButton(item, text = "",
-                                     background_normal = item.normal_background,
-                                     background_down = item.pressed_background)
-                button.bind(on_press=self.select_item)
-                self.button_list.append(button)
-                container.add_widget(button)
+                item_layout = BuyItemLayout(item, container)
+                container.add_widget(item_layout)
+               
         
     def show_most_bought(self):
         #check if there are items or for some reasen a customer has not been selected (alwasy should be)
@@ -320,16 +322,11 @@ class BuyScreen(Screen):
                 most_bought_list = [x[0] for x in most_bought]
                 most_bought_list = filter(lambda x: self.item_exists_update_price(x), most_bought_list)
                 most_bought_list = most_bought_list[:3]
-                container = self.ids.most_bought_item_list
+                container = self.ids.buy_item_list
                 container.clear_widgets()
                 for item in most_bought_list:
-                    button = ItemButton(item, text = "",
-                                         background_normal = item.normal_background,
-                                         background_down = item.pressed_background)
-                    self.main_app.get_screen("test").ids.test_label3.text = item.normal_background
-                    button.bind(on_press=self.select_item)
-                    self.button_list.append(button)
-                    container.add_widget(button)     
+                    item_layout = BuyItemLayout(item, container)
+                    container.add_widget(item_layout)              
                     
     
     #filter visible products based on the text on product_filter_label
@@ -339,18 +336,19 @@ class BuyScreen(Screen):
         else:
             container = self.ids.buy_item_list
             container.clear_widgets()
-            self.unselect_items()
             for item in self.item_list:
 		if filter_text in item.name:
-		    button = ItemButton(item, text = "",
-					background_normal = item.normal_background,
-					background_down = item.pressed_background)
-		    button.bind(on_press=self.select_item)
-		    self.button_list.append(button)
-		    container.add_widget(button)
+		    item_layout = BuyItemLayout(item, container)
+                    container.add_widget(item_layout)
 	
-        
-    
+    #updates the selected items screen
+    def update_selected_items_table(self):
+        container = self.ids.selected_item_container
+        container.clear_widgets()
+        for key in sorted(self.selected_items.keys(), key=lambda item: self.selected_items[item][1] , reverse=True):            
+            container.add_widget(SelectedItemLayout(self.selected_items[key][0], self.selected_items[key][1], container))
+            
+                
     #initializes filter buttons for names
     def init_filter_buttons(self, char_list):
 	for char in char_list:
@@ -359,11 +357,7 @@ class BuyScreen(Screen):
                             background_color=button_color, color=button_font_color)
 	    butt.bind(on_release=self.on_filter_button_press)
 	    
-	    self.ids.product_filter_button_container.add_widget(butt)
-	    #with butt.canvas.before:
-	#	border_image = BorderImage( size=(butt.width, butt.height),
-	#		    pos=(butt.x, butt.y),  border=(10, 10, 10, 10),
-	#		    source='kuvat/musta_reuna.png')
+	    self.ids.product_filter_button_container.add_widget(butt)	    
 	    
     #determines what happens, when buttons with letters for filtering are pressed
     def on_filter_button_press(self, button):
@@ -374,52 +368,55 @@ class BuyScreen(Screen):
     def on_remove_filter_text(self):
 	self.ids.product_filter_label.text = self.ids.product_filter_label.text[0:-1] 
 	self.filter_products()
-
- 
-        
-        
-    def select_item(self, button):
-        if self.selected_item == None:
-            button.background_normal = button.item.pressed_background
-            self.selected_item = button.item
-            self.pressed_button = button
-            self.ids.product_name_label.text = button.item.name
-            self.ids.product_price_label.text = str(button.item.price)
-            
-        elif self.selected_item == button.item:
-            button.background_normal = button.item.normal_background
-            self.selected_item = None
-            self.pressed_button = None
-            self.ids.product_name_label.text = ""
-            self.ids.product_price_label.text = ""
-            
+	
+    
+    def select_item(self,item):
+        if item.name in self.selected_items:
+            self.selected_items[item.name] = (item, self.selected_items[item.name][1]+ 1)
         else:
-            self.pressed_button.background_normal = self.selected_item.normal_background
-            button.background_normal = button.item.pressed_background
-            self.selected_item = button.item
-            self.pressed_button = button
-            self.ids.product_name_label.text = button.item.name
-            self.ids.product_price_label.text = str(button.item.price)
+            self.selected_items[item.name] = (item, 1)
         
-    def unselect_items(self):
-        for button in self.button_list:
-            button.background_normal = button.item.normal_background
-        self.selected_item = None
-        self.ids.product_name_label.text =""
-        self.ids.product_price_label.text = ""
+        self.update_selected_items_table()       
+        
+            
+    def unselect_item(self, item):
+        #decrease the count of selected items
+        if item.name in self.selected_items:            
+            nmbr_selected = self.selected_items[item.name][1]
+            if nmbr_selected < 2:
+                del self.selected_items[item.name]                
+            else:
+                self.selected_items[item.name] = (item, self.selected_items[item.name][1] - 1)
+            self.update_selected_items_table()
+    
     
     def buy_item(self):
-        if self.selected_item == None: pass
+        if len(self.selected_items.keys()) == 0: pass
         else:
-            self.main_app.customer_handler.pay_from_tab(self.main_app.current_customer, self.selected_item.price)
-            self.main_app.customer_handler.save_buy(self.main_app.current_customer, self.selected_item)
+            amount = 0
+            for key in self.selected_items:
+                amount += self.selected_items[key][0].price * self.selected_items[key][1]
+                #add all the bought items to database
+                for ii in range(self.selected_items[key][1]):
+                    self.main_app.customer_handler.save_buy(self.main_app.current_customer, self.selected_items[key][0])
+            #save the buy to database
+            self.main_app.customer_handler.pay_from_tab(self.main_app.current_customer, amount)
+            self.selected_items = {}
             self.update_screen()
 
     def buy_and_exit(self):
-        if self.selected_item == None: pass
+        if len(self.selected_items.keys()) == 0: pass
         else:
-            self.main_app.customer_handler.pay_from_tab(self.main_app.current_customer, self.selected_item.price)
-            self.main_app.customer_handler.save_buy(self.main_app.current_customer, self.selected_item)
+            amount = 0
+            for key in self.selected_items:
+                amount += self.selected_items[key][0].price * self.selected_items[key][1]
+                #add all the bought items to database
+                for ii in range(self.selected_items[key][1]):
+                    self.main_app.customer_handler.save_buy(self.main_app.current_customer, self.selected_items[key][0])                
+            #save the buy to database
+            self.main_app.customer_handler.pay_from_tab(self.main_app.current_customer, amount)
+            self.selected_items = {}
+            self.update_screen()
             self.to_login_and_logout()
             
     #in most bought this is used to check whether item exists and if it does, update price            
@@ -569,8 +566,8 @@ class CustomerLayout(BoxLayout):
         self.container = container
         super(CustomerLayout, self).__init__(**kv)
 
-        for child in self.children[int(len(self.children)/2):int(len(self.children))]:
-            self.remove_widget(child)
+        #for child in self.children[int(len(self.children)/2):int(len(self.children))]:
+        #    self.remove_widget(child)
             
     def update_tab_value(self):
         p = UpdateCustomerTabPopup(self, self.customer)
@@ -596,8 +593,8 @@ class ManageItemLayout(BoxLayout):
         BoxLayout.__init__(self, **kv)
         
         #for some reason all objects in kivy file are added twice, remove duplicates
-        for child in self.children[4:9]:
-            self.remove_widget(child)
+        #for child in self.children[4:9]:
+        #    self.remove_widget(child)
             
     def confirm_delete_item(self):
         title = 'Do you wish to delete {}?'.format(self.item.name)
@@ -622,9 +619,37 @@ class AddItemLayout(BoxLayout):
         super(AddItemLayout, self).__init__(**kv)
         
         #stupid bug again
-        for child in self.children[int(len(self.children)/2):int(len(self.children))]:
-            self.remove_widget(child)   
+        #for child in self.children[int(len(self.children)/2):int(len(self.children))]:
+        #    self.remove_widget(child)   
             
+''' the layout for items presented in buyscreen, each should have know its own item'''            
+class BuyItemLayout(BoxLayout):    
+    
+    
+    def __init__(self,item, container, **kv):
+        self.item = item
+        self.container = container
+        super(BuyItemLayout,self).__init__(**kv)    
+        
+    def increase_item(self):
+        App.get_running_app().man.get_screen('osto').select_item(self.item)
+        
+    def decrease_item(self):
+        App.get_running_app().man.get_screen('osto').unselect_item(self.item)
+
+
+
+''' the layout for items presented in buyscreen, each should have know its own item'''            
+class SelectedItemLayout(BoxLayout):    
+    
+    
+    def __init__(self,item, amount_of_selected, container, **kv):
+        self.item = item
+        self.amount_of_selected = amount_of_selected
+        self.container = container
+        super(SelectedItemLayout,self).__init__(**kv)
+        print(self.container)
+   
             
 class MyInputListener(Widget):
     
@@ -653,6 +678,13 @@ class ItemButton(Button):
     def __init__(self, item, **kv):
         super(ItemButton, self).__init__(**kv)
         self.item = item
+        
+class MySeparator(Label):
+    
+    pass
+    
+        
+
 
 
 '''AccountButton is used in the loginScreen account selection'''
