@@ -1,7 +1,7 @@
 from PIL import Image
 from kivy.logger import Logger
 from datetime import datetime, timedelta
-#import os
+import os
 #import time
 
 #full_path = os.getcwd()
@@ -30,8 +30,8 @@ class Settings():
     def read_settings(self):
         last_backup_date = None
         #make new file if one does not exist
-        try:
-            file = open(self.full_path + "/settings.txt", "r")           
+        try:            
+            file = open(os.path.join(self.full_path, "settings.txt"), "r")           
             #commenting on the settings if the first char is '#'
             
             for line in file:

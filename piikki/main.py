@@ -723,7 +723,7 @@ class PiikkiManager(ScreenManager):
         if platform == 'android':
             path = self.app.user_data_dir             
         else:
-            path = os.getcwd()  
+            path = os.path.dirname(os.path.realpath(__file__))        
         
         self.current_customer = None
         self.customer_handler = CustomerHandler(path)
@@ -764,7 +764,7 @@ class PiikkiApp(App):
     
     def build(self):
         self.man = PiikkiManager(piikki_app = self)
-        self.settings = Settings(os.getcwd())
+        self.settings = Settings(os.path.dirname(os.path.realpath(__file__)))
         self.check_back_up()
         Clock.schedule_interval(lambda dt: self.check_back_up(), 40000)
         
