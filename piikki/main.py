@@ -648,7 +648,6 @@ class SelectedItemLayout(BoxLayout):
         self.amount_of_selected = amount_of_selected
         self.container = container
         super(SelectedItemLayout,self).__init__(**kv)
-        print(self.container)
    
             
 class MyInputListener(Widget):
