@@ -16,6 +16,15 @@ class Item():
         self.item_class = item_class #string with value Candy, Soft drink or Food
         self.normal_background = "{}{}{}{}".format(full_path, "/itempics/", name.lower(), "_normal_pic.png")
         self.pressed_background = "{}{}{}{}".format(full_path, "/itempics/",name.lower(), "_pressed_pic.png")
+        self.item_pic_exists(full_path)
+
+    #check does the item have a picture
+    def item_pic_exists(self, full_path):
+        try:
+            Image.open(self.normal_background)
+        except:
+            self.normal_background = "{}{}".format(full_path, "/itempics/nopicpic.png")
+            self.pressed_background = "{}{}".format(full_path, "/itempics/nopicpic.png")
         
 class Settings():
     
