@@ -40,3 +40,22 @@ $ python drive_auth_init.py
 This starts the authentication flow for the google drive, it should direct the user to browser to login in to a google account. Kiltispiikki is currently configured for hupimestari account. A new account will require for the user to go to google developers console and create a new oauth2 token and download their own client_secret file to the folder drive_init/
 
 
+##Setting up touchscreen
+
+The touch screen used is waveshare 10.1" lcd touch screen 
+
+https://www.waveshare.com/wiki/10.1inch_HDMI_LCD
+
+Copy the driver "LCD-show" to the rasperry. Your home folder is fine. extract the archive with
+
+```
+$ tar xvf "filename"
+```
+
+the go to the folder and run the correct driver 
+
+```
+$ sudo ./LCD101-"something"
+```
+the touch screen should now start
+
