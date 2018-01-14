@@ -37,13 +37,28 @@ Go to your home folder and clone the git repo
 $ git clone https://github.com/miikama/kiltispiikki.git
 ```
 
-Before first run on a new user go to the folder piikki/drive_init/ and run 
+Before first run on a new user go to the folder piikki/drive_init/ and run (not necessarily required if not on rasperry)
 
 ```
-$ python drive_auth_init.py
+$ python drive_auth_init.py --noauth-local-webserver
 ```
 
 This starts the authentication flow for the google drive, it should direct the user to browser to login in to a google account. Kiltispiikki is currently configured for hupimestari account. A new account will require for the user to go to google developers console and create a new oauth2 token and download their own client_secret file to the folder drive_init/
+
+On a computer you are now set up. On Rasperry continue to the next phase.
+
+## Setting up on Rasperry
+
+on rasperry the user needs to be added to the video user group to be able to open up a GUI and give access to input
+
+```
+$ sudo usermod -a -G video username
+$ sudo chmod /dev/input/event*
+```
+
+
+
+
 
 
 ## Setting up touchscreen
