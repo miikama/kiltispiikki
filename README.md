@@ -54,6 +54,7 @@ on rasperry the user needs to be added to the video user group to be able to ope
 ```
 $ sudo usermod -a -G video username
 $ sudo chmod /dev/input/event*
+$ sudo apt-get install xclip
 ```
 
 
