@@ -58,6 +58,7 @@ class Settings():
                     self.time_between_backups=timedelta(days=float(a[1]))
             file.close()
             
+        #if there is no file 
         except IOError:
             file = open(self.full_path +"/settings.txt", 'w')
             file.write('#this file contains settings\n')
