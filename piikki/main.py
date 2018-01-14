@@ -65,27 +65,28 @@ class LoginScreen(Screen):
 
     def on_leave(self):                
         self.ids.account_list.clear_widgets()   
-        self.unselect_account()
+        self.reset_fields()
         self.ids.filter_input_label.text = ""
         
     def make_account_button(self,customer):
-	button = AccountButton(customer, text = customer.account_name)
-	button.bind(on_release=self.select_account)
-	self.ids.account_list.add_widget(button)
+    	button = AccountButton(customer, text = customer.account_name)
+    	button.bind(on_release=self.select_account)
+    	self.ids.account_list.add_widget(button)
         
     def select_account(self, button):   
         self.selected_account=button.account
-        self.ids.account_label.text = button.account.account_name
-        self.ids.tab_value_label.text = str(button.account.tab_value)
-        self.ids.customer_name_label.text = button.account.customer_name
-        self.ids.info_label.text = "Selected account:"
-        self.ids.info_label.font_size=button_font_size
+        #self.ids.account_label.text = button.account.account_name
+        #self.ids.tab_value_label.text = str(button.account.tab_value)
+        #self.ids.customer_name_label.text = button.account.customer_name
+        #self.ids.info_label.text = "Selected account:"
+        #self.ids.info_label.font_size=button_font_size
+        self.login()
     
-    def unselect_account(self):        
+    def reset_fields(self):        
         self.selected_account = None
-        self.ids.account_label.text = ""
-        self.ids.tab_value_label.text = ""
-        self.ids.customer_name_label.text = ""
+        #self.ids.account_label.text = ""
+        #self.ids.tab_value_label.text = ""
+        #self.ids.customer_name_label.text = ""
         self.ids.info_label.text = "Please select your account from the list"
         
         
@@ -105,52 +106,37 @@ class LoginScreen(Screen):
             warning_label.text = ""        
         Clock.schedule_once(lambda dt: empty_warning(), 7)
         
-    def view_account(self):
-        warning_label = self.ids.warning_label
-        
-        if self.selected_account == None:
-            warning_label.text = "Please select an account"
-        else:
-            self.main_app.current_customer = self.selected_account
-            self.unselect_account()
-            self.manager.get_screen("customer").update_screen()
-            self.manager.transition.direction = "left"
-            self.manager.current = "customer"           
-                
-        
-        def empty_warning():
-            warning_label.text = ""        
-        Clock.schedule_once(lambda dt: empty_warning(), 7)
+            
         
         
     #filter visible account based on the text on filter_input_label
     def filter_account_buttons(self):
-	filter_text = self.ids.filter_input_label.text
+        filter_text = self.ids.filter_input_label.text
         self.ids.account_list.clear_widgets()   
-	for cust in self.main_app.customer_handler.customers:
-	    if filter_text in cust.account_name:
-		self.make_account_button(cust)
+    	for cust in self.main_app.customer_handler.customers:
+    	    if filter_text in cust.account_name:
+    		self.make_account_button(cust)
 	
         
     
     #initializes filter buttons for names
     def init_filter_buttons(self, char_list):
-	for char in char_list:
-	    butt = Button(text=char, font_size=button_font_size,
-			    background_normal='', color= button_font_color,
-                            background_color = button_color )
-	    butt.bind(on_release=self.on_filter_button_press)
-	    self.ids.filter_button_container.add_widget(butt)
+    	for char in char_list:
+    	    butt = Button(text=char, font_size=button_font_size,
+    			    background_normal='', color= button_font_color,
+                                background_color = button_color )
+    	    butt.bind(on_release=self.on_filter_button_press)
+    	    self.ids.filter_button_container.add_widget(butt)
 	    
 	    
 	    
     def on_filter_button_press(self, button):
-	self.ids.filter_input_label.text += button.text
-	self.filter_account_buttons()
+    	self.ids.filter_input_label.text += button.text
+    	self.filter_account_buttons()
 	
     def on_remove_filter_text(self):
-	self.ids.filter_input_label.text = self.ids.filter_input_label.text[0:-1] 
-	self.filter_account_buttons()
+    	self.ids.filter_input_label.text = self.ids.filter_input_label.text[0:-1] 
+    	self.filter_account_buttons()
         
 
 '''AccountScreen is used for creating a new accouont'''
@@ -234,6 +220,7 @@ class BuyScreen(Screen):
         self.show_all_items()
         self.selected_items = {}
         self.update_selected_items_table()
+
         
     def on_leave(self):
         self.selected_items = {}
@@ -254,6 +241,13 @@ class BuyScreen(Screen):
         self.main_app.current_customer = None
         self.manager.transition.direction="right"                     
         self.manager.current = "login"
+
+    #goes to the customer screen
+    def go_to_customer_screen(self):
+        self.manager.transition.direction = "left"
+        self.manager.current = "customer"
+       
+        
     
     #shows all the items on the container 'buy_item_list' with classes and separators between classes    
     def show_all_items(self):
@@ -463,16 +457,20 @@ class CustomerScreen(Screen):
         def empty_warning():
             self.ids.warning_label.text = ""        
         Clock.schedule_once(lambda dt: empty_warning(), 7)
+
+    def on_pre_enter(self):
+        self.update_screen()
         
     def on_leave_screen(self):
-        self.main_app.selected_customer = None
         self.ids.account_label.text = ""
         self.ids.tab_value_label.text = ""
     
     def update_screen(self):
-        self.ids.account_label.text = self.main_app.current_customer.account_name
-        self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
-        self.ids.tab_value_label.color = self.tab_color()
+        if self.main_app.current_customer:
+            self.ids.account_label.text = self.main_app.current_customer.account_name
+            self.ids.tab_value_label.text = str(self.main_app.current_customer.tab_value)
+            self.ids.tab_value_label.color = self.tab_color()
+
             
     def tab_color(self):        
         tab = self.main_app.current_customer.tab_value 

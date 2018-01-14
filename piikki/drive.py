@@ -73,7 +73,7 @@ class DriveClient():
         return service
     
          
-    def upload_file(self, filename = None):
+    def upload_file(self, filename = None, file_path = None):
         if self.service == None:
             self.service = self.connect()
             if self.service == None:
@@ -81,12 +81,17 @@ class DriveClient():
                 return
         #no filename given -> abort        
         if not filename: return False
-            
+        
+
         FILENAME = filename
+        if file_path:
+            FILENAME = os.path.join(file_path, filename)
+            
+        
         #filetype on drive, docs filetype required for export
         MIMETYPE = 'application/vnd.google-apps.document'
         #filename on this system and the name of the uploaded file on drive
-        TITLE = FILENAME
+        TITLE = filename
         #general description
         DESCRIPTION = 'Csv list of account_name,customer_name,tab_value'
         #The Kiltispiikkivarmuuskopiot folder on hupi.mestarit drive
@@ -109,7 +114,7 @@ class DriveClient():
         #return true if upload successful
         return True
         
-    def download_latest_csv(self):
+    def download_latest_csv(self, full_path=None):
         if self.service == None:
             self.service = self.connect()
             if self.service == None:
@@ -133,6 +138,8 @@ class DriveClient():
                     fileId=download_id, mimeType='text/plain').execute()
             if file1:
                 fn = items[0]['name']
+                if full_path:
+                    fn = os.path.join( full_path, 'logs', fn)
                 with open(fn, 'wb') as fh:
                     fh.write(file1)
                 Logger.info('DriveClient: downloaded {}'.format(fn))                

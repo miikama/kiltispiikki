@@ -167,9 +167,10 @@ class CustomerHandler():
     def save_csv(self):
         from time import strftime
         time_now_string = strftime("%d-%m-%Y_%H:%M")
-        filename = 'customers_csv_{}.txt'.format(time_now_string)
+        abs_name = os.path.join( self.full_path, 'logs', 'customers_csv_{}.txt'.format(time_now_string))
+        filename =  'customers_csv_{}.txt'.format(time_now_string)
         
-        f = open(filename, 'w')        
+        f = open(abs_name, 'w')        
         for c in self.customers:
             f.write('{},{},{}\n'.format(c.account_name,c.customer_name,str(c.tab_value)))
             
@@ -178,9 +179,10 @@ class CustomerHandler():
             
     def load_csv(self, file_name='customers.txt'):       
            
+        abs_name = os.path.join(self.full_path, 'logs', file_name)   
         customers = []       
         try: 
-            f = open(file_name, 'r')         
+            f = open(abs_name, 'r')         
             for line in f:
                 values = line.split(',')
                 acc_name = values[0]
@@ -199,7 +201,7 @@ class CustomerHandler():
         google_client = DriveClient()
         #upload to drive inside a different thread not to block the ui thread
         def upload_to_drive():            
-            google_client.upload_file(csv_name)
+            google_client.upload_file(filename = csv_name, file_path= os.path.join( self.full_path, 'logs') )
             App.get_running_app().settings.update_settings(update_time=time_str)
             os.remove(csv_name)            
             InformationPopup('File uploaded')
@@ -213,7 +215,7 @@ class CustomerHandler():
         #download in a separate thread        
         def download_from_drive():
             google_client = DriveClient()
-            csv_filename = google_client.download_latest_csv()
+            csv_filename = google_client.download_latest_csv(full_path = self.full_path)
             new_customers = self.load_csv(csv_filename)
             #drop customer table and replace the customers with the downloaded customers
             if new_customers:

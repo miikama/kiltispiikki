@@ -158,16 +158,16 @@
             BoxLayout:
                 orientation: "vertical"                
                 GridLayout:
-                    size_hint_y: .5
+                    size_hint_y: .6
                     spacing: 3                    
                     id: filter_button_container
-                    rows: 3
+                    rows: 5
                 Label:
                     size_hint_y: None
                     size: [self.size[0], 5]
                 BoxLayout:
                     spacing:5
-                    size_hint_y: .2
+                    size_hint_y: .1
                     Label:
                         canvas.before:
                             Color:
@@ -192,7 +192,7 @@
                     height: 70
                 BoxLayout:
                     spacing: 5
-                    size_hint_y:.4
+                    size_hint_y:.2
                     orientation: "vertical"					
                     canvas.before:
                         Color:
@@ -205,42 +205,42 @@
                         font_size: button_font_size-5
                         color: button_font_color
                         text: "Please select your account from the list"
-                    MySeparator
-                    BoxLayout:
-                        orientation: 'horizontal'
-                        Label:
-                            id: account_label
-                            font_size: button_font_size-5
-                            color: button_font_color                    
-                            text: ""
-                        Label:
-                            id: customer_name_label
-                            font_size: button_font_size-5
-                            color: button_font_color
-                        Label:
-                            id: tab_value_label	
-                            font_size: button_font_size - 5
-                            color: button_font_color
-                BoxLayout:
-                    size_hint_y: .2
-                    spacing: 5
-                    orientation: "horizontal"
-                    Button:
-                        size_hint: [3,1]
-                        font_size: button_font_size
-                        color: button_font_color
-                        background_color: button_color
-                        background_normal: ''						
-                        text: "View tab"
-                        on_release: root.view_account()
-                    Button:
-                        size_hint: [3, 1]
-                        text: "Continue to buy"
-                        font_size: button_font_size
-                        color: button_font_color 
-                        background_color: button_color
-                        background_normal: ''
-                        on_release:root.login()										
+  #                  MySeparator
+  #                  BoxLayout:
+  #                      orientation: 'horizontal'
+  #                      Label:
+  #                          id: account_label
+  #                          font_size: button_font_size-5
+  #                          color: button_font_color                    
+  #                          text: ""
+  #                      Label:
+  #                          id: customer_name_label
+  #                          font_size: button_font_size-5
+  #                          color: button_font_color
+  #                      Label:
+  #                          id: tab_value_label	
+  #                          font_size: button_font_size - 5
+  #                          color: button_font_color
+  #              BoxLayout:
+  #                  size_hint_y: .2
+  #                  spacing: 5
+  #                  orientation: "horizontal"
+  #                  Button:
+  #                      size_hint: [3,1]
+  #                      font_size: button_font_size
+  #                      color: button_font_color
+  #                      background_color: button_color
+  #                      background_normal: ''						
+  #                      text: "View tab"
+  #                      on_release: root.view_account()
+  #                  Button:
+  #                      size_hint: [3, 1]
+  #                      text: "Continue to buy"
+  #                      font_size: button_font_size
+  #                      color: button_font_color 
+ #                       background_color: button_color
+ #                       background_normal: ''
+#                        on_release:root.login()										
         BoxLayout:
             size_hint: [1, None]
             height: margin
@@ -253,7 +253,7 @@
                 background_color: button_color
                 background_normal: ''				
                 on_release:
-                    root.unselect_account()
+                    root.reset_fields()
                     root.manager.transition.direction="right"
                     root.manager.current = "menu"
             Label
@@ -424,7 +424,7 @@
             size_hint_y: None
             size: [self.size[0],margin]
             Label:
-                text: "Items in sale"
+                text: "Items for sale"
                 size_hint_x: .6
                 halign: "left"
                 color: button_font_color
@@ -488,28 +488,28 @@
                     rows: 2
                     spacing: 3
                     Button:
-                        text: "Most Bought"
+                        text: "my most bought"
                         font_size: button_font_size
                         color: button_font_color
                         background_normal: ''
                         background_color: button_color
                         on_release: root.show_most_bought()
                     Button: 
-                        text: "Soft drinks"
+                        text: "soft drinks"
                         font_size: button_font_size
                         color: button_font_color
                         background_normal: ''
                         background_color: button_color
                         on_release: root.show_soft_drinks()
                     Button:
-                        text: "Candy"
+                        text: "candy"
                         font_size: button_font_size
                         color: button_font_color
                         background_normal: ''
                         background_color: button_color
                         on_release: root.show_candy()
                     Button: 
-                        text: "Food"
+                        text: "food"
                         font_size: button_font_size
                         color: button_font_color
                         background_normal: ''
@@ -597,35 +597,45 @@
             padding: 10,10
             size_hint_y: None
             height: margin
+            spacing: 5
             Button:				
                 text: "Cancel"
-                size_hint: [.35, 1]
+                size_hint: [None, 1]
+                width: 200
                 font_size: button_font_size
                 color: button_font_color
                 background_normal: ''
                 background_color: button_color
                 on_release: root.to_login_and_logout()
+            Button:
+                text: "Add Money"
+                width: 200
+                size_hint: [None, 1]
+                font_size: button_font_size
+                color: button_font_color
+                background_normal: ''
+                background_color: button_color
+                on_release: root.go_to_customer_screen()
             Label
             Button:
-                size_hint: [.7,1]
+                size_hint: [None,1]
+                width: 200
                 text: "Buy item"
                 font_size: button_font_size
                 color: button_font_color
                 background_normal: ''
                 background_color: button_color
                 on_release: root.buy_item()
-            Label:
-                size_hint: [.1,1]
             Button:
-                size_hint: [.7,1]
+                size_hint: [None,1]
+                width: 200
                 text: "Buy and logout"
                 font_size: button_font_size
                 color: button_font_color
                 background_normal: ''
                 background_color: button_color
                 on_release: root.buy_and_exit()
-            Label:
-                size_hint: [.1,1]	
+
                 
                 
                 
@@ -729,7 +739,7 @@
             height: margin
             padding: 10,10
             Button:
-                text: "Back to login"
+                text: "Back"
                 size_hint: [.35, 1]
                 font_size: button_font_size
                 color: button_font_color
@@ -738,7 +748,7 @@
                 on_release:
                     root.on_leave_screen()
                     root.manager.transition.direction="right"
-                    root.manager.current = "login"
+                    root.manager.current = "osto"
             Label				
 
 
