@@ -31,6 +31,12 @@ Kiltispiikki uses google play api to make backups to google drive. Install googl
 $ pip install --upgrade google-api-python-client
 ```
 
+Go to your home folder and clone the git repo
+
+```
+$ git clone https://github.com/miikama/kiltispiikki.git
+```
+
 Before first run on a new user go to the folder piikki/drive_init/ and run 
 
 ```
