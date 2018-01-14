@@ -57,7 +57,18 @@ $ sudo chmod /dev/input/event*
 $ sudo apt-get install xclip
 ```
 
+The touch events are mirrored on rasperry. The first working way to fix this is to modify kivy source code. 
 
+```
+ $ sudo vim /usr/local/lib/python2.7/dist-packages/kivy/input/providers/hidinput.py
+```
+
+find functions assign_coord AND assign_rel_coord and before the first if sentence inside the function add line
+
+```
+p = cx; cx = cy; cy = p
+
+```
 
 
 
