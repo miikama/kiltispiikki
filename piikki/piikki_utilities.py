@@ -2,7 +2,12 @@ from PIL import Image
 from kivy.logger import Logger
 from datetime import datetime, timedelta
 import os
+from drive import DriveClient
+import threading
 #import time
+
+from popups import InformationPopup
+
 
 #full_path = os.getcwd()
 #full_path = "/sdcard/data"
@@ -14,8 +19,7 @@ class Item():
         self.name = name
         self.price = price
         self.item_class = item_class #string with value Candy, Soft drink or Food
-        self.normal_background = "{}{}{}{}".format(full_path, "/itempics/", name.lower(), "_normal_pic.png")
-        self.pressed_background = "{}{}{}{}".format(full_path, "/itempics/",name.lower(), "_pressed_pic.png")
+        self.normal_background = "{}{}{}{}".format(full_path, "/itempics/", name.lower(), ".png")
         self.item_pic_exists(full_path)
 
     #check does the item have a picture
@@ -24,23 +28,49 @@ class Item():
             Image.open(self.normal_background)
         except:
             self.normal_background = "{}{}".format(full_path, "/itempics/nopicpic.png")
-            self.pressed_background = "{}{}".format(full_path, "/itempics/nopicpic.png")
         
 class Settings():
     
     def __init__(self, full_path):
+        self.settings_updated = None
         self.full_path = full_path
-        self.last_backup = self.read_settings()
+        self.last_backup = None
         self.time_between_backups = timedelta(days=3)
+        self.read_settings("settings.txt")
+        Logger.info("Settings: settings updated: {}".format(self.settings_updated))
+        Logger.info("Settings: last backup: {}".format(self.last_backup))
+
+
+
+    #not currently in use, but downloads the settings file drom drive
+    def download_settings(self):
+
+        google_client = DriveClient()
+        #download to drive inside a different thread not to block the ui thread
+        def download_settings_thread():            
+            downloaded_filename = google_client.download_settings(full_path = self.full_path)
+            
+            if( downloaded_filename ):
+                InformationPopup('Settings downloaded')
+
+            else:
+                InformationPopup('Downloading settings failed')
+            Logger.info('Settings: downloading settings thread finished')
+        
+        thread1 = threading.Thread(group=None,target=download_settings_thread)
+        thread1.start()         
+        Logger.info('CustomerHandler: backup customers called')
+        
         
      #TODO problems with multiple computers with different versions of settings.txt and different last backups
     '''reads settings.txt file and return the options as a list 
         (currently only one option so no list)'''       
-    def read_settings(self):
+    def read_settings(self, settings_name):
         last_backup_date = None
+        last_settings_date = None
         #make new file if one does not exist
         try:            
-            file = open(os.path.join(self.full_path, "settings.txt"), "r")           
+            file = open(os.path.join(self.full_path, settings_name), "r")           
             #commenting on the settings if the first char is '#'
             
             for line in file:
@@ -49,13 +79,17 @@ class Settings():
                 a = line_wo_newline.split("=")
                 if a[0]=='last_backup':
                     last_backup_date = a[1]
+                    
                     if last_backup_date == "None":
-			last_backup_date = None
-			Logger.info("Settings: no last backup based on settings")
+                        Logger.info("Settings: no last backup based on settings")
                     else:
-			last_backup_date = datetime.strptime(last_backup_date, '%d-%m-%Y_%H:%M')
+                        self.last_backup = datetime.strptime(last_backup_date, '%d-%m-%Y_%H:%M')
                 if a[0]=='days_between_backups':
                     self.time_between_backups=timedelta(days=float(a[1]))
+                if a[0]=='settings_updated':
+                    last_settings_date = a[1]
+                    if last_settings_date != "None":  
+                        self.settings_updated = datetime.strptime(last_settings_date, '%d-%m-%Y_%H:%M')
             file.close()
             
         #if there is no file 
@@ -65,8 +99,24 @@ class Settings():
             file.write('last_backup=None\n')
             file.write('days_between_backups=3\n')            
             file.close()
+        except ValueError:
+            Logger.exception("Settings: on read settings ValueError, some typo or missing last empty line")
+
             
-        return last_backup_date
+
+
+    def select_more_recent_setting(self, new_settings):
+        sett2 = Settings(self.full_path)
+        sett2.read_settings(new_settings)
+        #if new settings file is more recent update
+        if sett2.settings_updated >  self.settings_updated:
+            return sett2
+        else:
+            return self
+
+
+
+
      
     #if time from the last backup is longer than n days set in settings.txt
     def time_to_backup(self):
@@ -76,10 +126,11 @@ class Settings():
             Logger.info('Settings: time to backup {}'.format(True))
             return True
         Logger.info('Settings: time to backup {}'.format(False))
-        return False        
+        return False 
+
     
-    #updates the last updated time
-    def update_settings(self, update_time=None):
+    #updates the last updated time 
+    def update_settings(self, update_time=None, update_settings=None):
         
         from tempfile import mkstemp
         from shutil import move
@@ -90,13 +141,16 @@ class Settings():
         with open(abs_path,'w') as new_file:
             with open(self.full_path + "/settings.txt") as old_file:
                 for line in old_file:
-                    if update_time:
+                    if update_time or update_settings:
                         if(line.split('=')[0] =='last_backup'):                        
                             new_file.write("{}={}\n".format('last_backup', update_time))
+                        elif (line.split('=')[0] =='settings_updated'):                        
+                            new_file.write("{}={}\n".format('settings_updated', update_settings))
                         else:
                             new_file.write(line)
                     else:
                         new_file.write(line)
+
         close(fh)
         
         #Remove original file
@@ -122,7 +176,7 @@ class ItemHandler():
     def add_item(self,name, price, filename, item_class):
         
         file = open(self.full_path + "/items.txt", "a")    
-        normal_background, pressed_background = self.make_item_backgrounds(name, filename)
+        item_background = self.make_item_backgrounds(name, filename)
         
         file.write("{},{},{}\n".format(name.lower(), price,item_class))
         file.close()
@@ -148,7 +202,8 @@ class ItemHandler():
                 items.sort(key=lambda x: x.name)
                 
             file.close()
-            
+         
+        #no items file exists   
         except IOError:
 			file = open(self.full_path +"/items.txt", 'w')
 			file.write("name,price,Item class")
@@ -206,28 +261,32 @@ class ItemHandler():
     def make_item_backgrounds(self, name,filename):
         
         
+        height, width = 300,300
         item_name = name.lower()
         
         pic = Image.open(filename)    
-        border = Image.open(self.full_path + "/kuvat/border1.png")    
+        #border = Image.open(self.full_path + "/kuvat/border1.png")    
         
-        pic = pic.resize((300,300), Image.ANTIALIAS)
-        border = border.resize((300,300), Image.ANTIALIAS)    
+        pic = pic.resize((height,width), Image.ANTIALIAS)
+        #border = border.resize((300,300), Image.ANTIALIAS)    
        
-        pic2 = pic
-        pic1_path = self.full_path + "/itempics/{}{}{}".format(item_name,"_normal_" , "pic.png")
-        pic2_path = self.full_path + "/itempics/{}{}{}".format(item_name, "_pressed_" ,"pic.png")
+        background = Image.new('RGBA', (height, width), (255, 255, 255))
+        pic1_path = self.full_path + "/itempics/{}{}".format(item_name , ".png")
+        #pic2_path = self.full_path + "/itempics/{}{}{}".format(item_name, "_pressed_" ,"pic.png")
+
+        background.paste(pic, (0,0,height,width), pic)
        
         #creating normal background
         #pic.paste(border, (0,0), border)    
-        pic.save(pic1_path ,"PNG")
+        background.save(pic1_path ,"PNG")
         
         #creating the pressed background
-        colour = Image.new("RGBA", (300,300), (50,50,225, 50))
-        pic2.paste(colour, (0,0,300,300), colour)
-        pic2.save(pic2_path,"PNG")
-        
-        return pic1_path, pic2_path
+        #colour = Image.new("RGBA", (300,300), (50,50,225, 50))
+        #pic2.paste(colour, (0,0,300,300), colour)
+        #pic2.save(pic2_path,"PNG")
+
+        Logger.info("ItemHandler: made item background for: {}".format(pic1_path ))        
+        return pic1_path
     
         
     

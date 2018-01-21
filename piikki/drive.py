@@ -1,13 +1,16 @@
 from __future__ import print_function
 import httplib2
 import os
+import io
 from kivy.logger import Logger
 
 import apiclient
 from apiclient import discovery
+from apiclient.http import MediaIoBaseDownload 
 import oauth2client
 from oauth2client import client
 from oauth2client import tools
+
 
 try:
     import argparse
@@ -119,30 +122,66 @@ class DriveClient():
             self.service = self.connect()
             if self.service == None:
                 Logger.info('DriveClient: Connecting to drive failed')
-                return
+                return None
                 
+        parent_folder_id = '0BxdutqQIi9bzYWJsU0ExM2hUbXM'
         results = self.service.files().list(
                     pageSize=10,fields="nextPageToken, files(id, name)",
-                    q="'0BxdutqQIi9bzYWJsU0ExM2hUbXM' in parents",
+                    q="'{}' in parents".format(parent_folder_id),
                     orderBy="createdTime desc").execute()
+        
         #import pprint
         #pprint.pprint(results)
         
         items = results.get('files', [])
         if not items:
             Logger.info('DriveClient: No files in the Kiltispiikki folder.')
-            return
+            return None
         else:
             download_id = items[0]['id']
+            name = items[0]['name']
             file1 = self.service.files().export(
                     fileId=download_id, mimeType='text/plain').execute()
             if file1:
-                fn = items[0]['name']
+                fn = name
                 if full_path:
                     fn = os.path.join( full_path, 'logs', fn)
                 with open(fn, 'wb') as fh:
                     fh.write(file1)
                 Logger.info('DriveClient: downloaded {}'.format(fn))                
-            return items[0]['name']
+            return name
+
+
+
+    def download_settings(self, full_path=None):
                 
-   
+        settings_file_id = '1TT33uz1xMpmJ5vHewv4IwihpKTNokTTC'
+
+        return self.download_file(settings_file_id, "settings_main", full_path= full_path)
+
+
+
+
+
+    #only for binary files such as json (not google docs)
+    def download_file(self, file_id, file_name, full_path = None):
+        if self.service == None:
+            self.service = self.connect()
+            if self.service == None:
+                Logger.info('DriveClient: Connecting to drive failed')
+                return None
+
+
+        request = self.service.files().get_media(fileId=file_id)
+
+        fn = file_name
+        if ( full_path is not None):
+            fn = os.path.join(full_path, file_name)
+        fh = io.FileIO(fn, mode='wb')
+        downloader = MediaIoBaseDownload(fh, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+            Logger.info("DriveClient:  Download {}".format( int(status.progress() * 100) ) ) 
+        return fn
+

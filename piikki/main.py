@@ -170,19 +170,19 @@ class AccountScreen(Screen):
                 
         if acc_name == "" or given_name == "" or family_name == "":
             warning_label.text = "Please fill in all the information"
-#        elif password1 != password2:
-#            warning_label.text = "The passwords have to match"
         else:
             '''making the names have format John Doe'''
             customer_name = given_name + " " + family_name
             if len(given_name) > 1 and len(family_name) > 1:
                 customer_name = given_name[0].upper() + given_name[1:].lower() + " " + family_name[0].upper() + family_name[1:].lower()
                 
-            cust = Customer(acc_name, customer_name, encode=True)
-            if self.main_app.customer_handler.account_row(acc_name) == None :
-                self.main_app.customer_handler.create_new_account(cust)
-                warning_label.text = "Account created"
-            else:  warning_label.text = ("account exists already")
+
+            
+            self.main_app.customer_handler.create_new_account(acc_name, customer_name, encode=True)
+            warning_label.text = "Account created"
+
+            if self.main_app.customer_handler.account_row(customer_name) > 1:
+                warning_label.text = ("account with same name exists, make sure to have different nicks")
             
         
     
