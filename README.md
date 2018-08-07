@@ -2,6 +2,7 @@
 
 Kiltispiikki uses platform independent python package kivy for the GUI. Used sqlite3 databases are backed up on google drive
 
+
 ## Installation
 
 Install kivy following the kivy installation guide (pick right platform) 
@@ -47,7 +48,7 @@ This starts the authentication flow for the google drive, it should direct the u
 
 On a computer you are now set up. On Rasperry continue to the next phase.
 
-## Setting up on Rasperry
+### Setting up on Rasperry
 
 on rasperry the user needs to be added to the video user group to be able to open up a GUI and give access to input
 
@@ -73,7 +74,7 @@ p = cx; cx = cy; cy = p
 
 
 
-## Setting up touchscreen
+### Setting up touchscreen
 
 The touch screen used is waveshare 10.1" lcd touch screen 
 
@@ -91,4 +92,35 @@ the go to the folder and run the correct driver
 $ sudo ./LCD101-"something"
 ```
 the touch screen should now start
+
+
+
+
+
+## Gallery
+
+#### The landing screen
+
+![png](infopics/landingscreen.png)
+
+### The buy screen
+
+Allows filtering and presents customer his most bought items, all buys are stored in sqlite database
+
+![png](infopics/buyscreen.png)
+
+
+### Item management screen
+
+allows adding, deleting or modifying items
+
+![png](infopics/itemmanscreen.png)
+
+### customer management screen
+
+allows modifying customer accounts. Backing up/retrieving the customer data to/from google drive
+
+![png](infopics/cusmanscreen.png)
+
+
 
