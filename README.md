@@ -1,6 +1,12 @@
 # Kiltispiikki
 
-Kiltispiikki uses platform independent python package kivy for the GUI. Used sqlite3 databases are backed up on google drive
+
+Kiltispiikki uses 
+
+
+* platform independent python package <emph>Kivy</emph> for the GUI
+* sqlite3 database 
+* Google drive for automatic back ups
 
 
 ## Installation
